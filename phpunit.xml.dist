@@ -9,15 +9,23 @@
     processIsolation="false"
     stopOnFailure="true"
     syntaxCheck="true">
+  <filter>
+    <blacklist>
+      <directory suffix=".php">./vendor</directory>
+      <directory suffix=".php">src/Lucid/Module/Event/Tests</directory>
+      <directory suffix=".php">src/Lucid/Module/Routing/Tests</directory>
+    </blacklist>
+  </filter>
   <testsuites>
+    <testsuite name="Event">
+      <directory>src/Lucid/Module/Event/Tests</directory>
+    </testsuite>
     <testsuite name="Routing">
       <directory>src/Lucid/Module/Routing/Tests</directory>
     </testsuite>
   </testsuites>
-  <!--
   <logging>
     <log type="coverage-html" target="./report/html" charset="UTF-8" highlight="false" lowUpperBound="35" highLowerBound="70"/>
     <log type="coverage-clover" target="./report/clover/coverage.xml"/>
   </logging>
-  -->
 </phpunit>

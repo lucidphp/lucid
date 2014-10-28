@@ -31,6 +31,9 @@ class EventTest extends \PHPUnit_Framework_TestCase
 
         $event->stop();
         $this->assertTrue($event->isStopped());
+
+        $clone = clone $event;
+        $this->assertFalse($clone->isStopped());
     }
 
     /** @test */

@@ -25,10 +25,10 @@ class EventDispatcher implements EventDispatcherInterface
 
     public function addHandler($events, $handler, $priority = 0)
     {
-        $hash = $this->getHandlerHash($handler);
+        list ($handler, $hash) = $this->getHandlerAndHash($handler);
 
         foreach ((array)$events as $event) {
-            $this->sorted[$event] = false;
+            unset($this->sorted[$event]);
             $this->handlers[$event][$priority][$hash] = $handler;
         }
     }
@@ -40,7 +40,11 @@ class EventDispatcher implements EventDispatcherInterface
     {
         $events = (array)$events;
 
-        $hash = $handler ? $this->getHandlerHash($handler) : null;
+        if (null !== $handler) {
+            list ($handler, $hash) = $this->getHandlerAndHash($handler);
+        } else {
+            $hash = null;
+        }
 
         foreach ((array)$events as $event) {
             if (!$this->hasEvent($event)) {
@@ -143,7 +147,7 @@ class EventDispatcher implements EventDispatcherInterface
                 continue;
             }
 
-            $this->sort($name);
+            $this->sort($name, $this->handlers);
             $event->setName($name);
 
             foreach ($this->handlers[$name] as &$handlers) {
@@ -177,7 +181,10 @@ class EventDispatcher implements EventDispatcherInterface
     {
         $out = [];
 
-        foreach ($handlers as $event => $pri) {
+        foreach ($handlers as $event => &$pri) {
+
+            $this->sort($event, $handlers);
+
             foreach ($pri as $i => $handler) {
                 foreach ($handler as $hash => $callable) {
                     $out[$hash] = $callable;
@@ -204,21 +211,20 @@ class EventDispatcher implements EventDispatcherInterface
      * sort
      *
      * @param mixed $event
+     * @param array $handlers
      *
      * @return void
      */
-    protected function sort($event)
+    protected function sort($event, array &$handlers)
     {
-        if (isset($this->sorted[$event]) && false !== $this->sorted[$event]) {
-            return;
+        if (!isset($this->sorted[$event])) {
+            krsort($handlers[$event]);
+            $this->sorted[$event] = true;
         }
-
-        krsort($this->handlers[$event]);
-        $this->sorted[$event] = true;
     }
 
     /**
-     * getHandlerHash
+     * getHandlerAndHash
      *
      * @param mixed $handler
      *
@@ -226,23 +232,23 @@ class EventDispatcher implements EventDispatcherInterface
      *
      * @return string
      */
-    protected function getHandlerHash($handler)
+    protected function getHandlerAndHash($handler)
     {
-        if ($handler instanceof EventHandlerInterface) {
+        if ($handler instanceof HandlerInterface) {
             $handler = [$handler, 'handleEvent'];
         }
 
         if (is_callable($handler)) {
 
             if (is_string($handler)) {
-                return $handler;
+                return [$handler, $handler];
             }
 
             if (is_array($handler)) {
-                return spl_object_hash($handler[0]).'@'.$handler[1];
+                return [$handler, spl_object_hash($handler[0]).'@'.$handler[1], $handler];
             }
 
-            return spl_object_hash($handler);
+            return [$handler, spl_object_hash($handler)];
         }
 
         throw new \InvalidArgumentException(

@@ -20,5 +20,5 @@ namespace Lucid\Module\Event;
  */
 interface HandlerInterface
 {
-    public function handlerEvent(EventInterface $event);
+    public function handleEvent(EventInterface $event);
 }

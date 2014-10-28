@@ -57,6 +57,6 @@ class Event implements EventInterface
 
     public function __clone()
     {
-        $this->stopped = false;
+        $this->isStopped = false;
     }
 }

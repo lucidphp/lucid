@@ -69,6 +69,24 @@ interface EventDispatcherInterface
     public function hasEvent($event);
 
     /**
+     * Dispatches an array of Event objects.
+     *
+     * @param array $events
+     *
+     * @return void
+     */
+    public function dispatchEvents(array $events);
+
+    /**
+     * Dispatches an event for a single Event object.
+     *
+     * @param EventInterface $event
+     *
+     * @return void
+     */
+    public function dispatchEvent(EventInterface $event);
+
+    /**
      * Dispatch one or multple events.
      *
      * @param string|array $eventName

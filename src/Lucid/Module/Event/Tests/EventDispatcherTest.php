@@ -11,6 +11,7 @@
 
 namespace Lucid\Module\Event\Tests;
 
+use Mockery as m;
 use Lucid\Module\Event\Event;
 use Lucid\Module\Event\EventDispatcher;
 use Lucid\Module\Event\Tests\Stubs\SimpleSubscriber;
@@ -69,23 +70,58 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase
     }
 
     /** @test */
+    public function itShouldGetHandlers()
+    {
+        $events = new EventDispatcher;
+
+        $events->addHandler(
+            'event',
+            $a = function () {
+            },
+            1
+        );
+
+        $events->addHandler(
+            'event',
+            $b = function () {
+            },
+            10
+        );
+
+        $this->assertSame([$b, $a], $events->getHandlers('event'));
+    }
+
+    /** @test */
     public function itShouldAddSubscribers()
     {
         $events = new EventDispatcher;
 
         $sj = new \stdClass;
-        $sj->first = '';
-        $sj->second = '';
 
-        $sub = new SimpleSubscriber($sj = new \stdClass);
+        $sub = new SimpleSubscriber($sj);
 
         $events->addSubscriber($sub);
 
-        $events->dispatch('eventA');
-        $events->dispatch('eventB');
+        $this->assertSame([[$sub, 'onA']], $events->getHandlers('eventA'));
+        $this->assertSame([[$sub, 'onB']], $events->getHandlers('eventB'));
+    }
 
-        $this->assertSame('A', $sj->first);
-        $this->assertSame('B', $sj->second);
+    /** @test */
+    public function itShouldRemoveSubscribers()
+    {
+        $events = new EventDispatcher;
+
+        $events = new EventDispatcher;
+
+        $sj = new \stdClass;
+
+        $sub = new SimpleSubscriber($sj);
+
+        $events->addSubscriber($sub);
+        $events->removeSubscriber($sub);
+
+        $this->assertSame([], $events->getHandlers('eventA'));
+        $this->assertSame([], $events->getHandlers('eventB'));
     }
 
     /** @test */
@@ -100,6 +136,23 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase
         }
 
         $this->fail('Test should throw InvalidArgumentException.');
+    }
+
+    /** @test */
+    public function itShouldInvokeHandlerMethod()
+    {
+        $called = false;
+
+        $handler = m::mock('Lucid\Module\Event\HandlerInterface');
+        $handler->shouldReceive('handleEvent')->andReturnUsing(function () use (&$called) {
+            $called = true;
+        });
+
+        $events = new EventDispatcher;
+        $events->addHandler('event', $handler);
+        $events->dispatch('event');
+
+        $this->assertTrue($called);
     }
 
     /** @test */
@@ -141,5 +194,10 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->ordered = [];
+    }
+
+    protected function tearDown()
+    {
+        m::close();
     }
 }
