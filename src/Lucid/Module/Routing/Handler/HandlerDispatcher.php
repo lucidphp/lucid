@@ -38,7 +38,7 @@ class HandlerDispatcher implements HandlerDispatcherInterface
         ParameterMapperInterface $mapper = null
     ) {
         $this->parser = $parser ?: new HandlerParser;
-        $this->mapper = $mapper ?: new PassParameterMapper;
+        $this->mapper = $mapper ?: new StrictParameterMapper;
     }
 
     /**
@@ -51,10 +51,10 @@ class HandlerDispatcher implements HandlerDispatcherInterface
     public function dispatchHandler(MatchContextInterface $context)
     {
         $args = $this->mapper->map(
-            $callable = $this->parser->parse($context->getHandler()),
+            $handler = $this->parser->parse($context->getHandler()),
             $context->getParameters()
         );
 
-        return call_user_func_array($callable, $args);
+        return $handler->invokeArgs($args);
     }
 }

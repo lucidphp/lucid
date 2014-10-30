@@ -36,7 +36,10 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $router = new Router($matcher = $this->mockMatcher());
 
         $matcher->shouldReceive('matchRequest')
-            ->andReturn([RequestMatcherInterface::MATCH, $context = $this->mockMatchContext()]);
+            ->andReturn($context = $this->mockMatchContext());
+
+        $context->shouldReceive('isMatch')->andReturn(true);
+        $context->shouldReceive('getName')->andReturn('index');
 
         $resp = $router->dispatch($this->mockRequest());
     }

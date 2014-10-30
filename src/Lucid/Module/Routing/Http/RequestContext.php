@@ -22,22 +22,51 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class RequestContext implements RequestContextInterface
 {
+    private $path;
+    private $base;
+    private $method;
+    private $host;
+    private $port;
+    private $scheme;
+    private $query;
+
     /**
      * Constructor.
      *
+     * @param string $base
      * @param string $path
      * @param string $method
      * @param string $query
      * @param string $host
      * @param string $scheme
+     * @param int $port
      */
-    public function __construct($path, $method = 'GET', $query = '', $host = 'localhost', $scheme = 'http')
+    public function __construct(
+        $base = '',
+        $path = '/',
+        $method = 'GET',
+        $query = '',
+        $host = 'localhost',
+        $scheme = 'http',
+        $port = 80
+    ) {
+        $this->base       = $base;
+        $this->uri        = $path;
+        $this->method     = $method;
+        $this->query      = $query ?: '';
+        $this->host       = $host;
+        $this->scheme     = $scheme;
+        $this->port       = (int)$port;
+    }
+
+    /**
+     * getBaseUrl
+     *
+     * @return string
+     */
+    public function getBaseUrl()
     {
-        $this->uri = $path;
-        $this->method = $method;
-        $this->query = $query ?: '';
-        $this->host = $host;
-        $this->scheme = $scheme;
+        return $this->base;
     }
 
     /**
@@ -81,20 +110,32 @@ class RequestContext implements RequestContextInterface
     }
 
     /**
+     * getHttpPort
+     *
+     * @return int
+     */
+    public function getHttpPort()
+    {
+        return $this->port;
+    }
+
+    /**
      * Creates a RequestContext object from a Symfony Request object.
      *
      * @param Request $request
      *
      * @return RequestContext
      */
-    public static function fromRequest(Request $request)
+    public static function fromSymfonyRequest(Request $request)
     {
         return new self(
+            $request->getBaseUrl(),
             $request->getPathInfo(),
             $request->getMethod(),
             $request->getQueryString(),
             $request->getHost(),
-            $request->getScheme()
+            $request->getScheme(),
+            $request->getPort()
         );
     }
 }

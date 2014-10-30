@@ -34,4 +34,6 @@ interface RequestMatcherInterface
      * @return array
      */
     public function matchRequest(RequestContextInterface $context);
+
+    public function getRoutes();
 }

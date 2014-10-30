@@ -20,14 +20,10 @@ use Symfony\Component\HttpFoundation\Response;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-class GenericResponseMapper implements ResponseMapperInterface
+class NullResponseMapper implements ResponseMapperInterface
 {
     public function mapResponse($response)
     {
-        if ($response instanceof Response) {
-            return $response;
-        }
-
-        return new Response($response);
+        return $response;
     }
 }

@@ -32,6 +32,11 @@ class RequestMatcher implements RequestMatcherInterface
         $this->routes = $routes;
     }
 
+    public function getRoutes()
+    {
+        return $this->routes;
+    }
+
     /**
      * matchRequest
      *
@@ -43,7 +48,7 @@ class RequestMatcher implements RequestMatcherInterface
     {
 
         // basic filter:
-        $routes = $this->routes->findByMethod($context->getMethod());
+        $routes = $this->getRoutes()->findByMethod($context->getMethod());
         $routes = $routes->findByScheme($context->getScheme());
 
         $path = $context->getPath();
@@ -62,14 +67,17 @@ class RequestMatcher implements RequestMatcherInterface
             }
 
             if (preg_match($route->getContext()->getRegexp(), $path, $matches)) {
-                return [
+                return new MatchContext(
                     self::MATCH,
-                    new MatchContext($name, $path, $route->getHandler(), $this->getMatchedParams($route, $matches))
-                ];
+                    $name,
+                    $path,
+                    $route->getHandler(),
+                    $this->getMatchedParams($route, $matches)
+                );
             }
         }
 
-        return [self::NOMATCH, new MatchContext(null, null, null)];
+        return new MatchContext(self::NOMATCH, null, null, null);
     }
 
     private function getMatchedParams(RouteInterface $route, array $matches)

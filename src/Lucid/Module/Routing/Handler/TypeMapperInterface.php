@@ -12,21 +12,25 @@
 namespace Lucid\Module\Routing\Handler;
 
 /**
- * @class ParameterMapperInterface
+ * @class TypeMapperInterface
  *
  * @package Lucid\Module\Routing\Handler
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-interface ParameterMapperInterface
+interface TypeMapperInterface
 {
     /**
-     * map
+     * getType
      *
-     * @param callable $handler
-     * @param array $parameters
-     *
-     * @return array
+     * @return string
      */
-    public function map(HandlerReflector $handler, array $parameters);
+    public function getType();
+
+    /**
+     * getObject
+     *
+     * @return Object
+     */
+    public function getObject();
 }

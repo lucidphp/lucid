@@ -42,7 +42,7 @@ class HandlerParser implements HandlerParserInterface
      *
      * @param mixed $handler
      *
-     * @return callable
+     * @return HandlerReflector
      */
     public function parse($handler)
     {
@@ -52,7 +52,7 @@ class HandlerParser implements HandlerParserInterface
             };
         }
 
-        return $handler;
+        return new HandlerReflector($handler);
     }
 
     /**

@@ -11,6 +11,8 @@
 
 namespace Lucid\Module\Routing;
 
+use Lucid\Module\Routing\Exception\RouteParserException;
+
 /**
  * @class RouteCompiler
  * @package Selene\Module\Routing
@@ -42,7 +44,7 @@ class RouteParser
      * @access public
      * @return void
      */
-    public static function parse(Route $route)
+    public static function parse(RouteInterface $route)
     {
         $compiled = [];
 
@@ -99,12 +101,17 @@ class RouteParser
             $staticPath = $pattern;
         }
 
-
+        $wasOptional = null;
         // match all first level options first
         foreach ($matches as $match) {
 
             $optional      = false;
             $parameters[]  = $paramName = static::validateParamMatch($route, $match, $parameters, $host, $optional);
+
+            if (null !== $wasOptional && !$optional && null === $route->getDefault($wasOptional)) {
+                throw RouteParserException::nestedOptional($wasOptional);
+            }
+
             $endOffset     = $match[0][1] + strlen($match[0][0]);
             $offsetString  = substr($pattern, $cursor, $match[0][1] - $cursor);
             $offsetChar    = substr($offsetString, - 1);
@@ -112,9 +119,9 @@ class RouteParser
             $cursor        = $endOffset;
 
             if ($isSeparator && strlen($offsetString) > 1) {
-                $tokens[] = ['text', substr($offsetString, 0, -1)];
+                $tokens[] = new Token([TokenInterface::T_TEXT, substr($offsetString, 0, -1)]);
             } elseif (!$isSeparator && strlen($offsetString) > 0) {
-                $tokens[] = ['text', $offsetString];
+                $tokens[] = new Token([TokenInterface::T_TEXT, $offsetString]);
             }
 
             $regexp = static::getParamRegexp(
@@ -128,21 +135,37 @@ class RouteParser
                 $currentSeparator
             );
 
-            $tokens[] = ['variable', $offsetChar, $regexp, $paramName, $optional];
+            $tokens[] = new Token([TokenInterface::T_VARIABLE, $offsetChar, $regexp, $paramName, $optional]);
+            $wasOptional = $optional ? $paramName : null;
         }
 
         if (null !== $tail && 0 < strlen($tail)) {
-            $tokens[] = ['text', rtrim($tail, static::SEPARATORS)];
+
+            // if the last part was optional, throw an exception:
+            if (null !== $wasOptional && null === $route->getDefault($paramName)) {
+                throw RouteParserException::nestedOptional($wasOptional);
+            }
+
+            $tokens[] = new Token([TokenInterface::T_TEXT, rtrim($tail, static::SEPARATORS)]);
         }
 
         if (empty($tokens)) {
-            $tokens[] = ['text', $staticPath];
+            $tokens[] = new Token([TokenInterface::T_TEXT, $staticPath]);
         }
 
         $expression = static::buildMatchRegexp($tokens);
         $tokens = array_reverse($tokens);
 
         return compact('expression', 'parameters', 'tokens', 'staticPath');
+    }
+
+    private static function findLastOptional(array $tokens)
+    {
+        foreach (array_reverse($tokens) as $token) {
+            if (!$token->isRequired()) {
+                return $token;
+            }
+        }
     }
 
     /**
@@ -334,9 +357,9 @@ class RouteParser
         while (!empty($tokens)) {
             $token = array_shift($tokens);
 
-            if ('text' === $token[0]) {
-                $expression .= preg_quote($token[1], '#');
-            } elseif ('variable' === $token[0]) {
+            if ($token->isText()) {
+                $expression .= preg_quote($token->getValue(), '#');
+            } elseif ($token->isVariable()) {
                 $expression .= static::getVariableTokenRegexp($token, $tokens);
             }
         }
@@ -353,18 +376,18 @@ class RouteParser
      * @access private
      * @return mixed
      */
-    private static function getVariableTokenRegexp(array $token, array &$tokens)
+    private static function getVariableTokenRegexp(TokenInterface $token, array &$tokens)
     {
-        $separator = $token[1];
+        $separator = $token->getSeparator();
 
         // find the next optional param and check if it can be optional
-        $optional = false;
+        $optional = !$token->isRequired();
 
-        if ($token[4]) {
+        if (!$token->isRequired()) {
             $optional = true;
 
             foreach ($tokens as $tok) {
-                if ('text' === $tok[0] || !$tok[4]) {
+                if ($tok->isText() || !$tok->isRequired()) {
                     $optional = false;
                     break;
                 }
@@ -378,7 +401,7 @@ class RouteParser
         return sprintf(
             '%s%s',
             preg_quote($separator, '#'),
-            sprintf(static::VAR_GRP, $token[3], $token[2])
+            sprintf(static::VAR_GRP, $token->getValue(), $token->getRegexp())
         );
     }
 
@@ -392,7 +415,7 @@ class RouteParser
      * @access private
      * @return string
      */
-    private static function getOptionalTokenRegexp($token, array &$tokens)
+    private static function getOptionalTokenRegexp(TokenInterface $token, array &$tokens)
     {
         array_unshift($tokens, $token);
 

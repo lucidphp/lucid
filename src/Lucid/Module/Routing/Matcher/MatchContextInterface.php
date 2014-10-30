@@ -21,6 +21,13 @@ namespace Lucid\Module\Routing\Matcher;
 interface MatchContextInterface
 {
     /**
+     * isMatch
+     *
+     * @return boolean
+     */
+    public function isMatch();
+
+    /**
      * getName
      *
      * @return string

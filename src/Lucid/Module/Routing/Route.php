@@ -58,8 +58,8 @@ class Route implements RouteInterface, \Serializable
         $this->setMethods($methods);
         $this->setSchemes($schemes);
 
-        $this->host       = $host;
-        $this->defaults   = $defaults;
+        $this->host        = $host;
+        $this->defaults    = $defaults;
         $this->constraints = $constraints;
     }
 

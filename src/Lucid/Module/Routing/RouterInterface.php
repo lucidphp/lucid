@@ -22,8 +22,7 @@ use Lucid\Module\Routing\Http\RequestContextInterface;
  */
 interface RouterInterface
 {
-    const PASS_EMPTY_RESULT = 0;
-    const TRANS_EMPTY_RESULT = 1;
+    public function dispatch(RequestContextInterface $request);
 
-    public function dispatch(RequestContextInterface $request, $behavior = self::TRANS_EMPTY_RESULT);
+    public function getCurrentRoute();
 }

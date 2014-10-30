@@ -35,15 +35,15 @@ class RequestMatcherTest extends \PHPUnit_Framework_TestCase
 
         $req = Request::create('/user/2/12');
 
-        $context = RequestContext::fromRequest($req);
+        $context = RequestContext::fromSymfonyRequest($req);
 
         foreach (range(1, 20) as $r) {
             $routes->add('route_'.$r, $route = new Route('/user/'.$r.'/{id?}', 'action_'.$r));
         }
 
-        list ($match, $context) = $m->matchRequest($context);
+        $context = $m->matchRequest($context);
 
-        $this->assertSame(RequestMatcherInterface::MATCH, $match);
+        $this->assertTrue($context->isMatch());
         $this->assertInstanceof('Lucid\Module\Routing\Matcher\MatchContextInterface', $context);
     }
 
@@ -56,9 +56,9 @@ class RequestMatcherTest extends \PHPUnit_Framework_TestCase
 
         $routes->add('route', $route = new Route('/', 'action'));
 
-        list ($match, $context) = $m->matchRequest($context);
+        $context = $m->matchRequest($context);
 
-        $this->assertSame(RequestMatcherInterface::NOMATCH, $match);
+        $this->assertFalse($context->isMatch());
         $this->assertInstanceof('Lucid\Module\Routing\Matcher\MatchContextInterface', $context);
     }
 }

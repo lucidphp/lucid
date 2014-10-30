@@ -20,12 +20,11 @@ namespace Lucid\Module\Routing\Handler;
  */
 class PassParameterMapper implements ParameterMapperInterface
 {
-
     /**
      * {@inheritdoc}
      */
-    public function map(callable $handler, array $parameters)
+    public function map(HandlerReflector $handler, array $parameters)
     {
-        return [$parameters];
+        return [array_values($parameters)];
     }
 }

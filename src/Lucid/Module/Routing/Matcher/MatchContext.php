@@ -20,6 +20,7 @@ namespace Lucid\Module\Routing\Matcher;
  */
 class MatchContext implements MatchContextInterface
 {
+    private $type;
     private $name;
     private $path;
     private $handler;
@@ -33,12 +34,21 @@ class MatchContext implements MatchContextInterface
      * @param mixed $handler
      * @param array $params
      */
-    public function __construct($name, $url, $handler, array $params = [])
+    public function __construct($type, $name, $url, $handler, array $params = [])
     {
-        $this->name    = $name;
-        $this->path    = $url;
-        $this->handler = $handler;
-        $this->parameters  = $params;
+        $this->type       = $type;
+        $this->name       = $name;
+        $this->path       = $url;
+        $this->handler    = $handler;
+        $this->parameters = $params;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isMatch()
+    {
+        return RequestMatcherInterface::MATCH === $this->type;
     }
 
     /**
@@ -46,7 +56,7 @@ class MatchContext implements MatchContextInterface
      */
     public function getName()
     {
-        return $name;
+        return $this->name;
     }
 
     /**
