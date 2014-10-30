@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This File is part of the Lucid\Module\Routing\Handler package
+ * This File is part of the Lucid\Module\Routing package
  *
  * (c) iwyg <mail@thomas-appel.com>
  *
@@ -14,7 +14,7 @@ namespace Lucid\Module\Routing\Handler;
 /**
  * @class StrictParameterMapper
  *
- * @package Lucid\Module\Routing\Handler
+ * @package Lucid\Module\Routing
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
@@ -51,14 +51,17 @@ class StrictParameterMapper implements ParameterMapperInterface
      * @param callable $handler
      * @param array $parameters
      *
+     * @throws \InvalidArgumentException if required type cannot be mapped.
+     * @throws \InvalidArgumentException if a none optional parameter is
+     * missing
+     *
      * @return array
      */
     protected function getParameters(HandlerReflector $handler, array $parameters)
     {
         $params = [];
-        $handlerParams = $handler->getReflector()->getParameters();
 
-        foreach ($handlerParams as $param) {
+        foreach ($handler->getReflector()->getParameters() as $param) {
 
             if (null !== ($class = $param->getClass())) {
                 if (!$this->types->has($class = $class->getName())) {
@@ -71,7 +74,9 @@ class StrictParameterMapper implements ParameterMapperInterface
 
             } elseif (!array_key_exists($param->getName(), $parameters)) {
                 if (!$param->isOptional()) {
-                    throw new \InvalidArgumentException;
+                    throw new \InvalidArgumentException(
+                        sprintf('Missing non optional parameter "{$%s}".', $param->getName())
+                    );
                 }
 
                 $params[$param->getName()]  = null;
