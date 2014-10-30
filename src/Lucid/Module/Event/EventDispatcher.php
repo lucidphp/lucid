@@ -20,10 +20,24 @@ namespace Lucid\Module\Event;
  */
 class EventDispatcher implements EventDispatcherInterface
 {
+    /**
+     * sorted
+     *
+     * @var array
+     */
     protected $sorted = [];
+
+    /**
+     * handlers
+     *
+     * @var array
+     */
     protected $handlers = [];
 
-    public function addHandler($events, $handler, $priority = 0)
+    /**
+     * {@inheritdoc}
+     */
+    public function addHandler($events, $handler, $priority = self::PRIORITY_NORMAL)
     {
         list ($handler, $hash) = $this->getHandlerAndHash($handler);
 
@@ -105,11 +119,7 @@ class EventDispatcher implements EventDispatcherInterface
     }
 
     /**
-     * dispatchEvents
-     *
-     * @param array $events
-     *
-     * @return void
+     * {@inheritdoc}
      */
     public function dispatchEvents(array $events)
     {
@@ -119,11 +129,7 @@ class EventDispatcher implements EventDispatcherInterface
     }
 
     /**
-     * dispatchEvent
-     *
-     * @param EventInterface $event
-     *
-     * @return void
+     * {@inheritdoc}
      */
     public function dispatchEvent(EventInterface $event)
     {

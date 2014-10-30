@@ -20,6 +20,10 @@ namespace Lucid\Module\Event;
  */
 interface EventDispatcherInterface
 {
+    const PRIORITY_NORMAL = 0;
+    const PRIORITY_HIGH = 1000;
+    const PRIORITY_LOW = -1000;
+
     /**
      * Register a handler for one or more events.
      *
@@ -29,7 +33,7 @@ interface EventDispatcherInterface
      *
      * @return void
      */
-    public function addHandler($events, $handler, $priority = 0);
+    public function addHandler($events, $handler, $priority = self::PRIORITY_NORMAL);
 
     /**
      * Remove one or all handers for given events

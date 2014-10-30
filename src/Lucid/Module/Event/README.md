@@ -38,6 +38,12 @@ class MyHandler implements HandlerInterface
 }
 ```
 
+## Event Delegation
+
+Events are fired subsequentially unless all handlers where adressed or until
+the Event object is being stopped. You can stop the eventdelegation in your
+handler by calling `$event->stop()`.
+
 ## Custom Events
 
 Event objects can be referred to message objects. You can easily create your
