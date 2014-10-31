@@ -44,7 +44,7 @@ class HandlerParser implements HandlerParserInterface
      *
      * @return HandlerReflector
      */
-    public function parse($handler)
+    final public function parse($handler)
     {
         if (!is_callable($handler)) {
             if (!is_callable($handler = $this->findHandler($handler))) {
@@ -58,13 +58,13 @@ class HandlerParser implements HandlerParserInterface
     /**
      * findHandler
      *
-     * @param mixed $handler
+     * @param string $handler
      *
-     * @return void
+     * @return callable
      */
     protected function findHandler($handler)
     {
-        list ($handler, $method) = array_pad(explode('@', $handler), 2, null);
+        list ($handler, $method) = $this->listHandlerClassAndMethod($handler);
 
         if ($service = $this->getService($handler)) {
             return [$service, $method];
@@ -78,6 +78,18 @@ class HandlerParser implements HandlerParserInterface
         }
 
         return [$handler, $method];
+    }
+
+    /**
+     * listHandlerClassAndMethod
+     *
+     * @param string $handler
+     *
+     * @return string[]
+     */
+    protected function listHandlerClassAndMethod($handler)
+    {
+        return array_pad(explode('@', $handler), 2, null);
     }
 
     /**

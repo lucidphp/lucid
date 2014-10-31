@@ -38,7 +38,7 @@ class HandlerDispatcher implements HandlerDispatcherInterface
         ParameterMapperInterface $mapper = null
     ) {
         $this->parser = $parser ?: new HandlerParser;
-        $this->mapper = $mapper ?: new StrictParameterMapper;
+        $this->mapper = $mapper ?: new PassParameterMapper;
     }
 
     /**

@@ -22,5 +22,12 @@ use Lucid\Module\Routing\Matcher\MatchContextInterface;
  */
 interface HandlerDispatcherInterface
 {
+    /**
+     * Delegates a matchcontext to a handler.
+     *
+     * @param MatchContextInterface $context
+     *
+     * @return mixed
+     */
     public function dispatchHandler(MatchContextInterface $context);
 }

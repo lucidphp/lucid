@@ -11,6 +11,8 @@
 
 namespace Lucid\Module\Routing\Http;
 
+use Lucid\Module\Routing\RouteCollectionInterface;
+
 /**
  * @interface UrlGeneratorInterface
  *
@@ -38,6 +40,15 @@ interface UrlGeneratorInterface
      * @return void
      */
     public function setRequestContext(RequestContextInterface $request);
+
+    /**
+     * setRoutes
+     *
+     * @param RouteCollectionInterface $request
+     *
+     * @return void
+     */
+    public function setRoutes(RouteCollectionInterface $request);
 
     /**
      * currentPath

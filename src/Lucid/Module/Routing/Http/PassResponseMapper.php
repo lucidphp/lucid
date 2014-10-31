@@ -14,13 +14,13 @@ namespace Lucid\Module\Routing\Http;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @class GenericResponseMapper
+ * @class PassResponseMapper
  *
  * @package Lucid\Module\Routing\Http
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-class NullResponseMapper implements ResponseMapperInterface
+class PassResponseMapper implements ResponseMapperInterface
 {
     public function mapResponse($response)
     {

@@ -54,7 +54,7 @@ class UrlGenerator implements UrlGeneratorInterface
      *
      * @return void
      */
-    public function __construct(RouteCollectionInterface $routes, RequestContextInterface $request = null)
+    public function __construct(RouteCollectionInterface $routes = null, RequestContextInterface $request = null)
     {
         $this->routes = $routes;
         $this->setRequestContext($request ?: new RequestContext);
@@ -73,12 +73,24 @@ class UrlGenerator implements UrlGeneratorInterface
     }
 
     /**
+     * setRoutes
+     *
+     * @param RouteCollectionInterface $request
+     *
+     * @return void
+     */
+    public function setRoutes(RouteCollectionInterface $routes)
+    {
+        $this->routes = $routes;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function currentUrl($type = self::RELATIVE_PATH)
     {
         if (null !== ($path = $this->currentPath($type))) {
-            return $path . $this->getQueryString($this->request);
+            return $path . $this->getQueryString($this->getRequest());
         }
 
         return $path;
@@ -89,12 +101,12 @@ class UrlGenerator implements UrlGeneratorInterface
      */
     public function currentPath($type = self::RELATIVE_PATH)
     {
-        $rel = $this->getReqPath($this->request);
+        $rel = $this->getReqPath($this->getRequest());
 
         if ($type === self::RELATIVE_PATH) {
             return $rel;
         } elseif ($type === self::ABSOLUTE_PATH) {
-            return $this->getSchemeAndHost($this->request).$rel;
+            return $this->getSchemeAndHost($this->getRequest()).$rel;
         }
 
         return null;
@@ -105,11 +117,16 @@ class UrlGenerator implements UrlGeneratorInterface
      */
     public function generate($name, array $parameters = [], $host = null, $type = self::RELATIVE_PATH)
     {
-        if (!$route = $this->routes->get($name)) {
+        if (null === $this->routes || !$route = $this->routes->get($name)) {
             throw new \InvalidArgumentException(sprintf('A route with name "%s" could not be found', $name));
         }
 
-        return $this->compilePath($route, $parameters, $host, $type);
+        return $this->compilePath($route, $parameters, $host, $type, $name);
+    }
+
+    private function getRequest()
+    {
+        return null === $this->request ? $this->request = new RequestContext : $this->request;
     }
 
     /**
@@ -122,11 +139,11 @@ class UrlGenerator implements UrlGeneratorInterface
      *
      * @return void
      */
-    private function compilePath(RouteInterface $route, array $parameters, $host, $type)
+    private function compilePath(RouteInterface $route, array $parameters, $host, $type, $name)
     {
         if (static::RELATIVE_PATH === $type && null !== $route->getHost()) {
             throw new \InvalidArgumentException(
-                'Can\'t create relative path because route requires a deticated hostname.'
+                sprintf('Can\'t create relative path because route "%s" requires a deticated hostname.', $name)
             );
         }
 
@@ -140,7 +157,6 @@ class UrlGenerator implements UrlGeneratorInterface
         }
 
         $parts      = [];
-        $defaults   = $route->getDefaults();
         $parameters = $this->getRouteParameters($context, $parameters);
 
         foreach ($context->getTokens() as $token) {

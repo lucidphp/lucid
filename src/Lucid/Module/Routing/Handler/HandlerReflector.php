@@ -227,11 +227,11 @@ class HandlerReflector
             return $method;
         }
 
-        if (is_string($callable)) {
+        if (is_string($method)) {
             return explode('::', $method);
         }
 
-        return [$callable];
+        return [$method];
     }
 
     /**
@@ -244,7 +244,7 @@ class HandlerReflector
         switch ($this->getType()) {
             case static::C_TYPE_FUNCTION:
             case static::C_TYPE_CLOSURE:
-                return new \ReflectionMethod($this->handler);
+                return new \ReflectionFunction($this->handler);
             case static::C_TYPE_STATIC_METHOD:
             case static::C_TYPE_INSTANCE_METHOD:
                 return new \ReflectionMethod($this->getClass(), $this->getMethod());

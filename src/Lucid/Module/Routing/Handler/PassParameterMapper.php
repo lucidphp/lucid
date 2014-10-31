@@ -25,6 +25,6 @@ class PassParameterMapper implements ParameterMapperInterface
      */
     public function map(HandlerReflector $handler, array $parameters)
     {
-        return [array_values($parameters)];
+        return array_values($parameters);
     }
 }

@@ -26,9 +26,9 @@ class RouteCollectionBuilder
     /**
      * Constructor.
      */
-    public function __construct()
+    public function __construct(RouteCollectionInterface $routes = null)
     {
-        $this->routes = $this->newRouteCollection();
+        $this->routes = $routes ?: $this->newRouteCollection();
         $this->initGroups();
     }
 
@@ -226,6 +226,7 @@ class RouteCollectionBuilder
     protected function newRouteCollection()
     {
         $class = $this->getCollectionClass();
+
         if (!is_subclass_of($class, $i = 'Lucid\Module\Routing\RouteCollectionInterface')) {
             throw new \LogicException("Routecollection class must implement $i.");
         }

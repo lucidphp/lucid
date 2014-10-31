@@ -30,13 +30,27 @@ class HandlerParserTest extends \PHPUnit_Framework_TestCase
         $foulStr    = __CLASS__.'::foulStaticHandle';
 
         $parser = new HandlerParser();
-        $this->assertSame($handlerStr, $parser->parse($handlerStr));
+        $this->assertInstanceof('Lucid\Module\Routing\Handler\HandlerReflector', $parser->parse($handlerStr));
 
         try {
             $parser->parse($foulStr);
         } catch (\RuntimeException $e) {
             $this->assertSame('No routing handler could be found.', $e->getMessage());
         }
+    }
+
+    /** @test */
+    public function itShouldParseCallables()
+    {
+        $parser = new HandlerParser();
+        $this->assertInstanceof(
+            'Lucid\Module\Routing\Handler\HandlerReflector',
+            $parser->parse(
+                function () {
+                    return true;
+                }
+            )
+        );
     }
 
     /** @test */
@@ -48,8 +62,7 @@ class HandlerParserTest extends \PHPUnit_Framework_TestCase
 
         $handler = $parser->parse($handlerStr);
 
-        $this->assertFalse(is_callable($handlerStr));
-        $this->assertTrue(is_callable($handler));
+        $this->assertInstanceof('Lucid\Module\Routing\Handler\HandlerReflector', $handler);
     }
 
     /** @test */
@@ -57,8 +70,14 @@ class HandlerParserTest extends \PHPUnit_Framework_TestCase
     {
         $parser = new HandlerParser(['handler' => $this, 'simple_handler' => new SimpleHandler]);
 
-        $this->assertTrue(is_callable($parser->parse('handler@fakeAction')));
-        $this->assertTrue(is_callable($parser->parse('simple_handler@noneParamAction')));
+        $this->assertInstanceof(
+            'Lucid\Module\Routing\Handler\HandlerReflector',
+            $parser->parse('handler@fakeAction')
+        );
+        $this->assertInstanceof(
+            'Lucid\Module\Routing\Handler\HandlerReflector',
+            $parser->parse('simple_handler@noneParamAction')
+        );
     }
 
     public static function fakeStaticHandle()
