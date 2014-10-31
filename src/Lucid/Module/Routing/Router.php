@@ -12,17 +12,16 @@
 namespace Lucid\Module\Routing;
 
 use SplStack;
-use Lucid\Module\Routing\Http\RequestContextInterface;
-use Lucid\Module\Routing\Handler\HandlerParser;
-use Lucid\Module\Routing\Handler\HandlerDispatcher;
-use Lucid\Module\Routing\Handler\ParameterMapperInterface;
-use Lucid\Module\Routing\Http\ResponseMapperInterface as Mapper;
-use Lucid\Module\Routing\Matcher\RequestMatcherInterface as Matcher;
-use Lucid\Module\Routing\Handler\HandlerDispatcherInterface as Dispatcher;
-use Lucid\Module\Routing\Http\NullResponseMapper;
 use Lucid\Module\Routing\Exception\MatchException;
-use Lucid\Module\Routing\Http\UrlGeneratorInterface as Url;
+use Lucid\Module\Routing\Handler\HandlerDispatcher;
+use Lucid\Module\Routing\Http\RequestContextInterface;
+use Lucid\Module\Routing\Http\ResponseMapperInterface;
+use Lucid\Module\Routing\Http\UrlGeneratorInterface;
 use Lucid\Module\Routing\Http\UrlGenerator;
+use Lucid\Module\Routing\Http\PassResponseMapper;
+use Lucid\Module\Routing\Matcher\RequestMatcher;
+use Lucid\Module\Routing\Matcher\RequestMatcherInterface;
+use Lucid\Module\Routing\Handler\HandlerDispatcherInterface;
 use Lucid\Module\Routing\Matcher\MatchContextInterface;
 
 /**
@@ -38,23 +37,32 @@ class Router implements RouterInterface
     private $handlers;
     private $response;
     private $routes;
+    private $routeStack;
     private $generator;
 
     /**
      * Constructor.
      *
+     * A response mapper can be used to alter the dispatch result output.
+     * The default mapper will simple pass the input value.
+     *
      * @param RequestMatcherInterface $matcher
      * @param HandlerDispatcherInterface $handlers
      * @param ResponseMapperInterface $response
      */
-    public function __construct(Matcher $matcher, Dispatcher $handlers = null, Url $url = null, Mapper $response = null)
-    {
-        $this->matcher   = $matcher;
-        $this->handlers  = $handlers ?: new HandlerDispatcher;
-        $this->response  = $response ?: new NullResponseMapper;
-        $this->generator = $url;
-
-        $this->routes    = new SplStack;
+    public function __construct(
+        RouteCollectionInterface $routes,
+        RequestMatcherInterface $matcher = null,
+        HandlerDispatcherInterface $handlers = null,
+        ResponseMapperInterface $response = null,
+        UrlGeneratorInterface $url = null
+    ) {
+        $this->routes     = $routes;
+        $this->matcher    = $matcher ?: new RequestMatcher;
+        $this->handlers   = $handlers ?: new HandlerDispatcher;
+        $this->response   = $response ?: new PassResponseMapper;
+        $this->generator  = $url;
+        $this->routeStack = new SplStack;
     }
 
     /**
@@ -67,7 +75,7 @@ class Router implements RouterInterface
      */
     public function dispatch(RequestContextInterface $request)
     {
-        $context = $this->matcher->matchRequest($request);
+        $context = $this->matcher->matchRequest($request, $this->routes);
 
         if (!$context->isMatch()) {
             throw MatchException::noRouteMatch($request);
@@ -77,18 +85,46 @@ class Router implements RouterInterface
     }
 
     /**
+     * getCurrentRouteName
+     *
+     * @return RouteInterface|null
+     */
+    public function getFirstRoute()
+    {
+        if (null === ($name = $this->getFirstRouteName())) {
+            return;
+        }
+
+        if ($this->routes->has($name)) {
+            return $this->routes->get($name);
+        }
+    }
+
+    /**
+     * getCurrentRouteName
+     *
+     * @return string|null
+     */
+    public function getFirstRouteName()
+    {
+        if (0 < $this->routeStack->count()) {
+            return $this->routeStack->bottom();
+        }
+    }
+
+    /**
      * getCurrentRoute
      *
      * @return RouteInterface|null
      */
     public function getCurrentRoute()
     {
-        if (null === $name = $this->getCurrentRouteName()) {
+        if (null === ($name = $this->getCurrentRouteName())) {
             return;
         }
 
-        if ($this->matcher->getRoutes()->has($name)) {
-            return $this->matcher->getRoutes()->get($name);
+        if ($this->routes->has($name)) {
+            return $this->routes->get($name);
         }
     }
 
@@ -99,8 +135,8 @@ class Router implements RouterInterface
      */
     public function getCurrentRouteName()
     {
-        if (0 < $this->routes->count()) {
-            return $this->routes->top();
+        if (0 < $this->routeStack->count()) {
+            return $this->routeStack->top();
         }
     }
 
@@ -112,7 +148,7 @@ class Router implements RouterInterface
     public function getGenerator()
     {
         if (null === $this->generator) {
-            $this->generator = new UrlGenerator($this->matcher->getRoutes());
+            $this->generator = new UrlGenerator($this->routes);
         }
 
         return $this->generator;
@@ -129,11 +165,11 @@ class Router implements RouterInterface
     protected function doDispatch(RequestContextInterface $request, MatchContextInterface $context)
     {
         $this->getGenerator()->setRequestContext($request);
-        $this->routes->push($context->getName());
+        $this->routeStack->push($context->getName());
 
         $response = $this->response->mapResponse($this->handlers->dispatchHandler($context));
 
-        $this->routes->pop();
+        $this->routeStack->pop();
 
         return $response;
     }

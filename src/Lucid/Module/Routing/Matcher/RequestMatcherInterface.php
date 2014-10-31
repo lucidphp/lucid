@@ -11,6 +11,7 @@
 
 namespace Lucid\Module\Routing\Matcher;
 
+use Lucid\Module\Routing\RouteCollectionInterface;
 use Lucid\Module\Routing\Http\RequestContextInterface;
 
 /**
@@ -33,7 +34,5 @@ interface RequestMatcherInterface
      *
      * @return array
      */
-    public function matchRequest(RequestContextInterface $context);
-
-    public function getRoutes();
+    public function matchRequest(RequestContextInterface $context, RouteCollectionInterface $routes);
 }

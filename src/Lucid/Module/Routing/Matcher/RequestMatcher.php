@@ -25,18 +25,6 @@ use Lucid\Module\Routing\Cache\CachedCollectionInterface;
  */
 class RequestMatcher implements RequestMatcherInterface
 {
-    private $routes;
-
-    public function __construct(RouteCollectionInterface $routes)
-    {
-        $this->routes = $routes;
-    }
-
-    public function getRoutes()
-    {
-        return $this->routes;
-    }
-
     /**
      * matchRequest
      *
@@ -44,15 +32,13 @@ class RequestMatcher implements RequestMatcherInterface
      *
      * @return void
      */
-    public function matchRequest(RequestContextInterface $context)
+    public function matchRequest(RequestContextInterface $context, RouteCollectionInterface $routes)
     {
-
         // basic filter:
-        $routes = $this->getRoutes()->findByMethod($context->getMethod());
+        $routes = $routes->findByMethod($context->getMethod());
         $routes = $routes->findByScheme($context->getScheme());
 
         $path = $context->getPath();
-
 
         if ($routes instanceof CachedCollectionInterface && 0 !== count($r = $route->findByStaticPath($path))) {
             $routes = $r;
@@ -66,7 +52,13 @@ class RequestMatcher implements RequestMatcherInterface
                 continue;
             }
 
-            if (preg_match($route->getContext()->getRegexp(), $path, $matches)) {
+            $context = $route->getContext();
+
+            if (0 !== strpos($path, $context->getStaticPath())) {
+                continue;
+            }
+
+            if (preg_match($context->getRegexp(), $path, $matches)) {
                 return new MatchContext(
                     self::MATCH,
                     $name,
@@ -80,9 +72,18 @@ class RequestMatcher implements RequestMatcherInterface
         return new MatchContext(self::NOMATCH, null, null, null);
     }
 
+    /**
+     * getMatchedParams
+     *
+     * @param RouteInterface $route
+     * @param array $matches
+     *
+     * @return array
+     */
     private function getMatchedParams(RouteInterface $route, array $matches)
     {
         $params = array_merge($route->getDefaults(), $matches);
+
         return array_intersect_key($params, array_flip($route->getContext()->getParameters()));
     }
 }

@@ -27,21 +27,67 @@ class RouterTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function itShouldBeInstantiable()
     {
-        $this->assertInstanceof('Lucid\Module\Routing\RouterInterface', new Router($this->mockMatcher()));
+        $this->assertInstanceof('Lucid\Module\Routing\RouterInterface', new Router($this->mockRoutes()));
     }
 
     /** @test */
     public function itShouldDispatchRouteAndReturnResponse()
     {
-        $router = new Router($matcher = $this->mockMatcher());
+        $router = new Router(
+            $routes = $this->mockRoutes(),
+            $matcher = $this->mockMatcher(),
+            $dispatcher = $this->mockHandlerDispatcher()
+        );
 
-        $matcher->shouldReceive('matchRequest')
-            ->andReturn($context = $this->mockMatchContext());
+        $request = $this->mockRequest();
+        $context = $this->mockMatchContext(true);
 
-        $context->shouldReceive('isMatch')->andReturn(true);
-        $context->shouldReceive('getName')->andReturn('index');
+        $matcher->shouldReceive('matchRequest')->with($request, $routes)->andReturn($context);
+        $dispatcher->shouldReceive('dispatchHandler')->with($context)->andReturn('response');
 
-        $resp = $router->dispatch($this->mockRequest());
+        $resp = $router->dispatch($request);
+
+        $this->assertSame('response', $resp);
+    }
+
+    /** @test */
+    public function routeNamesShouldOnlyBeResolvedDuringDispatchPhase()
+    {
+        $router = new Router($this->mockRoutes(), $this->mockMatcher());
+
+        $this->assertNull($router->getCurrentRoute());
+        $this->assertNull($router->getCurrentRouteName());
+    }
+
+    /** @test */
+    public function itShouldGetTheCurrentRouteName()
+    {
+        $router = new Router(
+            $routes = $this->mockRoutes(),
+            $matcher = $this->mockMatcher()
+        );
+
+        $routes->shouldReceive('has')->with('index')->andReturn(true);
+
+        $first = null;
+        $current = null;
+        $handler = function () use ($router, &$current, &$first) {
+            $first = $router->getFirstRouteName();
+            $current = $router->getCurrentRouteName();
+            $this->assertInstanceof('Lucid\Module\Routing\RouteInterface', $router->getFirstRoute());
+            $this->assertInstanceof('Lucid\Module\Routing\RouteInterface', $router->getCurrentRoute());
+            return 'response';
+        };
+
+        $request = $this->mockRequest();
+        $context = $this->mockMatchContext(true, 'index', '/', $handler);
+
+        $matcher->shouldReceive('matchRequest')->with($request, $routes)->andReturn($context);
+
+        $resp = $router->dispatch($request);
+
+        $this->assertSame('index', $first);
+        $this->assertSame('index', $current);
     }
 
     /**
@@ -67,10 +113,11 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         return $r;
     }
 
-    protected function mockMatchContext($name = 'index', $url = '/', $handler = 'action', array $parameters = [])
+    protected function mockMatchContext($isMatch = false, $name = 'index', $url = '/', $handler = 'action', array $parameters = [])
     {
         $c = m::mock('Lucid\Module\Routing\Matcher\MatchContextInterface');
 
+        $c->shouldReceive('isMatch')->andReturn($isMatch);
         $c->shouldReceive('getName')->andReturn($name);
         $c->shouldReceive('getPath')->andReturn($url);
         $c->shouldReceive('getHandler')->andReturn($handler);
@@ -82,6 +129,46 @@ class RouterTest extends \PHPUnit_Framework_TestCase
     protected function mockMatcher()
     {
         $m = m::mock('Lucid\Module\Routing\Matcher\RequestMatcherInterface');
+        $m->shouldIgnoreMissing();
+
+        return $m;
+    }
+
+    protected function mockGenerator()
+    {
+        $m = m::mock('Lucid\Module\Routing\Http\UrlGeneratorInterface');
+        $m->shouldIgnoreMissing();
+
+        return $m;
+    }
+
+    protected function mockHandlerDispatcher()
+    {
+        $m = m::mock('Lucid\Module\Routing\Handler\HandlerDispatcherInterface');
+        $m->shouldIgnoreMissing();
+
+        return $m;
+    }
+
+    protected function mockRoutes()
+    {
+        $m = m::mock('Lucid\Module\Routing\RouteCollectionInterface');
+        $m->shouldIgnoreMissing();
+
+        $m->shouldReceive('get')->andReturnUsing(function ($name) use (&$m) {
+            if ($m->has($name)) {
+                return $this->mockRoute();
+            }
+
+            return null;
+        });
+
+        return $m;
+    }
+
+    protected function mockRoute()
+    {
+        $m = m::mock('Lucid\Module\Routing\RouteInterface');
 
         return $m;
     }

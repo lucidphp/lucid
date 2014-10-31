@@ -31,7 +31,8 @@ class RequestMatcherTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function itIsExpectedThat()
     {
-        $m = new RequestMatcher($routes = new RouteCollection);
+        $m = new RequestMatcher;
+        $routes = new RouteCollection;
 
         $req = Request::create('/user/2/12');
 
@@ -41,7 +42,7 @@ class RequestMatcherTest extends \PHPUnit_Framework_TestCase
             $routes->add('route_'.$r, $route = new Route('/user/'.$r.'/{id?}', 'action_'.$r));
         }
 
-        $context = $m->matchRequest($context);
+        $context = $m->matchRequest($context, $routes);
 
         $this->assertTrue($context->isMatch());
         $this->assertInstanceof('Lucid\Module\Routing\Matcher\MatchContextInterface', $context);
@@ -50,13 +51,14 @@ class RequestMatcherTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function faultyUrlsShouldntMatch()
     {
-        $m = new RequestMatcher($routes = new RouteCollection);
+        $m = new RequestMatcher;
+        $routes = new RouteCollection;
 
         $context = new RequestContext('/unknown/uri', 'GET');
 
         $routes->add('route', $route = new Route('/', 'action'));
 
-        $context = $m->matchRequest($context);
+        $context = $m->matchRequest($context, $routes);
 
         $this->assertFalse($context->isMatch());
         $this->assertInstanceof('Lucid\Module\Routing\Matcher\MatchContextInterface', $context);
