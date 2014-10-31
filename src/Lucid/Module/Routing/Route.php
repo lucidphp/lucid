@@ -183,6 +183,10 @@ class Route implements RouteInterface, \Serializable
      */
     public function serialize()
     {
+        if (!$this->isSerializableHandler($this->gethandler())) {
+            throw new \RuntimeException('Cannot serialize handler.');
+        }
+
         return  serialize([
             'pattern'     => $this->getPattern(),
             'handler'     => $this->getHandler(),
@@ -215,6 +219,11 @@ class Route implements RouteInterface, \Serializable
         $this->context     = $data['context'];
     }
 
+    /**
+     * getParserFunc
+     *
+     * @return callable
+     */
     protected function getParserFunc()
     {
         return __NAMESPACE__.'\RouteParser::parse';
@@ -250,5 +259,17 @@ class Route implements RouteInterface, \Serializable
         }
 
         $this->schemes = 0 < strlen($schemes) ? explode('|', strtolower($schemes)) : ['http', 'https'];
+    }
+
+    /**
+     * isSerializableHandler
+     *
+     * @param mixed $handler
+     *
+     * @return boolean
+     */
+    protected function isSerializableHandler($handler)
+    {
+        return !$handler instanceof \Closure;
     }
 }
