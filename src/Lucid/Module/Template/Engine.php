@@ -80,6 +80,20 @@ class Engine extends AbstractEngine
     protected $renderTemplate;
 
     /**
+     * parent
+     *
+     * @var mixed
+     */
+    protected $parents;
+
+    /**
+     * current
+     *
+     * @var mixed
+     */
+    protected $current;
+
+    /**
      * Constructor.
      *
      * @param LoaderInterface $loader
@@ -115,11 +129,43 @@ class Engine extends AbstractEngine
     {
         $resource = $this->load($template);
 
+        $this->current = $key = hash('sha256', serialize($resource));
+        $this->parents[$this->current] = null;
+
         if (!$content = $this->doRender($resource, $parameters)) {
-            throw new RenderException(sprintf('Counld not render template "%s".', $template->getName()));
+            throw new RenderException(sprintf('Counld not render template "%s".', $template));
+        }
+
+        if (isset($this->parents[$key])) {
+            $content = $this->render($this->parents[$key], $parameters);
         }
 
         return $content;
+    }
+
+    /**
+     * extend
+     *
+     * @param mixed $template
+     *
+     * @return void
+     */
+    public function extend($template)
+    {
+        $this->parents[$this->current] = $template;
+    }
+
+    /**
+     * insert
+     *
+     * @param mixed $template
+     * @param array $options
+     *
+     * @return void
+     */
+    public function insert($template, array $vars = [], array $options = [])
+    {
+        echo $this->render($template, $this->pullOptions($vars, $options));
     }
 
     /**
@@ -131,8 +177,12 @@ class Engine extends AbstractEngine
      */
     public function section($name)
     {
-        $this->sections[$name] = '';
+        if (!isset($this->sections[$name])) {
+            $this->sections[$name] = '';
+        }
+
         ob_start();
+        ob_implicit_flush(0);
     }
 
     /**
@@ -147,8 +197,14 @@ class Engine extends AbstractEngine
         }
 
         end($this->sections);
+        $key = key($this->sections);
 
-        return $this->sections[key($this->sections)] = ob_get_clean();
+        if ($this->sections[$key]) {
+            ob_end_clean();
+            return $this->sections[$key];
+        }
+
+        return $this->sections[$key] = ob_get_clean();
     }
 
     /**
@@ -172,7 +228,23 @@ class Engine extends AbstractEngine
      */
     public function setHelpers(array $helpers)
     {
+        $this->helpers = [];
 
+        foreach ($helpers as $helper) {
+            $this->addHelper($helper);
+        }
+    }
+
+    /**
+     * addHelper
+     *
+     * @param HelperInterface $helper
+     *
+     * @return void
+     */
+    public function addHelper(HelperInterface $helper)
+    {
+        $this->helpers[$helper->getName()] = $helper;
     }
 
     /**
@@ -242,19 +314,6 @@ class Engine extends AbstractEngine
     }
 
     /**
-     * insert
-     *
-     * @param mixed $template
-     * @param array $options
-     *
-     * @return void
-     */
-    public function insert($template, array $vars = [], array $options = [])
-    {
-        return $this->render($template, $options);
-    }
-
-    /**
      * execute
      *
      * @return void
@@ -305,7 +364,14 @@ class Engine extends AbstractEngine
     protected function doRender(ResourceInterface $resource, array $parameters)
     {
         $content = '';
-        $parameters = $this->getValidatedParameters($parameters);
+
+        if ($this->renderTemplate === $resource) {
+            throw new RenderException('dead it is.');
+        }
+
+        $this->renderTemplate = $resource;
+
+        $this->renderParams = $parameters = $this->getValidatedParameters($parameters);
 
         if ($resource instanceof FileResource) {
             // start the output buffer
@@ -325,22 +391,29 @@ class Engine extends AbstractEngine
             return ob_get_clean();
 
         } catch (\Exception $e) {
-            //throw new RenderException('Counld not render template', $e);
+            throw new RenderException('Counld not render template becuase errors', $e);
         }
 
         return false;
     }
 
+    /**
+     * getValidatedParameters
+     *
+     * @param array $parameters
+     *
+     * @return array
+     */
     protected function getValidatedParameters(array $parameters)
     {
         $parameters = array_merge($this->globals, $parameters);
 
-        foreach (['view', 'this', 'func'] as $keyWord) {
-            if (isset($parameters[$keyWord]) && $this !== $parameters[$keyWord]) {
-                throw RenderException::invalidParameter($keyWord);
-            }
+        foreach (['view', 'this'] as $keyWord) {
+            //if (isset($parameters[$keyWord]) && $this !== $parameters[$keyWord]) {
+            //    throw RenderException::invalidParameter($keyWord);
+            //}
 
-            if ('func' !== $keyWord) {
+            if ('func' !== $keyWord && !isset($parameters[$keyWord])) {
                 $parameters[$keyWord] = $this;
             }
         }
@@ -349,7 +422,26 @@ class Engine extends AbstractEngine
             $parameters['func'] = [$this, 'func'];
         }
 
-        return $parameters;
+        return array_merge($this->renderParams, $parameters);
+    }
+
+    /**
+     * pullOptions
+     *
+     * @param array $vars
+     * @param array $options
+     *
+     * @return array
+     */
+    protected function pullOptions(array $vars, array $options)
+    {
+        $vars = array_intersect_key($this->renderParams, array_flip($vars));
+
+        if (0 === count($options)) {
+            $options = $this->renderParams;
+        };
+
+        return array_merge($options, $vars);
     }
 
     /**
@@ -360,5 +452,18 @@ class Engine extends AbstractEngine
     protected function getEncoding()
     {
         return $this->encoding ?: 'UTF-8';
+    }
+
+    /**
+     * getDefaultHelpers
+     *
+     * @return void
+     */
+    protected function getDefaultHelpers()
+    {
+        return [
+            new InsertHelper,
+            new ExtendHelper
+        ];
     }
 }

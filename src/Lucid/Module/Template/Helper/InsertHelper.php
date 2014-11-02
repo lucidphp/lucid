@@ -18,16 +18,11 @@ namespace Lucid\Module\Template\Helper;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-class IncludeHelper implements HelperInterface
+class IncludeHelper extends AbstractHelper
 {
     public function getName()
     {
-        return 'include';
-    }
-
-    public function setEngine($engine)
-    {
-        $this->engine = $engine;
+        return 'insert';
     }
 
     public function execute(array $arguments)

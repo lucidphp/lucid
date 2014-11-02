@@ -11,18 +11,17 @@
 
 namespace Lucid\Module\Template\Helper;
 
-use Lucid\Module\Template\EngineInterface;
-
 /**
- * @class HelperInterface
+ * @class SectionHelper
  *
  * @package Lucid\Module\Template\Helper
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-interface HelperInterface
+class SectionHelper extends AbstractHelper
 {
-    public function getName();
-    public function execute(array $arguments);
-    public function setEngine(EngineInterface $engine);
+    public function getName()
+    {
+        return 'section';
+    }
 }

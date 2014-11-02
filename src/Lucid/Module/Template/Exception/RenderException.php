@@ -27,13 +27,13 @@ class RenderException extends \RuntimeException
      * @param \Exception $prevException
      * @param int $code
      */
-    public function __construct($message, \Exception $prevException, $code = 0)
+    public function __construct($message, \Exception $prevException = null, $code = 0)
     {
         parent::__construct($message, $code, $prevException);
     }
 
     public static function invalidParameter($param)
     {
-        return new self(sprintf('Invalid parameter "%s".'));
+        return new self(sprintf('Invalid parameter "%s".', $param));
     }
 }

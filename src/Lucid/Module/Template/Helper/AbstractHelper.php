@@ -14,15 +14,31 @@ namespace Lucid\Module\Template\Helper;
 use Lucid\Module\Template\EngineInterface;
 
 /**
- * @class HelperInterface
+ * @class AbstractHelper
  *
  * @package Lucid\Module\Template\Helper
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-interface HelperInterface
+class AbstractHelper implements HelperInterface
 {
-    public function getName();
-    public function execute(array $arguments);
-    public function setEngine(EngineInterface $engine);
+    private $engine;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setEngine(EngineInterface $engine)
+    {
+        $this->engine = $engine;
+    }
+
+    /**
+     * getEngine
+     *
+     * @return EngineInterface
+     */
+    protected function getEngine()
+    {
+        return $this->engine;
+    }
 }
