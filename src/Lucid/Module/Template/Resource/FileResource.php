@@ -50,6 +50,6 @@ class FileResource implements ResourceInterface
      */
     public function getContents()
     {
-        return file_get_contents($this->content);
+        return file_get_contents($this->resource);
     }
 }

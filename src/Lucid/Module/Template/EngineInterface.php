@@ -18,25 +18,8 @@ namespace Lucid\Module\Template;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-interface EngineInterface
+interface EngineInterface extends RenderInterface
 {
-    /**
-     * Renders a Template with given parameters.
-     *
-     * @param mixed $template
-     * @param array $parameters
-     *
-     * @return string the rendererd template.
-     */
-    public function render($template, array $parameters = []);
-
-    /**
-     * Get the supported template type as string
-     *
-     * @return string
-     */
-    public function getType();
-
     /**
      * supports
      *
@@ -44,5 +27,14 @@ interface EngineInterface
      *
      * @return boolean
      */
-    public function supports($type);
+    public function supports($template);
+
+    /**
+     * exists
+     *
+     * @param mixed $template
+     *
+     * @return void
+     */
+    public function exists($template);
 }

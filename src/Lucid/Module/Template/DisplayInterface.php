@@ -12,21 +12,21 @@
 namespace Lucid\Module\Template;
 
 /**
- * @class TemplateInterface
+ * @interface DisplayEngineInterface
  *
  * @package Lucid\Module\Template
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-interface TemplateInterface
+interface DisplayInterface
 {
     /**
-     * Render the tempalte
+     * Should directly output the contents of a rendered template.
      *
      * @param mixed $template
      * @param array $parameters
      *
-     * @return string
+     * @return void
      */
-    public function render(array $parameters = []);
+    public function display($template, array $parameters = []);
 }

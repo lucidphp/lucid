@@ -14,7 +14,7 @@ namespace Lucid\Module\Template;
 use Lucid\Module\Template\Loader\LoaderInterface;
 use Lucid\Module\Template\Resource\FileResource;
 use Lucid\Module\Template\Resource\ResourceInterface;
-use Lucid\Module\Template\TemplateIdentityInterface as Identity;
+use Lucid\Module\Template\IdentityParser as Parser;
 use Lucid\Module\Template\Exception\RenderException;
 use Lucid\Module\Template\Extension\FunctionInterface;
 use Lucid\Module\Template\Extension\ExtensionInterface;
@@ -26,7 +26,7 @@ use Lucid\Module\Template\Extension\ExtensionInterface;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-class Engine extends AbstractEngine
+class Engine extends AbstractPhpEngine implements ViewAwareInterface
 {
     const SUPPORT_TYPE = 'php';
 
@@ -93,6 +93,8 @@ class Engine extends AbstractEngine
      */
     protected $current;
 
+    protected $proxy;
+
     /**
      * Constructor.
      *
@@ -100,7 +102,7 @@ class Engine extends AbstractEngine
      * @param TemplateIdentityInterface $identity
      * @param array $helpers
      */
-    public function __construct(LoaderInterface $loader, Identity $identity = null, array $helpers = [])
+    public function __construct(LoaderInterface $loader, Parser $parser = null, array $helpers = [])
     {
         $this->globals = [];
         $this->functions = [];
@@ -109,15 +111,15 @@ class Engine extends AbstractEngine
         $this->setEncoding('UTF-8');
         $this->renderParams = [];
 
-        parent::__construct($loader, $identity);
+        parent::__construct($loader, $parser);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getType()
+    public function getTypes()
     {
-        return self::SUPPORT_TYPE;
+        return [self::SUPPORT_TYPE];
     }
 
     /**
@@ -127,14 +129,31 @@ class Engine extends AbstractEngine
      */
     public function render($template, array $parameters = [])
     {
-        $resource = $this->load($template);
+        $template = $this->loadTemplate($template);
 
-        $this->current = $key = hash('sha256', serialize($resource));
+        $this->current = $key = hash('sha256', serialize($template->getName()));
         $this->parents[$this->current] = null;
 
-        if (!$content = $this->doRender($resource, $parameters)) {
-            throw new RenderException(sprintf('Counld not render template "%s".', $template));
+        // ensure warnings in the php template are catched properly
+        set_error_handler(function ($errno, $errstr) {
+            throw new RenderException($errstr);
+        });
+
+
+        if ($view = $this->getManager()) {
+            $view->notifyListeners($template->getName());
         }
+
+        $parameters = $this->getValidatedParameters($parameters);
+
+        try {
+            $content = $template->render($parameters);
+        } catch (\Exception $e) {
+            restore_error_handler();
+            throw $e;
+        }
+
+        restore_error_handler();
 
         if (isset($this->parents[$key])) {
             $content = $this->render($this->parents[$key], $parameters);
@@ -397,6 +416,11 @@ class Engine extends AbstractEngine
         return false;
     }
 
+    protected function getProxy()
+    {
+        return null === $this->proxy ? $this->proxy = new RenderEngineProxy($this) : $this->proxy;
+    }
+
     /**
      * getValidatedParameters
      *
@@ -408,18 +432,20 @@ class Engine extends AbstractEngine
     {
         $parameters = array_merge($this->globals, $parameters);
 
+        $proxy = $this->getProxy();
+
         foreach (['view', 'this'] as $keyWord) {
             //if (isset($parameters[$keyWord]) && $this !== $parameters[$keyWord]) {
             //    throw RenderException::invalidParameter($keyWord);
             //}
 
             if ('func' !== $keyWord && !isset($parameters[$keyWord])) {
-                $parameters[$keyWord] = $this;
+                $parameters[$keyWord] = $proxy;
             }
         }
 
         if (!isset($parameters['func'])) {
-            $parameters['func'] = [$this, 'func'];
+            $parameters['func'] = [$proxy, 'func'];
         }
 
         return array_merge($this->renderParams, $parameters);

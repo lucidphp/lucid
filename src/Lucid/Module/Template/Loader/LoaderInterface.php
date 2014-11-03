@@ -11,7 +11,7 @@
 
 namespace Lucid\Module\Template\Loader;
 
-use Lucid\Module\Template\TemplateInterface;
+use Lucid\Module\Template\IdentityInterface;
 
 /**
  * @interface LoaderInterface
@@ -25,9 +25,18 @@ interface LoaderInterface
     /**
      * Load a template.
      *
-     * @param TemplateInterface $template
+     * @param IdentityInterface $template
      *
      * @return string
      */
-    public function load(TemplateInterface $template);
+    public function load(IdentityInterface $template);
+
+    /**
+     * isValid
+     *
+     * @param IdentityInterface $template
+     *
+     * @return void
+     */
+    public function isValid(IdentityInterface $template, $now);
 }

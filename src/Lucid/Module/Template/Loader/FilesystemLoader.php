@@ -11,7 +11,8 @@
 
 namespace Lucid\Module\Template\Loader;
 
-use Lucid\Module\Template\TemplateInterface;
+use Lucid\Module\Template\Template;
+use Lucid\Module\Template\IdentityInterface;
 use Lucid\Module\Template\Resource\FileResource;
 use Lucid\Module\Template\Exception\LoaderException;
 
@@ -25,6 +26,7 @@ use Lucid\Module\Template\Exception\LoaderException;
 class FilesystemLoader implements LoaderInterface
 {
     private $paths;
+    private $loaded;
 
     /**
      * Constructor.
@@ -34,18 +36,36 @@ class FilesystemLoader implements LoaderInterface
     public function __construct($paths)
     {
         $this->paths = is_array($paths) ? $paths : explode(',', $paths);
+        $this->loaded = [];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function load(TemplateInterface $template)
+    public function load(IdentityInterface $template)
     {
-        if (!$realpath = $this->findTemplateInPaths($template->getPath())) {
+        if (isset($this->loaded[$template->getName()])) {
+            return $this->loaded[$template->getName()];
+        }
+
+        if (!$realpath = $this->findTemplateInPaths($template->getName())) {
             throw LoaderException::templateNotFound($template);
         }
 
-        return new FileResource($realpath);
+        return $this->loaded[$template->getName()] = new FileResource($realpath);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isValid(IdentityInterface $template, $now)
+    {
+        try {
+            return filemtime($this->load($template)->getResource()) < $now;
+        } catch (LoaderException $e) {
+        }
+
+        return false;
     }
 
     /**

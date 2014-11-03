@@ -12,25 +12,25 @@
 namespace Lucid\Module\Template;
 
 /**
- * @class TemplateIdentity
+ * @class IdentityParser
  *
  * @package Lucid\Module\Template
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-class TemplateIdentity implements TemplateIdentityInterface
+class IdentityParser
 {
     /**
      * {@inheritdoc}
      */
     public function identify($template)
     {
-        if ($template instanceof TemplateInterface) {
+        if ($template instanceof IdentityInterface) {
             return $template;
         }
 
-        $type = substr($template, -strrpos($template, '.'));
+        $type = substr((string)$template, 1+strrpos((string)$template, '.'));
 
-        return new Template($template, $type);
+        return new Identity((string)$template, $type);
     }
 }
