@@ -22,6 +22,24 @@ use Lucid\Module\Template\EngineInterface;
  */
 class AbstractExtension implements ExtensionInterface
 {
+    private $engine;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setEngine(EngineInterface $engine)
+    {
+        $this->engine = $engine;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getEngine()
+    {
+        return $this->engine;
+    }
+
     /**
      * {@inheritdoc}
      */

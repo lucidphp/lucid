@@ -12,29 +12,24 @@
 namespace Lucid\Module\Template\Resource;
 
 /**
- * @class FileResource
+ * @class StringResource
  *
  * @package Lucid\Module\Template\Resource
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-class FileResource extends AbstractResource
+class StringResource extends AbstractResource
 {
-    /**
-     * resource
-     *
-     * @var string
-     */
-    private $file;
+    private $content;
 
     /**
      * Constructor.
      *
-     * @param string $file
+     * @param string $string
      */
-    public function __construct($file)
+    public function __construct($string)
     {
-        $this->file = $file;
+        $this->content = $content;
     }
 
     /**
@@ -42,7 +37,7 @@ class FileResource extends AbstractResource
      */
     public function getResource()
     {
-        return $this->file;
+        return null;
     }
 
     /**
@@ -50,6 +45,6 @@ class FileResource extends AbstractResource
      */
     public function getContents()
     {
-        return file_get_contents($this->file);
+        return $this->content;
     }
 }

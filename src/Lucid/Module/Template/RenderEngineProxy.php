@@ -18,11 +18,11 @@ namespace Lucid\Module\Template;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-class RenderEngineProxy implements PhpEngineInterface
+class RenderEngineProxy implements PhpRenderInterface
 {
     private $engine;
 
-    public function __construct(PhpEngineInterface $engine)
+    public function __construct(PhpRenderInterface $engine)
     {
         $this->engine = $engine;
     }

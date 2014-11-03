@@ -21,6 +21,13 @@ namespace Lucid\Module\Template;
 class IdentityParser
 {
     /**
+     * pool
+     *
+     * @var array
+     */
+    private $pool = [];
+
+    /**
      * {@inheritdoc}
      */
     public function identify($template)
@@ -29,8 +36,19 @@ class IdentityParser
             return $template;
         }
 
-        $type = substr((string)$template, 1+strrpos((string)$template, '.'));
+        $name = (string)$template;
 
-        return new Identity((string)$template, $type);
+        if (!isset($this->pool[$name])) {
+
+            $type = null;
+
+            if (false !== ($pos = strrpos($name, '.'))) {
+                $type = substr($name, 1 + $pos);
+            }
+
+            $this->pool[$name] = new Identity($name, $type);
+        }
+
+        return $this->pool[$name];
     }
 }

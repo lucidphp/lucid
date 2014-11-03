@@ -12,22 +12,23 @@
 namespace Lucid\Module\Template\Resource;
 
 /**
- * @class ResourceInterface
+ * @class AbstractResource
  *
  * @package Lucid\Module\Template\Resource
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-interface ResourceInterface
+abstract class AbstractResource implements ResourceInterface
 {
-    public function getResource();
-
-    public function getContents();
-
     /**
-     * getHash
+     * hash
      *
-     * @return void
+     * @var string
      */
-    public function getHash();
+    protected $hash;
+
+    public function getHash()
+    {
+        return $this->hash ?: $this->hash = hash('sha256', serialize($this));
+    }
 }

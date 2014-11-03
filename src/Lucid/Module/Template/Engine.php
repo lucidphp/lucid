@@ -11,11 +11,14 @@
 
 namespace Lucid\Module\Template;
 
+use SplStack;
 use Lucid\Module\Template\Loader\LoaderInterface;
 use Lucid\Module\Template\Resource\FileResource;
 use Lucid\Module\Template\Resource\ResourceInterface;
 use Lucid\Module\Template\IdentityParser as Parser;
+use Lucid\Module\Template\Exception\LoaderException;
 use Lucid\Module\Template\Exception\RenderException;
+use Lucid\Module\Template\Exception\TemplateException;
 use Lucid\Module\Template\Extension\FunctionInterface;
 use Lucid\Module\Template\Extension\ExtensionInterface;
 
@@ -29,13 +32,6 @@ use Lucid\Module\Template\Extension\ExtensionInterface;
 class Engine extends AbstractPhpEngine implements ViewAwareInterface
 {
     const SUPPORT_TYPE = 'php';
-
-    /**
-     * helpers
-     *
-     * @var HelperInterface[]
-     */
-    protected $helpers;
 
     /**
      * encoding
@@ -63,37 +59,42 @@ class Engine extends AbstractPhpEngine implements ViewAwareInterface
      *
      * @var array
      */
-    protected $sections;
-
-    /**
-     * renderParams
-     *
-     * @var mixed
-     */
-    protected $renderParams;
-
-    /**
-     * renderTemplate
-     *
-     * @var mixed
-     */
-    protected $renderTemplate;
+    public $sections;
 
     /**
      * parent
      *
-     * @var mixed
+     * @var array
      */
     protected $parents;
 
     /**
-     * current
+     * proxy
      *
-     * @var mixed
+     * @var PhpRenderInterface|null
      */
-    protected $current;
-
     protected $proxy;
+
+    /**
+     * stack
+     *
+     * @var \SplStack
+     */
+    protected $stack;
+
+    /**
+     * errHandler
+     *
+     * @var string
+     */
+    protected $errHandler;
+
+    /**
+     * errFunc
+     *
+     * @var \Closure
+     */
+    protected $errFunc;
 
     /**
      * Constructor.
@@ -102,14 +103,14 @@ class Engine extends AbstractPhpEngine implements ViewAwareInterface
      * @param TemplateIdentityInterface $identity
      * @param array $helpers
      */
-    public function __construct(LoaderInterface $loader, Parser $parser = null, array $helpers = [])
+    public function __construct(LoaderInterface $loader, Parser $parser = null, $enc = 'UTF-8')
     {
         $this->globals = [];
-        $this->functions = [];
         $this->sections = [];
-        $this->setHelpers($helpers);
-        $this->setEncoding('UTF-8');
-        $this->renderParams = [];
+        $this->functions = [];
+
+        $this->setEncoding($enc);
+        $this->stack = new SplStack;
 
         parent::__construct($loader, $parser);
     }
@@ -123,110 +124,6 @@ class Engine extends AbstractPhpEngine implements ViewAwareInterface
     }
 
     /**
-     * {@inheritdoc}
-     *
-     * @throws RenderException
-     */
-    public function render($template, array $parameters = [])
-    {
-        $template = $this->loadTemplate($template);
-
-        $this->current = $key = hash('sha256', serialize($template->getName()));
-        $this->parents[$this->current] = null;
-
-        // ensure warnings in the php template are catched properly
-        set_error_handler(function ($errno, $errstr) {
-            throw new RenderException($errstr);
-        });
-
-
-        if ($view = $this->getManager()) {
-            $view->notifyListeners($template->getName());
-        }
-
-        $parameters = $this->getValidatedParameters($parameters);
-
-        try {
-            $content = $template->render($parameters);
-        } catch (\Exception $e) {
-            restore_error_handler();
-            throw $e;
-        }
-
-        restore_error_handler();
-
-        if (isset($this->parents[$key])) {
-            $content = $this->render($this->parents[$key], $parameters);
-        }
-
-        return $content;
-    }
-
-    /**
-     * extend
-     *
-     * @param mixed $template
-     *
-     * @return void
-     */
-    public function extend($template)
-    {
-        $this->parents[$this->current] = $template;
-    }
-
-    /**
-     * insert
-     *
-     * @param mixed $template
-     * @param array $options
-     *
-     * @return void
-     */
-    public function insert($template, array $vars = [], array $options = [])
-    {
-        echo $this->render($template, $this->pullOptions($vars, $options));
-    }
-
-    /**
-     * section
-     *
-     * @param mixed $name
-     *
-     * @return void
-     */
-    public function section($name)
-    {
-        if (!isset($this->sections[$name])) {
-            $this->sections[$name] = '';
-        }
-
-        ob_start();
-        ob_implicit_flush(0);
-    }
-
-    /**
-     * endsection
-     *
-     * @return void
-     */
-    public function endsection()
-    {
-        if (0 === count($this->sections)) {
-            throw new RenderException('Cannot end a section. You must start a section first.');
-        }
-
-        end($this->sections);
-        $key = key($this->sections);
-
-        if ($this->sections[$key]) {
-            ob_end_clean();
-            return $this->sections[$key];
-        }
-
-        return $this->sections[$key] = ob_get_clean();
-    }
-
-    /**
      * setEncoding
      *
      * @param string $enc
@@ -236,34 +133,6 @@ class Engine extends AbstractPhpEngine implements ViewAwareInterface
     public function setEncoding($enc)
     {
         $this->encoding = $enc;
-    }
-
-    /**
-     * Set a set of template helpers.
-     *
-     * @param array $helpers
-     *
-     * @return void
-     */
-    public function setHelpers(array $helpers)
-    {
-        $this->helpers = [];
-
-        foreach ($helpers as $helper) {
-            $this->addHelper($helper);
-        }
-    }
-
-    /**
-     * addHelper
-     *
-     * @param HelperInterface $helper
-     *
-     * @return void
-     */
-    public function addHelper(HelperInterface $helper)
-    {
-        $this->helpers[$helper->getName()] = $helper;
     }
 
     /**
@@ -300,6 +169,8 @@ class Engine extends AbstractPhpEngine implements ViewAwareInterface
      */
     public function registerExtension(ExtensionInterface $extension)
     {
+        $extension->setEngine($this);
+
         foreach ($extension->functions() as $func) {
             $this->registerFunction($func);
         }
@@ -317,6 +188,189 @@ class Engine extends AbstractPhpEngine implements ViewAwareInterface
         foreach ($extension->functions() as $func) {
             unset($this->functions[$func->getName()]);
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @throws RenderException
+     */
+    public function render($template, array $parameters = [])
+    {
+        $resource = $this->loadTemplate($template);
+
+        $this->stack->push([
+            $resource,
+            $this->mergeShared($this->getParameters($template, $parameters))
+        ]);
+
+        //$hash = $resource->getHash();
+        unset($this->parents[$hash = $resource->getHash()]);
+
+        $this->startErrorHandling();
+
+        $content = $this->doRender();
+
+        if (isset($this->parents[$hash])) {
+            $content = $this->render($this->parents[$hash], $parameters);
+        }
+
+        $this->stopErrorHandling();
+
+        $this->stack->pop();
+
+        return $content;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function display($template, array $parameters = [])
+    {
+        echo $this->render($template, $parameters);
+    }
+
+    /**
+     * insert
+     *
+     * @param mixed $template
+     * @param array $options
+     *
+     * @return void
+     */
+    public function insert($template, array $replacements = [])
+    {
+        list ($resource, $params) = $this->getCurrent();
+
+        return $this->render($template, array_merge($params, $replacements));
+    }
+
+    /**
+     * extend
+     *
+     * @param mixed $template
+     *
+     * @return void
+     */
+    public function extend($template)
+    {
+        list ($resource,) = $this->getCurrent();
+
+        if (isset($this->parents[$hash = $resource->getHash()])) {
+            throw new RenderException('Circular reference.');
+        }
+
+        $this->parents[$hash] = $template;
+    }
+
+    /**
+     * hasParent
+     *
+     * @return boolean
+     */
+    protected function hasParent()
+    {
+        list ($resource, ) = $this->getCurrent();
+
+        return isset($this->parents[$resource->getHash()]);
+    }
+
+    /**
+     * getParameters
+     *
+     * @param mixed $template
+     * @param array $parameters
+     *
+     * @return array
+     */
+    protected function getParameters($template, array $parameters)
+    {
+        if (null !== ($view = $this->getManager())) {
+            $view->notifyListeners($name = $this->getIdentity()->identify($template)->getName());
+
+            if ($data = $view->flushData($name)) {
+                return $data->all($parameters);
+            }
+        }
+
+        return $parameters;
+    }
+
+    /**
+     * section
+     *
+     * @param mixed $name
+     *
+     * @return void
+     */
+    public function section($name)
+    {
+        if (isset($this->sections[$name])) {
+            $section = $this->sections[$name];
+            unset($this->sections[$name]);
+        } else {
+            $section = new Section($name);
+        }
+
+        $this->sections[$name] = $section;
+
+        $section->start();
+    }
+
+    /**
+     * endsection
+     *
+     * @return void
+     */
+    public function endsection()
+    {
+        $section = $this->getLastSection();
+        $section->stop();
+
+        if ($this->hasParent()) {
+            return;
+        }
+
+        $content = $section->getContent(0);
+        $section->reset();
+
+        return $content;
+    }
+
+    /**
+     * getCurrent
+     *
+     * @return void
+     */
+    protected function getCurrent()
+    {
+        //$item = $this->stack->pop();
+
+        //$this->stack->push($item);
+
+        return $this->stack->top();
+    }
+
+    protected function getRoot()
+    {
+        return $this->stack->bottom();
+    }
+
+    /**
+     * getLastSection
+     *
+     * @return Section
+     */
+    protected function getLastSection()
+    {
+        if (0 === count($this->sections)) {
+            throw new RenderException('Cannot end a section. You must start a section first.');
+        }
+
+        $keys = array_keys($this->sections);
+        $key = array_pop($keys);
+
+        return $this->sections[$key];
     }
 
     /**
@@ -375,99 +429,71 @@ class Engine extends AbstractPhpEngine implements ViewAwareInterface
     /**
      * doRender
      *
-     * @param ResourceInterface $resource
-     * @param array $parameters
      *
-     * @return string|boolean false
+     * @return void
      */
-    protected function doRender(ResourceInterface $resource, array $parameters)
+    protected function doRender()
     {
-        $content = '';
+        list($resource, $parameters) = $this->getCurrent();
 
-        if ($this->renderTemplate === $resource) {
-            throw new RenderException('dead it is.');
-        }
-
-        $this->renderTemplate = $resource;
-
-        $this->renderParams = $parameters = $this->getValidatedParameters($parameters);
-
-        if ($resource instanceof FileResource) {
-            // start the output buffer
-            ob_start();
-            extract($parameters, EXTR_SKIP);
-
-            include $resource->getResource();
-
-            return ob_get_clean();
-        }
-
+        ob_start();
         try {
-            ob_start();
-            extract($parameters, EXTR_SKIP);
-            eval('; ?>' . $resource->getContents() . '<?php ;');
 
-            return ob_get_clean();
+            if ($resource instanceof FileResource) {
+                $this->displayFile($resource, $parameters);
+            } elseif ($resource instanceof StringResource) {
+                $this->displayString($resource, $parameters);
+            }
 
         } catch (\Exception $e) {
-            throw new RenderException('Counld not render template becuase errors', $e);
+            ob_end_clean();
+
+            if ($e instanceof TemplateException) {
+                throw $e;
+            }
+
+            throw new RenderException($e->getMessage(), $e, $e->getCode());
         }
 
-        return false;
+        return ob_get_clean();
     }
 
+    /**
+     * displayFile
+     *
+     * @param FileResource $resource
+     * @param array $parameters
+     *
+     * @return void
+     */
+    protected function displayFile(FileResource $resource, array $parameters)
+    {
+        extract($parameters, EXTR_SKIP);
+        include $resource->getResource();
+    }
+
+    /**
+     * displayString
+     *
+     * @param StringResource $resource
+     * @param array $parameters
+     *
+     * @return void
+     */
+    protected function displayString(StringResource $resource, array $parameters)
+    {
+        extract($parameters, EXTR_SKIP);
+        eval('; ?>' . $resource->getContents() . '<?php ;');
+    }
+
+    /**
+     * getProxy
+     *
+     * @return PhpRenderInterface
+     */
     protected function getProxy()
     {
         return null === $this->proxy ? $this->proxy = new RenderEngineProxy($this) : $this->proxy;
-    }
-
-    /**
-     * getValidatedParameters
-     *
-     * @param array $parameters
-     *
-     * @return array
-     */
-    protected function getValidatedParameters(array $parameters)
-    {
-        $parameters = array_merge($this->globals, $parameters);
-
-        $proxy = $this->getProxy();
-
-        foreach (['view', 'this'] as $keyWord) {
-            //if (isset($parameters[$keyWord]) && $this !== $parameters[$keyWord]) {
-            //    throw RenderException::invalidParameter($keyWord);
-            //}
-
-            if ('func' !== $keyWord && !isset($parameters[$keyWord])) {
-                $parameters[$keyWord] = $proxy;
-            }
-        }
-
-        if (!isset($parameters['func'])) {
-            $parameters['func'] = [$proxy, 'func'];
-        }
-
-        return array_merge($this->renderParams, $parameters);
-    }
-
-    /**
-     * pullOptions
-     *
-     * @param array $vars
-     * @param array $options
-     *
-     * @return array
-     */
-    protected function pullOptions(array $vars, array $options)
-    {
-        $vars = array_intersect_key($this->renderParams, array_flip($vars));
-
-        if (0 === count($options)) {
-            $options = $this->renderParams;
-        };
-
-        return array_merge($options, $vars);
     }
 
     /**
@@ -481,15 +507,57 @@ class Engine extends AbstractPhpEngine implements ViewAwareInterface
     }
 
     /**
-     * getDefaultHelpers
+     * mergeShared
+     *
+     * @param array $params
+     *
+     * @return array
+     */
+    protected function mergeShared(array $params)
+    {
+        $proxy = $this->getProxy();
+
+        return array_merge($this->globals, $params, ['view' => $proxy, 'func' => [$this, 'func']]);
+    }
+
+    /**
+     * startErrorHandling
      *
      * @return void
      */
-    protected function getDefaultHelpers()
+    protected function startErrorHandling()
     {
-        return [
-            new InsertHelper,
-            new ExtendHelper
-        ];
+        $this->errHandler = set_error_handler($this->getErrFunc());
+    }
+
+    /**
+     * Get the error handler
+     *
+     * @return \Closure
+     */
+    protected function getErrFunc()
+    {
+        if (null === $this->errFunc) {
+            $this->errFunc = function ($errno, $errstr, $errfile, $errline) {
+                $this->stopErrorHandling();
+                throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
+            };
+        }
+
+        return $this->errFunc;
+    }
+
+    /**
+     * stopErrorHandling
+     *
+     * @return void
+     */
+    protected function stopErrorHandling()
+    {
+        if (null !== $this->errHandler) {
+            restore_error_handler();
+        }
+
+        $this->errHandler = null;
     }
 }

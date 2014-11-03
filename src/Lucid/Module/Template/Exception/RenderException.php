@@ -18,7 +18,7 @@ namespace Lucid\Module\Template\Exception;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-class RenderException extends \RuntimeException
+class RenderException extends \RuntimeException implements TemplateException
 {
     /**
      * Constructor.

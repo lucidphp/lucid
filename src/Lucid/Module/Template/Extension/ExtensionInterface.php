@@ -30,4 +30,20 @@ interface ExtensionInterface
      * @return array
      */
     public function functions();
+
+    /**
+     * Sets the template engine.
+     *
+     * @param EngineInterface $engine
+     *
+     * @return void
+     */
+    public function setEngine(EngineInterface $engine);
+
+    /**
+     * Get the template engine.
+     *
+     * @return EngineInterface
+     */
+    public function getEngine();
 }

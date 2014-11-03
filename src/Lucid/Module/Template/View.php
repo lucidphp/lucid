@@ -12,6 +12,8 @@
 namespace Lucid\Module\Template;
 
 use Lucid\Module\Template\Listener\ListenerInterface;
+use Lucid\Module\Template\Data\TemplateDataInterface;
+use Lucid\Module\Template\Data\Data;
 
 /**
  * @class View
@@ -44,11 +46,11 @@ class View implements ViewManagerInterface
     private $parameters;
 
     /**
-     * currentEngine
+     * data
      *
-     * @var array
+     * @var mixed
      */
-    private $currentEngine;
+    private $data;
 
     /**
      * Constructor.
@@ -58,6 +60,7 @@ class View implements ViewManagerInterface
     public function __construct(EngineInterface $engine, array $listeners = [])
     {
         $this->engine = $engine;
+        $this->data = [];
         $this->parameters = [];
 
         $this->setListeners($listeners);
@@ -80,15 +83,58 @@ class View implements ViewManagerInterface
     }
 
     /**
-     * addParameters
+     * flushParameters
+     *
+     * @return TemplateDataInterface|boolean false
+     */
+    public function flushData($name)
+    {
+        if (!isset($this->data[$name])) {
+            return false;
+        }
+
+        $data = $this->data[$name];
+
+        unset($this->data[$name]);
+
+        return $data;
+    }
+
+    /**
+     * setGlobals
      *
      * @param array $parameters
      *
      * @return void
      */
-    public function addParameters(array $parameters)
+    public function setGlobals(array $parameters)
     {
-        $this->parameters = array_merge($this->parameters, $parameters);
+        $this->parameters = $parameters;
+    }
+
+    /**
+     * addGlobals
+     *
+     * @param array $parameters
+     *
+     * @return void
+     */
+    public function addGlobals(array $parameters)
+    {
+        $this->globals = array_merge($this->parameters, $parameters);
+    }
+
+    /**
+     * addGlobal
+     *
+     * @param mixed $key
+     * @param mixed $parameter
+     *
+     * @return void
+     */
+    public function addGlobal($key, $value)
+    {
+        $this->parameters[$key] = $value;
     }
 
     /**
@@ -111,13 +157,13 @@ class View implements ViewManagerInterface
      *
      * @return void
      */
-    public function notifyListeners($template)
+    public function notifyListeners($name)
     {
-        if (!isset($this->listeners[$name = (string)$template])) {
+        if (!isset($this->listeners[$name])) {
             return;
         }
 
-        $this->listeners[$name]->onRender($this->getEngineForTemplate($template));
+        $this->listeners[$name]->onRender($this->data[$name] = new Data($this));
     }
 
     /**
@@ -139,15 +185,27 @@ class View implements ViewManagerInterface
     }
 
     /**
+     * supports
+     *
+     * @param mixed $tempalte
+     *
+     * @return boolean
+     */
+    public function supports($tempalte)
+    {
+        return $this->engine->supporst;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function render($template, array $parameters = [])
     {
-        $parameters = $this->getParameters($parameters);
+        ob_start();
 
-        $engine = $this->getEngineForTemplate($template);
+        $this->display($template, $parameters);
 
-        return $engine->render($template, $this->getParameters($parameters));
+        return ob_get_clean();
     }
 
     /**
@@ -155,25 +213,15 @@ class View implements ViewManagerInterface
      */
     public function display($template, array $parameters = [])
     {
+        $engine = $this->getEngineForTemplate($template);
+
         $parameters = $this->getParameters($parameters);
 
-        $this->notifyListeners($template);
-
-        if (($engine = $this->getEngine()) instanceof DisplayInterface) {
-            $engine->display($template, $this->getParameters($parameters));
+        if ($engine instanceof DisplayInterface) {
+            $engine->display($template, $parameters);
         } else {
-            echo $engine->render($template, $this->getParameters($parameters));
+            echo $engine->render($template, $parameters);
         }
-    }
-
-    /**
-     * getEngine
-     *
-     * @return EngineInterface
-     */
-    protected function getEngine($template)
-    {
-        return $this->currentEngine ?: $this->getEngineForTemplate($template);
     }
 
     /**
@@ -183,7 +231,7 @@ class View implements ViewManagerInterface
      *
      * @return void
      */
-    public function getParameters(array $parameters)
+    protected function getParameters(array $parameters)
     {
         return empty($parameters) ? $this->parameters : array_merge($this->parameters, $parameters);
     }
@@ -203,5 +251,4 @@ class View implements ViewManagerInterface
 
         return $engine;
     }
-
 }

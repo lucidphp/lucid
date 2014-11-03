@@ -21,7 +21,7 @@ use Lucid\Module\Template\Resource\ResourceInterface;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-abstract class AbstractPhpEngine implements EngineInterface, DisplayInterface, PhpEngineInterface
+abstract class AbstractPhpEngine implements EngineInterface, DisplayInterface, PhpRenderInterface
 {
 
     /**
@@ -103,14 +103,6 @@ abstract class AbstractPhpEngine implements EngineInterface, DisplayInterface, P
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function display($template, array $parameters = [])
-    {
-        echo $this->render($template, $parameters);
-    }
-
-    /**
      * addType
      *
      * @param mixed $type
@@ -147,16 +139,16 @@ abstract class AbstractPhpEngine implements EngineInterface, DisplayInterface, P
         if (!$this->isLoaded($identity = $this->findIdentity($template))) {
 
             if (!$this->supports($identity)) {
-                throw new \InvalidArgumentException('Unsupported template.');
+                throw new \InvalidArgumentException(sprintf('Unsupported template "%s".', $identity->getName()));
             }
 
-            $identity->setResource($this->getLoader()->load($identity));
-
-            $this->setLoaded($identity);
+            $this->setLoaded($identity, $this->getLoader()->load($identity));
         }
 
         return $this->getLoaded($identity);
     }
+
+    abstract protected function getParameters($template, array $parameters);
 
     /**
      * isLoaded
@@ -177,9 +169,9 @@ abstract class AbstractPhpEngine implements EngineInterface, DisplayInterface, P
      *
      * @return TemplateInterface
      */
-    protected function getLoaded(IdentityInterface $template)
+    protected function getLoaded(IdentityInterface $identity)
     {
-        return $this->loaded[$template->getName()];
+        return $this->loaded[$identity->getName()];
     }
 
     /**
@@ -189,9 +181,9 @@ abstract class AbstractPhpEngine implements EngineInterface, DisplayInterface, P
      *
      * @return void
      */
-    protected function setLoaded(IdentityInterface $identity)
+    protected function setLoaded(IdentityInterface $identity, ResourceInterface $resource)
     {
-        $this->loaded[$identity->getName()] = new Template($this, $identity);
+        $this->loaded[$identity->getName()] = $resource;
     }
 
     /**

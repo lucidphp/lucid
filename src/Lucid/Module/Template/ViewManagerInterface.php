@@ -20,9 +20,30 @@ namespace Lucid\Module\Template;
  */
 interface ViewManagerInterface extends RenderInterface, DisplayInterface
 {
+    /**
+     * supports
+     *
+     * @param mixed $template
+     *
+     * @return boolean
+     */
+    public function supports($template);
+
+    /**
+     * getEngineForTemplate
+     *
+     * @param mixed $template
+     *
+     * @return EngineInteface|null
+     */
     public function getEngineForTemplate($template);
 
+    /**
+     * notifyListeners
+     *
+     * @param string $name
+     *
+     * @return void
+     */
     public function notifyListeners($name);
-
-    public function addParameters(array $parameters);
 }

@@ -11,8 +11,7 @@
 
 namespace Lucid\Module\Template\Listener;
 
-use Lucid\Module\Template\View;
-use Lucid\Module\Template\EngineInterface;
+use Lucid\Module\Template\Data\TemplateDataInterface;
 
 /**
  * @interface ListenerInterface
@@ -30,6 +29,5 @@ interface ListenerInterface
      *
      * @return void
      */
-    public function onRender(EngineInterface $view);
-
+    public function onRender(TemplateDataInterface $data);
 }
