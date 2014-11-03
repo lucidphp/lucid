@@ -20,11 +20,48 @@ namespace Lucid\Module\Routing\Handler;
  */
 interface TypeMapCollectionInterface
 {
+    /**
+     * Sets an array of typemapper objects.
+     *
+     * @param array $typeMappers
+     *
+     * @return void
+     */
     public function set(array $typeMappers);
 
+    /**
+     * Add a typemapper object to the collection.
+     *
+     * @param TypeMapperInterface $typeMapper
+     *
+     * @return void
+     */
     public function add(TypeMapperInterface $typeMapper);
 
+    /**
+     * Check if a mapper for a given type exists.
+     *
+     * @param string $type
+     *
+     * @return boolean
+     */
     public function has($type);
 
+    /**
+     * Get the object for a given type.
+     *
+     * @param string $type
+     *
+     * @return Object
+     */
     public function get($type);
+
+    /**
+     * Get the mapper for a given type.
+     *
+     * @param string $type
+     *
+     * @return TypeMapperInterface
+     */
+    public function getMapper($type);
 }

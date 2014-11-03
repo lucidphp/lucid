@@ -25,6 +25,9 @@ class TypeMapCollection implements TypeMapCollectionInterface
         $this->set($mappers);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function set(array $mappers)
     {
         $this->mappers = [];
@@ -34,21 +37,33 @@ class TypeMapCollection implements TypeMapCollectionInterface
         }
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function add(TypeMapperInterface $mapper)
     {
         $this->mappers[$this->sanitize($mapper->getType())] = $mapper;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function has($type)
     {
         return isset($this->mappers[$this->sanitize($type)]);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function get($type)
     {
         return $this->getMapper($type)->getObject();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getMapper($type)
     {
         if ($this->has($type)) {
@@ -56,7 +71,13 @@ class TypeMapCollection implements TypeMapCollectionInterface
         }
     }
 
-
+    /**
+     * Sanitize class name.
+     *
+     * @param string $type
+     *
+     * @return string
+     */
     private function sanitize($type)
     {
         return '\\'.ltrim($type, '\\');
