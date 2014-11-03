@@ -46,4 +46,13 @@ interface ViewManagerInterface extends RenderInterface, DisplayInterface
      * @return void
      */
     public function notifyListeners($name);
+
+    /**
+     * Flushes the data added by a listener.
+     *
+     * @param string $name
+     *
+     * @return \Lucid\Module\Template\Data\TemplateDataInterface
+     */
+    public function flushData($name);
 }

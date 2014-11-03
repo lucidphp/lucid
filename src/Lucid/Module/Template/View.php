@@ -151,11 +151,7 @@ class View implements ViewManagerInterface
     }
 
     /**
-     * notifyListeners
-     *
-     * @param mixed $template
-     *
-     * @return void
+     * {@inheritdoc}
      */
     public function notifyListeners($name)
     {
@@ -168,6 +164,35 @@ class View implements ViewManagerInterface
 
     /**
      * {@inheritdoc}
+     */
+    public function render($template, array $parameters = [])
+    {
+        return $this->getEngineForTemplate($template)->render($template, $this->getParameters($parameters));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function display($template, array $parameters = [])
+    {
+        if (($engine = $this->getEngineForTemplate($template)) instanceof DisplayInterface) {
+            $engine->display($template, $this->getParameters($parameters));
+        } else {
+            echo $engine->render($template, $this->getParameters($parameters));
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function supports($tempalte)
+    {
+        return $this->engine->supporst;
+    }
+
+    /**
+     * {@inheritdoc}
+     *
      * @throws \InvalidArgumentException if no engine is found for the
      * given template.
      */
@@ -182,46 +207,6 @@ class View implements ViewManagerInterface
         }
 
         throw new \InvalidArgumentException(sprintf('No engine found for template "%s".', (string)$template));
-    }
-
-    /**
-     * supports
-     *
-     * @param mixed $tempalte
-     *
-     * @return boolean
-     */
-    public function supports($tempalte)
-    {
-        return $this->engine->supporst;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function render($template, array $parameters = [])
-    {
-        ob_start();
-
-        $this->display($template, $parameters);
-
-        return ob_get_clean();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function display($template, array $parameters = [])
-    {
-        $engine = $this->getEngineForTemplate($template);
-
-        $parameters = $this->getParameters($parameters);
-
-        if ($engine instanceof DisplayInterface) {
-            $engine->display($template, $parameters);
-        } else {
-            echo $engine->render($template, $parameters);
-        }
     }
 
     /**
