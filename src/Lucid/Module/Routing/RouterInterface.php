@@ -20,7 +20,7 @@ use Lucid\Module\Routing\Http\RequestContextInterface;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-interface RouterInterface
+interface RouterInterface extends RouteDispatcherInterface
 {
     /**
      * Dispatches a given request.

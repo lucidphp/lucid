@@ -73,6 +73,14 @@ class UrlGenerator implements UrlGeneratorInterface
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getRequestContext()
+    {
+        return $this->request;
+    }
+
+    /**
      * setRoutes
      *
      * @param RouteCollectionInterface $request

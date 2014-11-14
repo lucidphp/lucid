@@ -42,6 +42,13 @@ interface UrlGeneratorInterface
     public function setRequestContext(RequestContextInterface $request);
 
     /**
+     * getRequestContext
+     *
+     * @return RequestContextInterface|null
+     */
+    public function getRequestContext();
+
+    /**
      * setRoutes
      *
      * @param RouteCollectionInterface $request

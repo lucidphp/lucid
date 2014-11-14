@@ -24,6 +24,8 @@ use Lucid\Module\Routing\Matcher\RequestMatcherInterface;
  */
 class RouterTest extends \PHPUnit_Framework_TestCase
 {
+    protected $route;
+
     /** @test */
     public function itShouldBeInstantiable()
     {
@@ -90,6 +92,30 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('index', $current);
     }
 
+    /** @test */
+    public function itShouldDispatchARoute()
+    {
+        $router = new Router(
+            $routes = $this->mockRoutes($route = $this->mockRoute()),
+            $matcher = $this->mockMatcher(),
+            null,
+            null,
+            $url = $this->mockGenerator()
+        );
+
+        $handler = function () {
+            $dispatched = true;
+
+            return '_response_';
+        };
+
+        $name = 'my_route';
+        $route->shouldReceive('getHandler')->andReturn($handler);
+        $routes->shouldReceive('has')->with($name)->andReturn(true);
+
+        $this->assertSame('_response_', $router->dispatchRoute($name, [], []));
+    }
+
     /**
      * mockRequest
      *
@@ -150,14 +176,14 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         return $m;
     }
 
-    protected function mockRoutes()
+    protected function mockRoutes($route = null)
     {
         $m = m::mock('Lucid\Module\Routing\RouteCollectionInterface');
         $m->shouldIgnoreMissing();
 
-        $m->shouldReceive('get')->andReturnUsing(function ($name) use (&$m) {
+        $m->shouldReceive('get')->andReturnUsing(function ($name) use (&$m, $route) {
             if ($m->has($name)) {
-                return $this->mockRoute();
+                return $route ?: $this->mockRoute();
             }
 
             return null;
@@ -169,6 +195,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
     protected function mockRoute()
     {
         $m = m::mock('Lucid\Module\Routing\RouteInterface');
+        $this->route = $m;
 
         return $m;
     }
