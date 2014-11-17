@@ -11,7 +11,10 @@
 
 namespace Lucid\Module\Filesystem\Driver;
 
+use SplFileInfo;
 use FilesystemIterator;
+use RecursiveIteratorIterator;
+use RecursiveDirectoryIterator;
 use Lucid\Module\Filesystem\PathInfo;
 use Lucid\Module\Filesystem\FilesystemInterface;
 use Lucid\Module\Filesystem\Exception\IOException;
@@ -23,8 +26,13 @@ use Lucid\Module\Filesystem\Exception\IOException;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-class LocalDriver extends AbstractDriver
+class LocalDriver extends AbstractDriver implements NativeInterface
 {
+    /**
+     * options
+     *
+     * @var array
+     */
     protected $options;
 
     /**
@@ -35,8 +43,16 @@ class LocalDriver extends AbstractDriver
      */
     public function __construct($mount = '/', $options = [])
     {
-        $this->setPrefix($mount);
+        parent::__construct($mount);
         $this->options = array_merge(static::defaultOptions(), $options);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function pathInfoAsObject($obj)
+    {
+        $this->options['pathinfo_as_obj'] = (bool)$obj;
     }
 
     /**
@@ -74,14 +90,6 @@ class LocalDriver extends AbstractDriver
     /**
      * {@inheritdoc}
      */
-    public function supports($file)
-    {
-        return @stream_is_local($this->getprefixed($file));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function exists($path)
     {
         return stream_is_local($path = $this->getprefixed($path)) && file_exists($path);
@@ -90,21 +98,9 @@ class LocalDriver extends AbstractDriver
     /**
      * {@inheritdoc}
      */
-    public function createDirectory($dir, $permission = 0755, $recursive = true)
-    {
-        if (false !== @mkdir($this->getprefixed($dir), $permission, (bool)$recursive)) {
-            return $this->getFileStats($dir);
-        }
-
-        return false;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function writeFile($file, $contents = null)
     {
-        if (false !== file_put_contents($this->getPrefixed($file), $content, LOCK_EX)) {
+        if (false !== file_put_contents($this->getPrefixed($file), $contents, LOCK_EX)) {
             return $this->getFileStats($file);
         }
 
@@ -114,10 +110,25 @@ class LocalDriver extends AbstractDriver
     /**
      * {@inheritdoc}
      */
-    public function writeStream($path, $stream, $maxlen = null, $start = 0)
+    public function updateFile($file, $contents = null)
     {
-        if (false !== $this->doWriteStream($this->getPrefixed($path), $stream, $maxlen, $start)) {
-            return $this->getFileStats($path);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function readFile($file, $offset = null, $maxlen = null)
+    {
+        return file_get_contents($this->getPrefixed($file), null, null, $offset ?: null, $maxlen ?: null);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createDirectory($dir, $permission = 0755, $recursive = true)
+    {
+        if (false !== @mkdir($this->getprefixed($dir), $permission, (bool)$recursive)) {
+            return $this->getFileStats($dir);
         }
 
         return false;
@@ -138,9 +149,45 @@ class LocalDriver extends AbstractDriver
     /**
      * {@inheritdoc}
      */
-    public function readFile($file, $offset = null, $maxlen = null)
+    public function updateTimestamp($path)
     {
-        return file_get_contents($this->getPrefixed($file), null, null, $offset ?: null, $maxlen ?: null);
+        if ($this->exists($path)) {
+            return $this->touch($path);
+        }
+
+        return false;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function touch($path, $time = null, $atime = null)
+    {
+        if (false !== @touch($this->getPrefixed($path, $time, $atime))) {
+            return $htis->getFileStats($path);
+        }
+
+        return false;
+    }
+
+
+    /**
+     * {@inheritdoc}
+     */
+    public function writeStream($path, $stream, $maxlen = null, $start = 0)
+    {
+        if (false !== $this->doWriteStream($this->getPrefixed($path), $stream, $maxlen, $start)) {
+            return $this->getFileStats($path);
+        }
+
+        return false;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function updateStream($path, $stream, $maxlen = null, $start = 0)
+    {
     }
 
     /**
@@ -167,6 +214,20 @@ class LocalDriver extends AbstractDriver
         }
 
         return false;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPermission($path)
+    {
+        if (!file_exists($location = $this->getPrefixed($path))) {
+            return false;
+        }
+
+        list($permission, $visibility) = $this->pathPermissions($location);
+
+        return compact('path', 'visibility', 'permission');
     }
 
     /**
@@ -222,8 +283,9 @@ class LocalDriver extends AbstractDriver
     {
         $contents = [];
 
-        foreach ($this->getIterator($this->getPrefixed($path), $recursive) as $path => $info) {
-            $contents[$info->getBasename()] = $this->fInfoToPathInfo($info);
+        foreach ($itr = $this->getIterator($this->getPrefixed($path), $recursive) as $path => $info) {
+            $key = $recursive ? $itr->getSubPathname() : $info->getBaseName();
+            $contents[$key] = $this->fInfoToPathInfo($info);
         }
 
         return $contents;
@@ -263,6 +325,24 @@ class LocalDriver extends AbstractDriver
         $this->ensureFileExists($this->getPrefixed($file));
 
         return $this->getFileStats($file);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPathInfo($path)
+    {
+        return $this->fInfoToPathInfo(new SplFileInfo($this->getPrefixed($path)));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getMimeType($path)
+    {
+        $mimetype = finfo_file(finfo_open(FILEINFO_MIME_TYPE), $this->getPrefixed($path));
+
+        return compact('path', 'mimetype');
     }
 
     /**
@@ -417,9 +497,14 @@ class LocalDriver extends AbstractDriver
     {
         $loc = $isPrefixed ? $path : $this->getPrefixed($path);
 
-        list ($permission, $visibility) = $this->dumpPermission(octdec(substr(sprintf('%o', fileperms($loc)), -4)));
+        list ($permission, $visibility) = $this->pathPermissions($loc);
 
         return compact('path', 'visibility', 'permission');
+    }
+
+    protected function pathPermissions($path)
+    {
+        return $this->dumpPermission(octdec(substr(sprintf('%o', fileperms($path)), -4)));
     }
 
     /**
@@ -444,31 +529,70 @@ class LocalDriver extends AbstractDriver
         return $this->options['directory_permission'];
     }
 
+    /**
+     * followSymlinks
+     *
+     * @return boolean
+     */
     protected function followSymlinks()
     {
         return $this->options['follow_symlinks'];
     }
 
+    /**
+     * getIterator
+     *
+     * @param mixed $path
+     * @param mixed $recursive
+     *
+     * @return FilesystemIterator
+     */
     protected function getIterator($path, $recursive)
     {
-        if ($recursive) {
-            return new RecursiveDirectoryIterator($path);
+        $flags = FilesystemIterator::KEY_AS_PATHNAME | FilesystemIterator::SKIP_DOTS;
+
+        if ($this->followSymlinks()) {
+            $flags = $flags | FilesystemIterator::FOLLOW_SYMLINKS;
         }
 
-        return new \FilesystemIterator($path, \FilesystemIterator::SKIP_DOTS);
+        if ($recursive) {
+            $itr = new RecursiveDirectoryIterator(
+                $path,
+                $flags | FilesystemIterator::CURRENT_AS_FILEINFO
+            );
+
+            return new RecursiveIteratorIterator($itr);
+        }
+
+        return new FilesystemIterator($path, $flags);
     }
 
+    /**
+     * fInfoToPathInfo
+     *
+     * @param \SplFileInfo $file
+     *
+     * @return void
+     */
     protected function fInfoToPathInfo(\SplFileInfo $file)
     {
         $info['type']      = $file->getType();
-        $info['path']      = $file->getPathName();
+        $info['path']      = $this->getUnprefixed($file->getPathName());
         $info['timestamp'] = $file->getMTime();
 
         if ('file' === $info['type']) {
-            $info['size']      = $file->getType();
+            $info['size'] = $file->getSize();
         }
 
-        return PathInfo::create($info);
+        return $this->createPathInfo($info);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function pathInfoReturnsArray()
+    {
+        return !$this->options['pathinfo_as_obj'];
     }
 
     protected static function defaultOptions()
@@ -476,6 +600,7 @@ class LocalDriver extends AbstractDriver
         return [
             'directory_permission' => 0755,
             'follow_symlinks' => false,
+            'pathinfo_as_obj' => false,
         ];
     }
 }

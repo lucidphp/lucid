@@ -22,7 +22,11 @@ trait PathHelperTrait
      */
     public function dirname($dirname)
     {
-        return dirname($dirname);
+        if ('.' === $dn = dirname($dirname)) {
+            return '';
+        }
+
+        return $dn;
     }
 
     /**

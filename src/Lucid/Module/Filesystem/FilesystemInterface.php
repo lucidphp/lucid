@@ -41,40 +41,40 @@ interface FilesystemInterface
     const COPY_START_OFFSET = 1;
 
     /**
-     * exists
+     * Checks if a path exists.
      *
-     * @param mixed $param
+     * @param string $path
      *
      * @return boolean
      */
-    public function exists($file);
+    public function exists($path);
 
     /**
-     * isDir
+     * Check if path is a directory.
      *
-     * @param mixed $file
+     * @param string $path
      *
      * @return boolean
      */
     public function isDir($file);
 
     /**
-     * isFile
+     * Check if path is a file.
      *
-     * @param mixed $file
+     * @param string $path
      *
      * @return boolean
      */
-    public function isFile($file);
+    public function isFile($path);
 
     /**
-     * isLink
+     * Check if path is a link.
      *
-     * @param mixed $file
+     * @param string $path
      *
      * @return boolean
      */
-    public function isLink($file);
+    public function isLink($path);
 
     /**
      * Ensure that a directory exists.
@@ -99,64 +99,82 @@ interface FilesystemInterface
     public function ensureFile($file);
 
     /**
-     * setContents
+     * Write content to a file.
      *
-     * @param mixed $file
-     * @param mixed $content
-     * @param mixed $writeFlags
+     * @param string $file
+     * @param string $content
      *
      * @return boolean
      */
-    public function setContents($file, $content);
+    public function writeFile($file, $content);
 
     /**
-     * getContents
+     * Dumps the contents of a file.
      *
-     * @param mixed $file
-     * @param mixed $includepath
-     * @param mixed $context
-     * @param mixed $start
-     * @param mixed $stop
+     * @param string   $file
+     * @param int|null $start
+     * @param int|null $stop
      *
      * @return string
      */
-    public function getContents($file, $start = null, $stop = null);
-    //public function getContents($file, $includepath = null, $context = null, $start = null, $stop = null);
+    public function dumpFile($file, $offset = null, $maxlen = null);
 
     /**
-     * enum
+     * Writes a stream resource to a given file path.
      *
-     * @param mixed $file
-     * @param int $start
-     * @param mixed $prefix
-     * @param mixed $pad
+     * @param string   $file
+     * @param resource $stream
+     *
+     * @return array
+     */
+    public function writeStreamToFile($file, $stream);
+
+    /**
+     * Get a filestream from a given file path.
+     *
+     * @param string $file
+     *
+     * @return resource
+     */
+    public function readStreamFromFile($file);
+
+    /**
+     * Enumrate a given path name.
+     *
+     * @param string  $file
+     * @param int     $start
+     * @param string  $prefix
+     * @param boolean $pad
      *
      * @return string
      */
     public function enum($path, $start = 0, $prefix = null, $pad = true);
 
     /**
-     * backup
+     * Creates a copy of a given resrouce.
      *
-     * @param mixed $file
-     * @param string $dateFormat
-     * @param string $suffix
+     * The path name will be created in the form
+     * of basepath/<suffix><basename><date>[<enum>.<extension>]
      *
-     * @return void
+     * @param string $path the path to copy
+     * @param string $dateFormat a valid dat format
+     * @param string $suffix backup name prefix
+     *
+     * @return array
      */
-    public function backup($file, $dateFormat = 'Y-m-d-His', $suffix = '~');
+    public function backup($path, $dateFormat = 'Y-m-d-His', $suffix = '~');
 
     /**
      * Creates a directory.
      *
      * @param string  $dir the path to the directory to be Created.
-     * @param int     $pmask the permission level expressed as a 4 digit hex
+     * @param int     $mod the permission level expressed as a 4 digit octagonal
      * mask
      * @param boolean $recursive
      *
      * @return boolean
      */
-    public function mkdir($dir, $pmask = 0755, $recursive = true);
+    public function mkdir($dir, $mod = 0755, $recursive = true);
 
     /**
      * Removes a directory entirely.
@@ -183,8 +201,10 @@ interface FilesystemInterface
     /**
      * Touches a file.
      *
-     * Will update ad file's  temestamp or create a new file if the given file
+     * Will update a file's temestamp or create a new file if the given file
      * doesn't exists.
+     *
+     * Depending on the Filesystem driver, $atime may not be affective.
      *
      * @param string  $file  the file path.
      * @param integer $time  the modifytime as unix timestamp.
@@ -206,15 +226,14 @@ interface FilesystemInterface
     public function unlink($file);
 
     /**
-     * rename
+     * Moves a path to a new name.
      *
-     * @param mixed $source
-     * @param mixed $target
-     * @param mixed $overwrite
+     * @param string  $source the source path
+     * @param string  $target the new path
      *
-     * @return void
+     * @return array|false
      */
-    public function rename($source, $target, $overwrite = false);
+    public function rename($source, $target);
 
     /**
      * Removes files or directories.
@@ -234,13 +253,12 @@ interface FilesystemInterface
      *
      * @param string  $source
      * @param string  $target
-     * @param boolean $replace
      *
      * @throws \Selene\Module\Filesystem\Exception\IOException
      *
      * @return integer returns the total count of bytes that where copied.
      */
-    public function copy($source, $target = null, $replace = false);
+    public function copy($source, $target = null);
 
     /**
      * Set file permissions.
@@ -259,6 +277,8 @@ interface FilesystemInterface
     /**
      * Change file ownership.
      *
+     * Depending on the Filesystem driver, this may not be available.
+     *
      * @param string     $file
      * @param string|int $owner
      * @param boolean    $recursive
@@ -273,6 +293,8 @@ interface FilesystemInterface
 
     /**
      * Change file group.
+     *
+     * Depending on the Filesystem driver, this may not be available.
      *
      * @param string     $file
      * @param string|int $group

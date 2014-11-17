@@ -23,119 +23,185 @@ use Lucid\Module\Filesystem\FilesystemInterface as Fs;
 interface DriverInterface
 {
     /**
-     * exists
+     * pathInfoAsObject
      *
-     * @param mixed $file
+     * @param boolean $obj
+     *
+     * @return void
+     */
+    public function pathInfoAsObject($obj);
+
+    /**
+     * Tells if given path exists.
+     *
+     * @param string $path the path
      *
      * @return boolean
      */
-    public function exists($file);
+    public function exists($path);
 
     /**
-     * isFile
+     * Tells if given path is a file.
      *
-     * @param mixed $dir
+     * @param string $path the path.
      *
      * @return boolean
      */
-    public function isFile($dir);
+    public function isFile($path);
 
     /**
-     * isDir
+     * Tells if given path is a symbolic link.
      *
-     * @param mixed $dir
+     * @param string $path the path.
      *
      * @return boolean
      */
-    public function isDir($dir);
+    public function isLink($path);
 
     /**
-     * createFile
+     * Tells if given path is a directory.
      *
-     * @param mixed $file
-     * @param mixed $contents
-     * @param mixed $permission
+     * @param string $path the path.
+     *
+     * @return boolean
+     */
+    public function isDir($path);
+
+    /**
+     * Writes to a file.
+     *
+     * @param string      $file     the file path to write to
+     * @param string|null $contents the file contents.
      *
      * @return void
      */
     public function writeFile($file, $contents = null);
 
     /**
-     * writeStream
+     * Updates a file
      *
-     * @param string $path
-     * @param resource $stream
+     * @param string      $file     the file path to write to
+     * @param string|null $contents the file contents.
+     *
+     * @return void
+     */
+    public function updateFile($file, $contents = null);
+
+    /**
+     * Writes a file stream to a path.
+     *
+     * @param string   $path the target path
+     * @param resource $stream the file stream to read from.
      *
      * @return void
      */
     public function writeStream($path, $stream);
 
     /**
-     * createDirectory
+     * Updates a file from a file stream.
      *
-     * @param mixed $dir
-     * @param mixed $recursive
-     * @param mixed $permission
+     * @param string   $path the target path
+     * @param resource $stream the file stream to read from.
+     *
+     * @return void
+     */
+    public function updateStream($path, $stream);
+
+    /**
+     * Creates a new directory.
+     *
+     * @param string  $dir the directory path
+     * @param int     $permission the permission mode.
+     * @param boolean $recursive recursively create path.
      *
      * @return void
      */
     public function createDirectory($dir, $permission = 0755, $recursive = true);
 
     /**
-     * deleteFile
+     * Deletes a file
      *
-     * @param mixed $path
-     *
-     * @return void
-     */
-    public function deleteFile($path);
-
-    /**
-     * deleteDirectory
-     *
-     * @param mixed $path
+     * @param string $file the file to delete.
      *
      * @return void
      */
-    public function deleteDirectory($path);
+    public function deleteFile($file);
 
     /**
-     * rename a file or directory.
+     * Deletes a directory an its contents.
      *
-     * @param string $source
-     * @param string $target
+     * @param string $dir the directory to delete.
      *
      * @return void
+     */
+    public function deleteDirectory($dir);
+
+    /**
+     * Renames a file or directory.
+     *
+     * @param string $source the source path
+     * @param string $target the new path
+     *
+     * @return array|boolean pathinfo of the target path, false on failure.
      */
     public function rename($source, $target);
 
     /**
-     * copyFile
+     * Copies a file.
      *
-     * @param mixed $file
-     * @param mixed $target
+     * @param string $file the source file.
+     * @param string $target the targer file path.
      *
-     * @return void
+     * @return array|boolean pathinfo of the target path, false on failure.
      */
     public function copyFile($file, $target);
 
     /**
-     * copyDirectory
+     * Copies a directory.
      *
-     * @param mixed $dir
-     * @param mixed $target
+     * @param string $dir the source directory.
+     * @param string $target the targer directory path.
      *
-     * @return void
+     * @return array|boolean pathinfo of the target path, false on failure.
      */
     public function copyDirectory($dir, $target);
 
     /**
-     * setPermission
+     * Set file permissions.
      *
-     * @param mixed $path
-     * @param mixed $permission
+     * @param string  $path the file path
+     * @param int     $permission permission mode
+     * @param boolean $recursive  sets permission recursively if path is
+     * directory.
      *
-     * @return void
+     * @return array|boolean
      */
     public function setPermission($path, $mod, $recursive = true);
+
+    /**
+     * Get file permissions.
+     *
+     * @param string $path
+     *
+     * @return array|boolean
+     */
+    public function getPermission($path);
+
+    /**
+     * Get information about a given path.
+     *
+     * @param string $path the path.
+     *
+     * @return array
+     */
+    public function getPathInfo($path);
+
+    /**
+     * Get the mime type for a given file.
+     *
+     * @param string $file
+     *
+     * @return array
+     */
+    public function getMimeType($file);
 }

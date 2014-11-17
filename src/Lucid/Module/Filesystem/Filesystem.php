@@ -87,13 +87,25 @@ class Filesystem implements FilesystemInterface
     /**
      * {@inheritdoc}
      */
-    public function setContents($file, $content)
+    public function writeFile($file, $content)
     {
         if (!$this->driver->isFile($file)) {
             throw new IOException(sprintf('Cannot write content. %s is not a file', $file));
         }
 
         return $this->driver->writeFile($file, $content);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function dumpFile($file, $start = null, $stop = null)
+    {
+        if (!$this->driver->isFile($file)) {
+            throw new IOException(sprintf('Cannot read content. %s is not a file', $file));
+        }
+
+        return $this->driver->readFile($file, $start, $stop);
     }
 
     /**
@@ -110,18 +122,6 @@ class Filesystem implements FilesystemInterface
     public function readStreamFromFile($file)
     {
         return $this->driver->readStream($file);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getContents($file, $start = null, $stop = null)
-    {
-        if (!$this->driver->isFile($file)) {
-            throw new IOException(sprintf('Cannot read content. %s is not a file', $file));
-        }
-
-        return $this->driver->readFile($file, $start, $stop);
     }
 
     /**
@@ -180,11 +180,8 @@ class Filesystem implements FilesystemInterface
     /**
      * {@inheritdoc}
      */
-    public function rename($source, $target, $overwrite = false)
+    public function rename($source, $target)
     {
-        if ($overwrite) {
-        }
-
         return $this->driver->rename($source, $target);
     }
 
@@ -209,7 +206,23 @@ class Filesystem implements FilesystemInterface
             $start++;
         }
 
-        return $dir . $this->driver->getSeparator() . $name;
+        return $dir . $this->getSeparator() . $name;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function touch($path, $time = null, $atime = null)
+    {
+        if ($this->driver instanceof NativeInterface) {
+            return $this->driver->touch($path, $time, $atime);
+        }
+
+        if (!$this->driver->exists($path)) {
+            $this->driver->writeFile($path, '');
+        }
+
+        return $this->driver->updateTimestamp($path, $time ?: time());
     }
 
     /**
@@ -235,7 +248,7 @@ class Filesystem implements FilesystemInterface
             return false;
         }
 
-        $pname = dirname($path) . $this->driver->getSeparator().$suffix.basename($path);
+        $pname = dirname($path) . $this->getSeparator().$suffix.basename($path);
         $backupName = $this->enum($pname, 1, (new \DateTime())->format($dateFormat));
 
         if ($this->driver->isFile($path)) {
@@ -245,16 +258,20 @@ class Filesystem implements FilesystemInterface
         return $this->driver->copyDirectory($path, $backupName);
     }
 
-    public function flush($directory)
+    /**
+     * {@inheritdoc}
+     */
+    public function copy($source, $target = null)
     {
-    }
+        if (null === $target) {
+            $target = $this->enum($source);
+        }
 
-    public function touch($file, $time = null, $atime = null)
-    {
-    }
+        if ($this->driver->isFile($source)) {
+            return $this->driver->copyFile($target);
+        }
 
-    public function copy($source, $target = null, $replace = false)
-    {
+        return $this->driver->copyDirectory($target);
     }
 
     public function chown($file, $owner, $recursive = true)
@@ -264,4 +281,22 @@ class Filesystem implements FilesystemInterface
     {
     }
 
+    public function flush($path)
+    {
+        $this->driver->deleteDirectory($path);
+    }
+
+    /**
+     * getSeparator
+     *
+     * @return string
+     */
+    protected function getSeparator()
+    {
+        if ($this->driver instanceof AbstractDriver) {
+            return $this->driver->getSeparator();
+        }
+
+        return '/';
+    }
 }

@@ -11,6 +11,8 @@
 
 namespace Lucid\Module\Filesystem;
 
+use Lucid\Module\Filesystem\Driver\DriverInterface;
+
 /**
  * @class PathInfo
  *
@@ -20,20 +22,44 @@ namespace Lucid\Module\Filesystem;
  */
 class PathInfo implements \Serializable, \ArrayAccess
 {
+    /**
+     * driver
+     *
+     * @var \Closure
+     */
+    protected $driver;
+
+    /**
+     * attributes
+     *
+     * @var array
+     */
     protected $attributes;
 
     /**
-     * Constructor
+     * allowedAttributes
+     *
+     * @var array
+     */
+    protected static $allowedAttributes = [
+        'type', 'path', 'size', 'timestamp',
+        'visibility', 'permission', 'mimetype',
+    ];
+
+    /**
+     * Constructor.
      *
      * @param string $type
      * @param string $path
+     * @param int    $mtime
      * @param int    $size
-     * @param string $permission
-     * @param int    $mod
+     * @param string $visibility
+     * @param string $perm
+     * @param string $mime
      */
-    public function __construct($type, $path, $size = null, $timestamp = null, $permission = null, $mod = null)
+    public function __construct($type, $path, $mtime, $size = null, $visibility = null, $perm = null, $mime = null)
     {
-        $this->attributes = compact('type', 'path', 'size', 'timestamp', 'permission', 'mod', 'mimetype');
+        $this->setAttrs($type, $path, $mtime, $size, $visibility, $perm, $mime);
     }
 
     /**
@@ -73,7 +99,7 @@ class PathInfo implements \Serializable, \ArrayAccess
      */
     public function getPath()
     {
-        return $this->get('path');
+        return $this->doGet('path');
     }
 
     /**
@@ -83,7 +109,7 @@ class PathInfo implements \Serializable, \ArrayAccess
      */
     public function getType()
     {
-        return $this->get('type');
+        return $this->doGet('type');
     }
 
     /**
@@ -93,7 +119,38 @@ class PathInfo implements \Serializable, \ArrayAccess
      */
     public function getSize()
     {
-        return $this->get('size');
+        return $this->doGet('size');
+    }
+
+    /**
+     * getMimetype
+     *
+     * @return void
+     */
+    public function getMimetype()
+    {
+        if (!$this->isFile()) {
+            return;
+        }
+
+        if (null === $this->attributes['mimetype'] && null !== $this->driver) {
+            $mime = $this->driver->getMimeType($this->getPath());
+            $this->attributes['mimetype'] = $mime['mimetype'];
+        }
+
+        return $this->doGet('mimetype');
+    }
+
+    /**
+     * getPermission
+     *
+     * @return string|null
+     */
+    public function getVisibility()
+    {
+        $this->ensureVisiblity();
+
+        return $this->attributes['visibility'];
     }
 
     /**
@@ -103,17 +160,9 @@ class PathInfo implements \Serializable, \ArrayAccess
      */
     public function getPermission()
     {
-        return $this->get('permission');
-    }
+        $this->ensureVisiblity();
 
-    /**
-     * getPermission
-     *
-     * @return string|null
-     */
-    public function getMod()
-    {
-        return $this->get('mod');
+        return $this->attributes['permission'];
     }
 
     /**
@@ -125,9 +174,11 @@ class PathInfo implements \Serializable, \ArrayAccess
      */
     public function get($attribute)
     {
-        if (isset($this->attributes[$attribute])) {
-            return $this->attributes[$attribute];
+        if ($method = $this->methodExists($key)) {
+            return $this->{$method}();
         }
+
+        return $this->doGet($attribute);
     }
 
     /**
@@ -147,8 +198,11 @@ class PathInfo implements \Serializable, \ArrayAccess
      */
     public function copyAttrs(array $input)
     {
-        $cl = clone $this;
-        $cl->attributes = static::sanitizeInput($input);
+        $cl = static::create($input);
+
+        if ($this->driver) {
+            $cl->setDriver($this->driver);
+        }
 
         return $cl;
     }
@@ -182,7 +236,11 @@ class PathInfo implements \Serializable, \ArrayAccess
      */
     public function offsetGet($key)
     {
-        return $this->attributes[$key];
+        if ($method = $this->methodExists($key)) {
+            return $this->{$method}();
+        }
+
+        return $this->doGet($key);
     }
 
     /**
@@ -202,19 +260,45 @@ class PathInfo implements \Serializable, \ArrayAccess
     }
 
     /**
-     * Creates a new PathInfo Object.
+     * setDriver
      *
-     * @param array $info
+     * @param DriverInterface $getDriver
      *
      * @return void
      */
-    public static function create(array $info)
+    public function setDriver(DriverInterface $driver)
     {
-        $data = serialize(static::sanitizeInput($info));
+        $this->driver = $driver;
+    }
 
-        return unserialize(
-            sprintf('C:%d:"%s":%d:{%s}', strlen(__CLASS__), __CLASS__, strlen($data), $data)
-        );
+    /**
+     * doGet
+     *
+     * @param mixed $key
+     *
+     * @return mixed
+     */
+    protected function doGet($key)
+    {
+        if (isset($this->attributes[$key])) {
+            return $this->attributes[$key];
+        }
+    }
+
+    /**
+     * methodExists
+     *
+     * @param string $attr
+     *
+     * @return string|boolean
+     */
+    protected function methodExists($attr)
+    {
+        if (!method_exists($this, $method = 'get'.ucfirst($attr))) {
+            return false;
+        }
+
+        return $method;
     }
 
     /**
@@ -226,16 +310,71 @@ class PathInfo implements \Serializable, \ArrayAccess
      */
     protected static function sanitizeInput(array $input)
     {
-        $out = [];
+        $attrs = array_combine(
+            static::$allowedAttributes,
+            array_fill(0, count(static::$allowedAttributes), null)
+        );
 
-        foreach (['type', 'path', 'timestamp', 'size', 'permission', 'mod', 'mimetype'] as $key) {
-            if (isset($input[$key])) {
-                $out[$key] = $input[$key];
-            } else {
-                $out[$key] = null;
-            }
+        $mod = array_intersect_key($attrs, $input);
+
+        return array_merge($attrs, $input);
+    }
+
+    /**
+     * Creates a new PathInfo Object.
+     *
+     * @param array $info
+     *
+     * @return void
+     */
+    public static function create(array $info)
+    {
+        $data = static::sanitizeInput($info);
+
+        return new static(
+            $data['type'],
+            $data['path'],
+            $data['timestamp'],
+            $data['size'],
+            $data['visibility'],
+            $data['permission'],
+            $data['mimetype']
+        );
+    }
+
+    /**
+     * ensureVisiblity
+     *
+     * @return void
+     */
+    protected function ensureVisiblity()
+    {
+        if (null === $this->attributes['visibility'] && null !== $this->driver) {
+            $pem = $this->driver->getPermission($this->getPath());
+            $this->attributes['permission'] = $pem['permission'];
+            $this->attributes['visibility'] = $pem['visibility'];
         }
+    }
 
-        return $out;
+    /**
+     * setAttrs
+     *
+     * @param string $type
+     * @param string $path
+     * @param int    $timestamp
+     * @param int    $size
+     * @param string $visibility
+     * @param string $permission
+     * @param string $mimetype
+     *
+     * @return void
+     */
+    protected function setAttrs($type, $path, $timestamp, $size, $visibility, $permission, $mimetype)
+    {
+        if ('file' === $type) {
+            $this->attributes = compact('type', 'path', 'timestamp', 'size', 'visibility', 'permission', 'mimetype');
+        } else {
+            $this->attributes = compact('type', 'path', 'timestamp', 'visibility', 'permission');
+        }
     }
 }
