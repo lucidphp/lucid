@@ -38,6 +38,13 @@ abstract class AbstractDriver implements DriverInterface
     protected $prefix;
 
     /**
+     * options
+     *
+     * @var array
+     */
+    protected $options;
+
+    /**
      * directorySeparator
      *
      * @var string
@@ -51,6 +58,14 @@ abstract class AbstractDriver implements DriverInterface
     {
         $this->setPrefix($mount);
         $this->setRootObject();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function pathInfoAsObject($obj)
+    {
+        $this->setOption('pathinfo_as_obj', (bool)$obj);
     }
 
     /**
@@ -161,6 +176,10 @@ abstract class AbstractDriver implements DriverInterface
      */
     protected function getPrefixed($path)
     {
+        if (0 === mb_strpos($path, '.')) {
+            $path = mb_substr($path, 1);
+        }
+
         $path = ltrim($path, $this->directorySeparator);
 
         return 0 !== mb_strlen($path) ? ($this->prefix ?: '') . $path : ($this->prefix ?: '');
@@ -179,8 +198,25 @@ abstract class AbstractDriver implements DriverInterface
             return $path;
         }
 
-        return mb_substr($path, mb_strlen($this->prefix) - 1);
+        return ltrim(mb_substr($path, mb_strlen($this->prefix) - 1), '/');
     }
 
-    abstract protected function pathInfoReturnsArray();
+    protected function setOption($option, $value)
+    {
+        $this->options[$option] = $value;
+    }
+
+    protected function getOption($option, $default = null)
+    {
+        if (isset($this->options[$option])) {
+            return $this->options[$option];
+        }
+
+        return $default;
+    }
+
+    protected function pathInfoReturnsArray()
+    {
+        return !$this->getOption('pathinfo_as_obj');
+    }
 }
