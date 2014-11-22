@@ -191,7 +191,7 @@ trait TraitAwareWriterHelper
 
             if ($replUse) {
                 $useRpl = array_merge($useRpl, array_filter($this->replacements['trait_use_as'], function ($def) use ($trait) {
-                    return ObjectWriter::trimNs($trait) === ObjectWriter::trimNs($def[0]);
+                    return AbstractWriter::trimNs($trait) === AbstractWriter::trimNs($def[0]);
                 }));
             }
 
@@ -201,12 +201,12 @@ trait TraitAwareWriterHelper
                     $cflExists = false;
 
                     foreach ($this->traits as $strait) {
-                        if ($clfExists = (ObjectWriter::trimNs($strait) === ObjectWriter::trimNs($def[1]))) {
+                        if ($clfExists = (AbstractWriter::trimNs($strait) === AbstractWriter::trimNs($def[1]))) {
                             break;
                         }
                     }
 
-                    return $clfExists && (ObjectWriter::trimNs($trait) === ObjectWriter::trimNs($def[0]));
+                    return $clfExists && (AbstractWriter::trimNs($trait) === AbstractWriter::trimNs($def[0]));
                 }));
             }
         }
