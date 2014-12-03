@@ -13,6 +13,7 @@ namespace Lucid\Module\Http;
 
 use Lucid\Module\Http\Parameters;
 use Lucid\Module\Http\Request\Body;
+use Lucid\Module\Http\Request\Files;
 use Lucid\Module\Http\Request\Server;
 use Lucid\Module\Http\Request\Headers;
 
@@ -86,7 +87,10 @@ class Request implements RequestInterface
      *
      * @var mixed
      */
+    public $files;
+    public $cookies;
     public $headers;
+    public $attributes;
 
     /**
      * Constructor.
@@ -97,7 +101,6 @@ class Request implements RequestInterface
      * @param array $files
      * @param array $cookies
      * @param array $server
-     * @param array $info
      */
     public function __construct(
         array $query = [],
@@ -105,12 +108,14 @@ class Request implements RequestInterface
         array $attributes = [],
         array $files = [],
         array $cookies = [],
-        array $server = [],
-        array $info = []
+        array $server = []
     ) {
         $this->setServer($server);
         $this->setQuery($query);
         $this->setRequest($request);
+        $this->setAttributes($attributes);
+        $this->cookies = new Parameters($cookies);
+        $this->files = new Files($files);
 
         $this->headers = new Headers($this->server->getHeaders());
     }
@@ -265,7 +270,7 @@ class Request implements RequestInterface
      */
     public function getAttributes()
     {
-        return $this->attributes;
+        return $this->attributes->all();
     }
 
     /**
@@ -273,11 +278,7 @@ class Request implements RequestInterface
      */
     public function getAttribute($attribute, $default = null)
     {
-        if (isset($this->attributes[$attribute])) {
-            return $this->attributes[$attribute];
-        }
-
-        return $default;
+        return $this->attributes->get($attribute, $default);
     }
 
     /**
@@ -285,7 +286,7 @@ class Request implements RequestInterface
      */
     public function setAttributes(array $attributes)
     {
-        $this->attributes = $attributes;
+        $this->attributes = new ParametersMutable($attributes);
     }
 
     /**
@@ -293,7 +294,7 @@ class Request implements RequestInterface
      */
     public function setAttribute($attribute, $value)
     {
-        $this->attributes[$attribute] = $value;
+        $this->attributes->set($attribute, $value);
     }
 
     /**
