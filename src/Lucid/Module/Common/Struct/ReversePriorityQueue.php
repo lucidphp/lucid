@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This File is part of the Lucid\Module\Common\Data package
+ * This File is part of the Lucid\Module\Common package
  *
  * (c) iwyg <mail@thomas-appel.com>
  *
@@ -9,12 +9,13 @@
  * that was distributed with this package.
  */
 
-namespace Lucid\Module\Common\DataTypes;
+namespace Lucid\Module\Common\Struct;
 
 /**
  * @class ReversePriorityQueue
+ * @see PriorityQueue
  *
- * @package Lucid\Module\Common\Data
+ * @package Lucid\Module\Common
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */

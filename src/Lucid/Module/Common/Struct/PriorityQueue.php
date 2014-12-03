@@ -9,7 +9,7 @@
  * that was distributed with this package.
  */
 
-namespace Lucid\Module\Common\DataTypes;
+namespace Lucid\Module\Common\Struct;
 
 use SplPriorityQueue;
 
