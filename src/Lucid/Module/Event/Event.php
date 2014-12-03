@@ -20,7 +20,18 @@ namespace Lucid\Module\Event;
  */
 class Event implements EventInterface
 {
+    /**
+     * Event name.
+     *
+     * @var string
+     */
     private $name;
+
+    /**
+     * Event delegation status
+     *
+     * @var boolean
+     */
     private $isStopped = false;
 
     /**
@@ -55,6 +66,9 @@ class Event implements EventInterface
         return $this->name;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function __clone()
     {
         $this->isStopped = false;

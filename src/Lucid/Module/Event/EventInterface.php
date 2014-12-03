@@ -28,14 +28,14 @@ interface EventInterface
     public function stop();
 
     /**
-     * Check if eventdelegation is stopped for this event.
+     * Check if event delegation is stopped for this event.
      *
-     * @return Boolean
+     * @return boolean
      */
     public function isStopped();
 
     /**
-     * setName
+     * Set the event name.
      *
      * @param string $name
      *
@@ -44,7 +44,7 @@ interface EventInterface
     public function setName($name);
 
     /**
-     * getName
+     * Get the event name
      *
      * @return string|null
      */

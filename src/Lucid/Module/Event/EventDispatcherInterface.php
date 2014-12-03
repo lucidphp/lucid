@@ -20,16 +20,30 @@ namespace Lucid\Module\Event;
  */
 interface EventDispatcherInterface
 {
+    /**
+     * Default priority level.
+     * @var int
+     */
     const PRIORITY_NORMAL = 0;
+
+    /**
+     * High priority level.
+     * @var int
+     */
     const PRIORITY_HIGH = 1000;
+
+    /**
+     * Low priority level.
+     * @var int
+     */
     const PRIORITY_LOW = -1000;
 
     /**
      * Register a handler for one or more events.
      *
-     * @param string|array $events
-     * @param mixed $handler
-     * @param int $priority
+     * @param string|array $events event names.
+     * @param mixed        $handler the event handler
+     * @param int          $priority dispatch priority
      *
      * @return void
      */

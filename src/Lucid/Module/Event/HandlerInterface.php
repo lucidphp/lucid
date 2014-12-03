@@ -12,7 +12,7 @@
 namespace Lucid\Module\Event;
 
 /**
- * @interface EventHandlerInterface
+ * @class HandlerInterface
  *
  * @package Lucid\Module\Event
  * @version $Id$
@@ -20,5 +20,12 @@ namespace Lucid\Module\Event;
  */
 interface HandlerInterface
 {
+    /**
+     * Will be called on a specific event.
+     *
+     * @param EventInterface $event the event that's been dispatched.
+     *
+     * @return void
+     */
     public function handleEvent(EventInterface $event);
 }

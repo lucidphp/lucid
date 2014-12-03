@@ -9,15 +9,14 @@
  * that was distributed with this package.
  */
 
-
 namespace Lucid\Module\Event;
 
 /**
  * @class EventName
  *
- * @package Selene\Module\Events
+ * @package Lucid\Module\Event
  * @version $Id$
- * @author Thomas Appel <mail@thomas-appel.com>
+ * @author iwyg <mail@thomas-appel.com>
  */
 class EventName
 {
@@ -39,7 +38,7 @@ class EventName
     }
 
     /**
-     * getName
+     * Get the event name.
      *
      * @return string
      */
@@ -53,9 +52,7 @@ class EventName
     }
 
     /**
-     * __toString
-     *
-     * @return string
+     * @see EventName#getName()
      */
     public function __toString()
     {
@@ -63,7 +60,7 @@ class EventName
     }
 
     /**
-     * getBaseEventName
+     * Parses a event object into a readable event name.
      *
      * @return string
      */

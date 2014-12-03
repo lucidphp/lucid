@@ -21,9 +21,9 @@ namespace Lucid\Module\Event;
 interface SubscriberInterface
 {
     /**
-     * Returns an array of event subscriptions.
+     * Get event subscriptions.
      *
-     * @return array
+     * @return array Array of event subscriptions
      */
     public function getSubscriptions();
 }

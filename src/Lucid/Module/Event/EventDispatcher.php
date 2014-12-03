@@ -21,14 +21,14 @@ namespace Lucid\Module\Event;
 class EventDispatcher implements EventDispatcherInterface
 {
     /**
-     * sorted
+     * Sorted events.
      *
      * @var array
      */
     protected $sorted = [];
 
     /**
-     * handlers
+     * Event Handlers
      *
      * @var array
      */
@@ -183,6 +183,18 @@ class EventDispatcher implements EventDispatcherInterface
     /**
      * {@inheritdoc}
      */
+    public function hasEvent($event)
+    {
+        return array_key_exists($event, $this->handlers);
+    }
+
+    /**
+     * pullHandlers
+     *
+     * @param array $handlers
+     *
+     * @return array
+     */
     protected function pullHandlers(array $handlers)
     {
         $out = [];
@@ -199,18 +211,6 @@ class EventDispatcher implements EventDispatcherInterface
         }
 
         return array_values($out);
-    }
-
-    /**
-     * hasEvent
-     *
-     * @param mixed $event
-     *
-     * @return boolean
-     */
-    public function hasEvent($event)
-    {
-        return array_key_exists($event, $this->handlers);
     }
 
     /**
