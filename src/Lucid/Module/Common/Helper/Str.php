@@ -21,6 +21,13 @@ namespace Lucid\Module\Common\Helper;
 final class Str
 {
     /**
+     * rchars
+     *
+     * @var string
+     */
+    private static $rchars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+    /**
      * lowDash
      *
      * @param mixed $string
@@ -44,6 +51,30 @@ final class Str
     public static function snakeCase($string, $delim = '_')
     {
         return strtolower(preg_replace('#[A-Z]#', $delim.'$0', lcfirst($string)));
+    }
+    /**
+     * camelcase notataion
+     *
+     * @param string $str
+     * @param array $replacement
+     *
+     * @return string
+     */
+    public static function camelCase($string, $replacement = ['-' => ' ', '_' => ' '])
+    {
+        return lcfirst(self::camelCaseAll($string, $replacement));
+    }
+    /**
+     * all camelcase notataion
+     *
+     * @param string $string
+     * @param array $replacement
+     *
+     * @return string
+     */
+    public static function camelCaseAll($string, array $replacement = ['-' => ' ', '_' => ' '])
+    {
+        return strtr(ucwords(strtr($string, $replacement)), [' ' => '']);
     }
 
     /**
@@ -69,7 +100,7 @@ final class Str
      */
     public static function safeCmp($string, $input)
     {
-        $pad = static::strRand(4);
+        $pad = static::rand(4);
 
         $string .= $pad;
         $input  .= $pad;
@@ -84,6 +115,41 @@ final class Str
         }
 
         return 0 === $result;
+    }
+
+    public static function rand($length)
+    {
+        if (!is_int($length)) {
+            throw new \InvalidArgumentException(
+                sprintf(
+                    'Str::rand() expects first argument to be integer, instead saw %s.',
+                    gettype($length)
+                )
+            );
+        }
+
+        if (!function_exists('openssl_random_pseudo_bytes')) {
+            return self::quickRand($length);
+        }
+
+        if (null === ($bytes = openssl_random_pseudo_bytes($length * 2))) {
+            throw new \RuntimeException('Cannot generate random string');
+        }
+
+        return substr(str_replace(['/', '=', '+'], '', base64_encode($bytes)), 0, $length);
+    }
+
+    /**
+     * strQuickRand
+     *
+     * @param mixed $length
+     *
+     * @access public
+     * @return string
+     */
+    public static function quickRand($length)
+    {
+        return substr(str_shuffle(str_repeat(static::$rchars, 5)), 0, $length);
     }
 
     private function __construct()

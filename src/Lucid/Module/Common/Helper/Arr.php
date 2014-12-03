@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This File is part of the Lucid\Module\Common\Helper package
+ * This File is part of the Lucid\Module\Common package
  *
  * (c) iwyg <mail@thomas-appel.com>
  *
@@ -11,18 +11,19 @@
 
 namespace Lucid\Module\Common\Helper;
 
+use RecursiveArrayIterator;
+use RecursiveIteratorIterator;
+
 /**
  * @class Arr
+ * @final
  *
- * @package Lucid\Module\Common\Helper
+ * @package Lucid\Module\Common
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
 final class Arr
 {
-    private function __construct()
-    {
-    }
 
     /**
      * Flattens a multidimensional array.
@@ -35,14 +36,12 @@ final class Arr
     {
         $out = [];
 
-        foreach (new \RecursiveIteratorIterator(new \RecursiveArrayIterator($array)) as $key => $item) {
-
+        foreach (new RecursiveIteratorIterator(new RecursiveArrayIterator($array)) as $key => $item) {
             if (is_int($key)) {
                 $out[] = $item;
-                continue;
+            } else {
+                $out[$key] = $item;
             }
-
-            $out[$key] = $item;
         }
 
         return $out;
@@ -246,5 +245,23 @@ final class Arr
                 }
             }
         }
+    }
+
+    /**
+     * Filters out boolish items that resemble none "truthy" values.
+     *
+     * @return array
+     */
+    public static function compact($array, $reindex = false)
+    {
+        $out = array_filter($array, function ($item) {
+            return false !== (bool)$item;
+        });
+
+        return false !== $reindex && self::isList($out) ? array_values($out) : $out;
+    }
+
+    private function __construct()
+    {
     }
 }
