@@ -23,7 +23,6 @@ use Lucid\Module\Template\Resource\ResourceInterface;
  */
 abstract class AbstractPhpEngine implements EngineInterface, DisplayInterface, PhpRenderInterface
 {
-
     /**
      * loader
      *

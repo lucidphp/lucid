@@ -25,30 +25,30 @@ use Lucid\Module\Template\Data\Data;
 class View implements ViewManagerInterface
 {
     /**
-     * engine
+     * Render engine
      *
      * @var EngineInterface
      */
     private $engine;
 
     /**
-     * listeners
+     * Render listeners
      *
      * @var ListenerInterface[]
      */
     private $listeners;
 
     /**
-     * parameters
+     * Global parameters
      *
      * @var array
      */
     private $parameters;
 
     /**
-     * data
+     * Temporary data.
      *
-     * @var mixed
+     * @var array
      */
     private $data;
 
@@ -56,6 +56,7 @@ class View implements ViewManagerInterface
      * Constructor.
      *
      * @param EngineInterface $engine
+     * @param array $listeners
      */
     public function __construct(EngineInterface $engine, array $listeners = [])
     {
@@ -67,7 +68,7 @@ class View implements ViewManagerInterface
     }
 
     /**
-     * setListeners
+     * Set render listeners.
      *
      * @param array $listeners
      *
@@ -77,15 +78,26 @@ class View implements ViewManagerInterface
     {
         $this->listeners = [];
 
-        foreach ($listeners as $name => $listeners) {
+        foreach ($listeners as $name => $listener) {
             $this->addListener($name, $listener);
         }
     }
 
     /**
-     * flushParameters
+     * Add a render listener.
      *
-     * @return TemplateDataInterface|boolean false
+     * @param string $name
+     * @param ListenerInterface $listener
+     *
+     * @return void
+     */
+    public function addListener($name, ListenerInterface $listener)
+    {
+        $this->listeners[(string)$name] = $listener;
+    }
+
+    /**
+     * {@inheritdoc}
      */
     public function flushData($name)
     {
@@ -101,7 +113,7 @@ class View implements ViewManagerInterface
     }
 
     /**
-     * setGlobals
+     * Set global parameters.
      *
      * @param array $parameters
      *
@@ -113,7 +125,7 @@ class View implements ViewManagerInterface
     }
 
     /**
-     * addGlobals
+     * Add global parameters.
      *
      * @param array $parameters
      *
@@ -121,13 +133,13 @@ class View implements ViewManagerInterface
      */
     public function addGlobals(array $parameters)
     {
-        $this->globals = array_merge($this->parameters, $parameters);
+        $this->parameters = array_merge((array)$this->parameters, $parameters);
     }
 
     /**
-     * addGlobal
+     * Add a global parameter.
      *
-     * @param mixed $key
+     * @param string $key
      * @param mixed $parameter
      *
      * @return void
@@ -135,19 +147,6 @@ class View implements ViewManagerInterface
     public function addGlobal($key, $value)
     {
         $this->parameters[$key] = $value;
-    }
-
-    /**
-     * addListener
-     *
-     * @param mixed $name
-     * @param ListenerInterface $listener
-     *
-     * @return void
-     */
-    public function addListener($name, ListenerInterface $listener)
-    {
-        $this->listeners[(string)$name] = $listener;
     }
 
     /**
@@ -185,9 +184,9 @@ class View implements ViewManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function supports($tempalte)
+    public function supports($template)
     {
-        return $this->engine->supporst;
+        return $this->engine->supports($template);
     }
 
     /**

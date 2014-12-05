@@ -18,7 +18,7 @@ namespace Lucid\Module\Template;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-interface TemplateIdentityInterface
+interface IdentityParserInterface
 {
     /**
      * identify

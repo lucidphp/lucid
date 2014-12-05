@@ -33,10 +33,11 @@ interface PhpRenderInterface
      * insert
      *
      * @param mixed $template
+     * @param array $replacement
      *
      * @return void
      */
-    public function insert($template);
+    public function insert($template, array $replacement = []);
 
     /**
      * escape

@@ -39,48 +39,16 @@ class Identity implements IdentityInterface
     protected $type;
 
     /**
-     * path
-     *
-     * @var string
-     */
-    protected $resource;
-
-    /**
      * Constructor.
      *
      * @param string $name
      * @param string $type
      * @param string $path
      */
-    public function __construct($name, $type, ResourceInterface $resource = null)
+    public function __construct($name, $type)
     {
         $this->name = $name;
         $this->type = $type;
-        $this->resource = $resource;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setResource(ResourceInterface $resource)
-    {
-        $this->resource = $resource;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getResource()
-    {
-        return $this->resource;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function isFile()
-    {
-        return $this->resource ? $this->resource instanceof FileResource : is_file($this->name);
     }
 
     /**

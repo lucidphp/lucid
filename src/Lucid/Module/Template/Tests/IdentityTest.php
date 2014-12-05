@@ -11,7 +11,7 @@
 
 namespace Lucid\Module\Template\Tests;
 
-use Lucid\Module\Template\Template;
+use Lucid\Module\Template\Identity;
 
 /**
  * @class TemplateTest
@@ -20,21 +20,20 @@ use Lucid\Module\Template\Template;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-class TemplateTest extends \PHPUnit_Framework_TestCase
+class IdentityTest extends \PHPUnit_Framework_TestCase
 {
     /** @test */
     public function itShouldBeInstantiable()
     {
-        $this->assertInstanceof('Lucid\Module\Template\TemplateInterface', new Template('name', 'type'));
+        $this->assertInstanceof('Lucid\Module\Template\IdentityInterface', new Identity('name', 'type'));
     }
 
     /** @test */
     public function itShouldGetAttributes()
     {
-        $template = new Template('/path/to', 'php');
+        $template = new Identity('template.php', 'php');
 
-        $this->assertSame('/path/to', $template->getPath());
-        $this->assertSame('/path/to', $template->getName());
+        $this->assertSame('template.php', $template->getName());
         $this->assertSame('php', $template->getType());
     }
 }

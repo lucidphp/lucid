@@ -23,13 +23,6 @@ use Lucid\Module\Template\Resource\ResourceInterface;
 interface IdentityInterface
 {
     /**
-     * isFile
-     *
-     * @return boolean
-     */
-    public function isFile();
-
-    /**
      * Get the template name
      *
      * @return string
@@ -42,20 +35,4 @@ interface IdentityInterface
      * @return string
      */
     public function getType();
-
-    /**
-     * setResource
-     *
-     * @param ResourceInterface $resource
-     *
-     * @return void
-     */
-    public function setResource(ResourceInterface $resource);
-
-    /**
-     * getResource
-     *
-     * @return ResourceInterface
-     */
-    public function getResource();
 }

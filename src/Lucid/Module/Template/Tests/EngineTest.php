@@ -12,6 +12,7 @@
 namespace Lucid\Module\Template\Tests;
 
 use Lucid\Module\Template\Engine;
+use Lucid\Module\Template\Loader\FilesystemLoader;
 
 /**
  * @class EngineTest
@@ -37,7 +38,7 @@ class EngineTest extends \PHPUnit_Framework_TestCase
 
         $this->loader->method('load')->willReturn($this->mockResource());
 
-        $this->assertTrue(is_string($engine->render('template')));
+        $this->assertInternalType('string', $engine->render('template.php'));
     }
 
     /** @test */
@@ -45,16 +46,32 @@ class EngineTest extends \PHPUnit_Framework_TestCase
     {
         $engine = $this->newEngine();
 
-        $this->assertTrue($engine->supports('php'));
+        $this->assertTrue($engine->supports('template.php'));
         $this->assertFalse($engine->supports('html'));
     }
 
     /** @test */
-    public function itShouldGetItsType()
+    public function itShouldRegisterGlobalData()
     {
         $engine = $this->newEngine();
+        $engine->setGlobals(['foo' => 'bar']);
 
-        $this->assertSame('php', $engine->getType());
+        $this->assertInternalType('array', $engine->getGlobals());
+        $this->assertArrayHasKey('foo', $engine->getGlobals());
+        $engine->addGlobal('bar', 'baz');
+        $this->assertArrayHasKey('bar', $engine->getGlobals());
+    }
+
+    /** @test */
+    public function itShouldHandleTemplateErrors()
+    {
+        $engine = new Engine(new FilesystemLoader(__DIR__.'/Fixures/view/'));
+
+        try {
+            $engine->render('error.php');
+        } catch (\Lucid\Module\Template\Exception\RenderException $e) {
+            $this->assertSame('Undefined variable: dontexist', $e->getMessage());
+        }
     }
 
     protected function newEngine()

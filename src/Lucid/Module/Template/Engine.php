@@ -161,6 +161,16 @@ class Engine extends AbstractPhpEngine implements ViewAwareInterface
     }
 
     /**
+     * Get global data.
+     *
+     * @return array
+     */
+    public function getGlobals()
+    {
+        return $this->globals;
+    }
+
+    /**
      * registerExtension
      *
      * @param ExtensionInterface $extension
@@ -493,7 +503,7 @@ class Engine extends AbstractPhpEngine implements ViewAwareInterface
      */
     protected function getProxy()
     {
-        return null === $this->proxy ? $this->proxy = new RenderEngineProxy($this) : $this->proxy;
+        return null === $this->proxy ? $this->proxy = new RenderEngineDecorator($this) : $this->proxy;
     }
 
     /**

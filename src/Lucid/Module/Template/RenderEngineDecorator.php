@@ -18,7 +18,7 @@ namespace Lucid\Module\Template;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-class RenderEngineProxy implements PhpRenderInterface
+class RenderEngineDecorator implements PhpRenderInterface
 {
     private $engine;
 
@@ -54,9 +54,9 @@ class RenderEngineProxy implements PhpRenderInterface
     /**
      * {@inheritdoc}
      */
-    public function insert($template, array $vars = [], array $parameters = [])
+    public function insert($template, array $replacements = [])
     {
-        return $this->engine->insert($template, $vars, $parameters);
+        return $this->engine->insert($template, $replacements);
     }
 
     /**
@@ -64,7 +64,7 @@ class RenderEngineProxy implements PhpRenderInterface
      */
     public function func()
     {
-        return call_user_func_array($this->engine, 'func', func_get_args());
+        return call_user_func_array([$this->engine, 'func'], func_get_args());
     }
 
     /**
