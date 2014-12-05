@@ -14,7 +14,7 @@ namespace Lucid\Module\Routing;
 /**
  * @interface RouteCollectionInterface
  *
- * @package Routing
+ * @package lucid/routing
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */

@@ -20,5 +20,13 @@ namespace Lucid\Module\Routing\Http;
  */
 interface ResponseMapperInterface
 {
-    public function mapResponse($context);
+    /**
+     * Maps a given input to a response.
+     *
+     * @param mixed $response the input response data
+     *
+     * @return mixed depending on the implementation, typically a response
+     * object.
+     */
+    public function mapResponse($response);
 }

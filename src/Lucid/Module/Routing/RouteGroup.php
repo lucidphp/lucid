@@ -1,9 +1,9 @@
 <?php
 
-/**
- * This File is part of the Selene\Module\Routing package
+/*
+ * This File is part of the Lucid\Module\Routing package
  *
- * (c) Thomas Appel <mail@thomas-appel.com>
+ * (c) iwyg <mail@thomas-appel.com>
  *
  * For full copyright and license information, please refer to the LICENSE file
  * that was distributed with this package.
@@ -12,12 +12,13 @@
 namespace Lucid\Module\Routing;
 
 /**
- * @class Group
+ * Helper class for generating RoutCollection objects.
  *
- * @package Selene\Module\Routing
+ * @class RouteGroup
+ *
+ * @package Lucid\Module\Routing
  * @version $Id$
  * @author Thomas Appel <mail@thomas-appel.com>
- * @license MIT
  */
 class RouteGroup
 {
@@ -43,11 +44,11 @@ class RouteGroup
     protected $requirements;
 
     /**
-     * @param mixed $prefix
-     * @param array $requirements
-     * @param GroupDefinition $parent
+     * Constructor.
      *
-     * @access public
+     * @param string $prefix the group prefix.
+     * @param array $requirements the group requirements.
+     * @param RouteGroup $parent the parent group.
      */
     public function __construct($prefix, array $requirements, RouteGroup $parent = null)
     {
@@ -58,9 +59,8 @@ class RouteGroup
     }
 
     /**
-     * hasParent
+     * Tell if the group has a parent group.
      *
-     * @access public
      * @return boolean
      */
     public function hasParent()
@@ -69,10 +69,9 @@ class RouteGroup
     }
 
     /**
-     * getPrefix
+     * Get the group prefix.
      *
-     * @access public
-     * @return string
+     * @return string the prefix.
      */
     public function getPrefix()
     {
@@ -80,10 +79,9 @@ class RouteGroup
     }
 
     /**
-     * getRequirements
+     * Get group requirements
      *
-     * @access public
-     * @return array
+     * @return array the group requirements
      */
     public function getRequirements()
     {
@@ -91,11 +89,9 @@ class RouteGroup
     }
 
     /**
-     * setPrefix
+     * Set the group prefix
      *
-     *
-     * @access protected
-     * @return mixed
+     * @return void
      */
     protected function setPrefix($prefix)
     {
@@ -109,9 +105,8 @@ class RouteGroup
     }
 
     /**
-     * setRequirements
+     * Set the group requirements
      *
-     * @access protected
      * @return void
      */
     protected function setRequirements(array $requirements)
@@ -124,12 +119,11 @@ class RouteGroup
     }
 
     /**
-     * filterRequirements
+     * Filter group requirements.
      *
      * @param array $requirements
      *
-     * @access protected
-     * @return array
+     * @return array the filtered requirements.
      */
     protected function filterRequirements(array $requirements)
     {

@@ -46,13 +46,11 @@ class HandlerParser implements HandlerParserInterface
      */
     final public function parse($handler)
     {
-        if (!is_callable($handler)) {
-            if (!is_callable($handler = $this->findHandler($handler))) {
-                throw new \RuntimeException('No routing handler could be found.');
-            };
-        }
+        if (!is_callable($callable = $this->findHandler($handler))) {
+            throw new \RuntimeException('No routing handler could be found.');
+        };
 
-        return new HandlerReflector($handler);
+        return new HandlerReflector($callable);
     }
 
     /**
@@ -64,6 +62,10 @@ class HandlerParser implements HandlerParserInterface
      */
     protected function findHandler($handler)
     {
+        if (is_callable($handler)) {
+            return $handler;
+        }
+
         list ($handler, $method) = $this->listHandlerClassAndMethod($handler);
 
         if ($service = $this->getService($handler)) {
@@ -85,7 +87,7 @@ class HandlerParser implements HandlerParserInterface
      *
      * @param string $handler
      *
-     * @return string[]
+     * @return array
      */
     protected function listHandlerClassAndMethod($handler)
     {

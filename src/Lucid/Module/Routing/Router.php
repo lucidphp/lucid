@@ -27,6 +27,8 @@ use Lucid\Module\Routing\Handler\HandlerDispatcherInterface;
 use Lucid\Module\Routing\Matcher\MatchContextInterface;
 
 /**
+ * Http Request router
+ *
  * @class Router
  *
  * @package Lucid\Module\Routing
@@ -48,9 +50,11 @@ class Router implements RouterInterface
      * A response mapper can be used to alter the dispatch result output.
      * The default mapper will simple pass the input value.
      *
-     * @param RequestMatcherInterface $matcher
-     * @param HandlerDispatcherInterface $handlers
-     * @param ResponseMapperInterface $response
+     * @param RouteCollectionInterface   $routes the routes.
+     * @param RequestMatcherInterface    $matcher the request matcher
+     * @param HandlerDispatcherInterface $handlers the handler dispatcher
+     * @param ResponseMapperInterface    $response the response mapper
+     * @param UrlGeneratorInterface      $url the url generator.
      */
     public function __construct(
         RouteCollectionInterface $routes,
@@ -68,12 +72,10 @@ class Router implements RouterInterface
     }
 
     /**
-     * dispatch
+     * {@inheritdoc}
      *
-     * @param RequestContextInterface $request
-     * @param int $behavior
-     *
-     * @return mixed
+     * @return mixed the response returned by the handler and mapped by the
+     * response mapper.
      */
     public function dispatch(RequestContextInterface $request)
     {
@@ -87,12 +89,10 @@ class Router implements RouterInterface
     }
 
     /**
-     * dispatchRoute
+     * {@inheritdoc}
      *
-     * @param mixed $name
-     * @param array $parameters
-     *
-     * @return void
+     * @return mixed the response returned by the handler and mapped by the
+     * response mapper.
      */
     public function dispatchRoute($name, array $parameters = [], array $options = [])
     {
@@ -122,9 +122,7 @@ class Router implements RouterInterface
     }
 
     /**
-     * getCurrentRouteName
-     *
-     * @return RouteInterface|null
+     * {@inheritdoc}
      */
     public function getFirstRoute()
     {
@@ -138,9 +136,7 @@ class Router implements RouterInterface
     }
 
     /**
-     * getCurrentRouteName
-     *
-     * @return string|null
+     * {@inheritdoc}
      */
     public function getFirstRouteName()
     {
@@ -150,9 +146,7 @@ class Router implements RouterInterface
     }
 
     /**
-     * getCurrentRoute
-     *
-     * @return RouteInterface|null
+     * {@inheritdoc}
      */
     public function getCurrentRoute()
     {
@@ -166,9 +160,7 @@ class Router implements RouterInterface
     }
 
     /**
-     * getCurrentRouteName
-     *
-     * @return string|null
+     * {@inheritdoc}
      */
     public function getCurrentRouteName()
     {
@@ -178,9 +170,7 @@ class Router implements RouterInterface
     }
 
     /**
-     * getGenerator
-     *
-     * @return UrlGeneratorInterface
+     * {@inheritdoc}
      */
     public function getGenerator()
     {
@@ -192,12 +182,13 @@ class Router implements RouterInterface
     }
 
     /**
-     * doDispatch
+     * Actual find the route handler and dispacht it.
      *
      * @param RequestContextInterface $request
      * @param MatchContextInterace $context
      *
-     * @return mixed
+     * @return mixed the response returned by the handler and mapped by the
+     * response mapper.
      */
     protected function doDispatch(RequestContextInterface $request, MatchContextInterface $context)
     {
@@ -257,6 +248,13 @@ class Router implements RouterInterface
         );
     }
 
+    /**
+     * getOptions
+     *
+     * @param array $options
+     *
+     * @return array
+     */
     protected function getOptions(array $options)
     {
         return array_merge([

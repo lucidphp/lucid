@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This File is part of the Lucid\Module\Routing\Http package
+ * This File is part of the Lucid\Module\Routing package
  *
  * (c) iwyg <mail@thomas-appel.com>
  *
@@ -16,72 +16,76 @@ use Lucid\Module\Routing\RouteCollectionInterface;
 /**
  * @interface UrlGeneratorInterface
  *
- * @package Lucid\Module\Routing\Http
+ * @package Lucid\Module\Routing
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
 interface UrlGeneratorInterface
 {
     /**
-     * @var int
-     */
-    const ABSOLUTE_PATH = 22;
-
-    /**
-     * @var int
-     */
-    const RELATIVE_PATH = 144;
-
-    /**
-     * setRequestContext
+     * Type for relative path format
      *
-     * @param RequestContextInterface $request
+     * @var int
+     */
+    const RELATIVE_PATH = 0;
+
+    /**
+     * Type for absolute path format
+     *
+     * @var int
+     */
+    const ABSOLUTE_PATH = 1;
+
+    /**
+     * Set the current request context.
+     *
+     * @param RequestContextInterface $request the request context.
      *
      * @return void
      */
     public function setRequestContext(RequestContextInterface $request);
 
     /**
-     * getRequestContext
+     * Get the current request context.
      *
-     * @return RequestContextInterface|null
+     * @return RequestContextInterface the request context, `NULL` if none.
      */
     public function getRequestContext();
 
     /**
-     * setRoutes
+     * Set the routecollection needed for url generation by name.
      *
-     * @param RouteCollectionInterface $request
+     * @param RouteCollectionInterface $routes the route collection.
      *
      * @return void
      */
     public function setRoutes(RouteCollectionInterface $request);
 
     /**
-     * currentPath
+     * Gets the current url ommitting the query string.
      *
-     * @param int $type
+     * @param int $type the path format type
      *
-     * @return string|null
+     * @return string the current url, `NULL` if `$type` is invalid.
      */
     public function currentPath($type = self::RELATIVE_PATH);
 
     /**
-     * currentUrl
+     * Gets the current url including the query string.
      *
-     * @param int $type
+     * @param int $type the path format type
      *
-     * @return string|null
+     * @return string the current url, `NULL` if `$type` is invalid.
      */
     public function currentUrl($type = self::RELATIVE_PATH);
 
     /**
-     * getPath
+     * Generates a readable path or url from a given route name.
      *
-     * @param mixed $name
-     * @param array $parameters
-     * @param mixed $host
-     * @param mixed $type
+     * @param string $name the route name
+     * @param array  $parameters parameters required by the route object
+     * @param string $host host name required by the route object.
+     * @param int    $type the path format type
      *
      * @return string
      */

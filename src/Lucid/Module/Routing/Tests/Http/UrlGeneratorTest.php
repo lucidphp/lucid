@@ -11,9 +11,9 @@
 
 namespace Lucid\Module\Routing\Tests\Http;
 
-use Mockery as m;
 use Lucid\Module\Routing\Route;
 use Lucid\Module\Routing\Http\UrlGenerator;
+use Lucid\Module\Routing\Http\RequestContext;
 
 /**
  * @class UrlGeneratorTest
@@ -39,14 +39,58 @@ class UrlGeneratorTest extends \PHPUnit_Framework_TestCase
      */
     public function itShouldGenerateUrls($name, $params, $host, $pattern, $rHost, $rDefaults, $expected)
     {
-        $url = new UrlGenerator($routes = $this->mockRoutes());
+        $url = new UrlGenerator();
+        $url->setRoutes($routes = $this->mockRoutes());
 
         $route = new Route($pattern, 'action', 'GET', $rHost, $rDefaults);
 
-        $routes->shouldReceive('has')->with($name)->andReturn(true);
-        $routes->shouldReceive('get')->with($name)->andReturn($route);
+        $has = [
+            [$name, true]
+        ];
+
+        $get = [
+            [$name, $route]
+        ];
+
+        $routes->expects($this->any())
+            ->method('has')
+            ->will($this->returnValueMap($has));
+        $routes->expects($this->any())
+            ->method('get')
+            ->will($this->returnValueMap($get));
 
         $this->assertSame($expected, $url->generate($name, $params, $host));
+    }
+
+    /** @test */
+    public function itShouldGetCurrentUrl()
+    {
+        $url = new UrlGenerator();
+        $url->setRoutes($routes = $this->mockRoutes());
+
+        $this->assertSame('/', $url->currentUrl());
+        $this->assertSame('http://localhost/', $url->currentUrl(UrlGenerator::ABSOLUTE_PATH));
+
+        $url->setRequestContext(new RequestContext('', 'foo/bar', 'GET', '?foo=bar', 'example.com/'));
+
+        $this->assertSame('foo/bar?foo=bar', $url->currentUrl());
+        $this->assertSame('http://example.com/foo/bar?foo=bar', $url->currentUrl(UrlGenerator::ABSOLUTE_PATH));
+
+        $this->assertNull($url->currentUrl('unknown_flag'));
+    }
+
+    /** @test */
+    public function generateShouldFail()
+    {
+        $url = new UrlGenerator();
+        $url->setRoutes($routes = $this->mockRoutes());
+        $routes->method('get')->willReturn(null);
+
+        try {
+            $url->generate('index');
+        } catch (\InvalidArgumentException $e) {
+            $this->assertSame('A route with name "index" could not be found.', $e->getMessage());
+        }
     }
 
     public function generatorProvider()
@@ -61,13 +105,6 @@ class UrlGeneratorTest extends \PHPUnit_Framework_TestCase
 
     protected function mockRoutes()
     {
-        $routes = m::mock('Lucid\Module\Routing\RouteCollectionInterface');
-
-        return $routes;
-    }
-
-    protected function tearDown()
-    {
-        m::close();
+        return $this->getMock('Lucid\Module\Routing\RouteCollectionInterface');
     }
 }

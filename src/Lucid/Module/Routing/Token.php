@@ -22,6 +22,11 @@ class Token implements TokenInterface
 {
     private $params;
 
+    /**
+     * Constructor.
+     *
+     * @param array $params token values.
+     */
     public function __construct(array $params)
     {
         $this->params = $params;

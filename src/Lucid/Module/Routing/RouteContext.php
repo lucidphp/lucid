@@ -14,7 +14,7 @@ namespace Lucid\Module\Routing;
 /**
  * @class RouteExpression
  *
- * @package Lucid\Module\Routing
+ * @package lucid/routing
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */

@@ -30,18 +30,15 @@ class Route implements RouteInterface, \Serializable
     private $context;
 
     /**
-     * Constructor
+     * Constructor.
      *
-     * @param mixed $pattern
-     * @param mixed $handler
-     * @param string $methods
-     * @param mixed $host
-     * @param array $defaults
-     * @param array $constraints
-     * @param array $schemes
-     * @param array $defaults
-     *
-     * @return void
+     * @param string $pattern        the route pattern
+     * @param mixed $handler         the route handler
+     * @param string|array $methods  the supported http methods.
+     * @param string $host           the required host
+     * @param array $defaults        default parameters
+     * @param array $constraints     parameter constraints
+     * @param array $schemes         supported url schemes
      */
     public function __construct(
         $pattern,
@@ -72,11 +69,7 @@ class Route implements RouteInterface, \Serializable
     }
 
     /**
-     * hasMethod
-     *
-     * @param string $method
-     *
-     * @return void
+     * {@inheritdoc}
      */
     public function hasMethod($method)
     {
@@ -84,9 +77,7 @@ class Route implements RouteInterface, \Serializable
     }
 
     /**
-     * getHandler
-     *
-     * @return string
+     * {@inheritdoc}
      */
     public function getHandler()
     {
@@ -102,11 +93,7 @@ class Route implements RouteInterface, \Serializable
     }
 
     /**
-     * hasScheme
-     *
-     * @param mixed $scheme
-     *
-     * @return void
+     * {@inheritdoc}
      */
     public function hasScheme($scheme)
     {
@@ -162,10 +149,7 @@ class Route implements RouteInterface, \Serializable
     }
 
     /**
-     * getExpression
-     *
-     *
-     * @return void
+     * {@inheritdoc}
      */
     public function getContext()
     {
@@ -177,9 +161,9 @@ class Route implements RouteInterface, \Serializable
     }
 
     /**
-     * serialize
+     * Serializes the route
      *
-     * @return void
+     * @return string the serialized data of this route.
      */
     public function serialize()
     {
@@ -200,11 +184,11 @@ class Route implements RouteInterface, \Serializable
     }
 
     /**
-     * unserialize
+     * Unserializes the route
      *
-     * @param mixed $data
+     * @param string $data
      *
-     * @return void
+     * @return void.
      */
     public function unserialize($data)
     {
@@ -239,10 +223,10 @@ class Route implements RouteInterface, \Serializable
     protected function setMethods($methods)
     {
         if (is_array($methods)) {
-            $methods = implode('|', array_values($methods));
+            $this->methods = array_keys(array_change_key_case(array_flip($methods), CASE_UPPER));
+        } else {
+            $this->methods = explode('|', strtoupper($methods));
         }
-
-        $this->methods = explode('|', strtoupper($methods));
     }
 
     /**
@@ -255,10 +239,10 @@ class Route implements RouteInterface, \Serializable
     protected function setSchemes($schemes)
     {
         if (is_array($schemes)) {
-            $schemes = implode('|', array_values($schemes));
+            $this->schemes = array_keys(array_change_key_case(array_flip($schemes), CASE_LOWER));
+        } else {
+            $this->schemes = 0 < strlen($schemes) ? explode('|', strtolower($schemes)) : ['http', 'https'];
         }
-
-        $this->schemes = 0 < strlen($schemes) ? explode('|', strtolower($schemes)) : ['http', 'https'];
     }
 
     /**

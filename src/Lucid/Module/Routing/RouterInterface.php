@@ -11,6 +11,7 @@
 
 namespace Lucid\Module\Routing;
 
+use Lucid\Module\Routing\Http\UrlGeneratorInterface;
 use Lucid\Module\Routing\Http\RequestContextInterface;
 
 /**
@@ -23,46 +24,46 @@ use Lucid\Module\Routing\Http\RequestContextInterface;
 interface RouterInterface extends RouteDispatcherInterface
 {
     /**
-     * Dispatches a given request.
+     * Delegates a given request context to a handler.
      *
-     * @param RequestContextInterface $request
+     * @param RequestContextInterface $request the request context.
      *
-     * @return mixed returns the result.
+     * @return mixed returns the result of the handler.
      */
     public function dispatch(RequestContextInterface $request);
 
     /**
      * Get the first route that's been dispatched.
      *
-     * @return RouteInterface|null
+     * @return RouteInterface the route object, `NULL` if none.
      */
     public function getFirstRoute();
 
     /**
      * Get the first route name that's been dispatched.
      *
-     * @return string|null
+     * @return string the route name, `NULL` if none.
      */
     public function getFirstRouteName();
 
     /**
      * Get the current dispatched route.
      *
-     * @return RouteInterface
+     * @return RouteInterface a route object.
      */
     public function getCurrentRoute();
 
     /**
      * Get the current dispatched route name.
      *
-     * @return string
+     * @return string the route name.
      */
     public function getCurrentRouteName();
 
     /**
      * Get an UrlGenerator object.
      *
-     * @return UrlGeneratorInterface
+     * @return UrlGeneratorInterface an implementation of UrlGeneratorInterface.
      */
     public function getGenerator();
 }

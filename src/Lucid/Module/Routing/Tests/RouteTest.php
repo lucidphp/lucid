@@ -37,6 +37,10 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(['GET'], $route->getMethods());
         $route = new Route('/', 'action', 'GET|POST');
         $this->assertSame(['GET', 'POST'], $route->getMethods());
+
+        $route = new Route('/', 'action', ['get', 'post']);
+        $this->assertContains('GET', $route->getMethods());
+        $this->assertContains('POST', $route->getMethods());
     }
 
     /** @test */
@@ -93,6 +97,14 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $route = new Route('/', 'action', 'GET', null, [], [], 'https');
 
         $this->assertSame(['https'], $route->getSchemes());
+
+        $route = new Route('/', 'action', 'GET', null, [], [], 'http|https');
+        $this->assertContains('http', $route->getSchemes());
+        $this->assertContains('https', $route->getSchemes());
+
+        $route = new Route('/', 'action', 'GET', null, [], [], ['HTTP', 'HTTPS']);
+        $this->assertContains('http', $route->getSchemes());
+        $this->assertContains('https', $route->getSchemes());
     }
 
     /** @test */
@@ -113,5 +125,21 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         preg_match('~RouteContext\"\:~', $s, $matches);
 
         $this->assertTrue(isset($matches[0]));
+    }
+
+    /** @test */
+    public function itShouldThrowIfHandlerIsNotSerializable()
+    {
+        $route = new Route(
+            '/',
+            function () {
+            }
+        );
+
+        try {
+            serialize($route);
+        } catch (\RuntimeException $e) {
+            $this->assertSame('Cannot serialize handler.', $e->getMessage());
+        }
     }
 }

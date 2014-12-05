@@ -20,48 +20,60 @@ namespace Lucid\Module\Routing;
  */
 interface TokenInterface extends \ArrayAccess
 {
+    /**
+     * Token type text.
+     *
+     * @var int
+     */
     const T_TEXT     = 10;
+
+    /**
+     * Token type variable.
+     *
+     * @var int
+     */
     const T_VARIABLE = 22;
 
     /**
-     * isVariable
+     * Token is variable.
      *
-     * @return boolean
+     * @return boolean `TRUE` or `FALSE`
      */
     public function isVariable();
 
     /**
-     * isText
+     * Token is text.
      *
-     * @return boolean
+     * @return boolean `TRUE` or `FALSE`
      */
     public function isText();
 
     /**
-     * getValue
+     * Get the token value.
      *
-     * @return string
+     * @return string the value as string.
      */
     public function getValue();
 
     /**
-     * getRegexp
+     * Get the variable regular expression.
      *
-     * @return string|null
+     * @return string the variable regexp, `NULL` if token is text.
      */
     public function getRegexp();
 
     /**
-     * getSeparator
+     * Get the path segment separator.
      *
      * @return string
      */
     public function getSeparator();
 
     /**
-     * isRequired
+     * Get the required state if token is a variable.
      *
-     * @return boolean
+     * @return boolean `TRUE` if required, if token is not required or not
+     * a variable `FALSE`.
      */
     public function isRequired();
 }

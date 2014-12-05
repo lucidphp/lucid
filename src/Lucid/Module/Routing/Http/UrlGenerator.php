@@ -42,7 +42,6 @@ class UrlGenerator implements UrlGeneratorInterface
         '%7C' => '|',
     ];
 
-
     private $routes;
     private $request;
 
@@ -114,7 +113,7 @@ class UrlGenerator implements UrlGeneratorInterface
         if ($type === self::RELATIVE_PATH) {
             return $rel;
         } elseif ($type === self::ABSOLUTE_PATH) {
-            return $this->getSchemeAndHost($this->getRequest()).$rel;
+            return $this->getSchemeAndHost($this->getRequest()).'/'.trim($rel, '/');
         }
 
         return null;
@@ -126,26 +125,39 @@ class UrlGenerator implements UrlGeneratorInterface
     public function generate($name, array $parameters = [], $host = null, $type = self::RELATIVE_PATH)
     {
         if (null === $this->routes || !$route = $this->routes->get($name)) {
-            throw new \InvalidArgumentException(sprintf('A route with name "%s" could not be found', $name));
+            throw new \InvalidArgumentException(sprintf('A route with name "%s" could not be found.', $name));
         }
 
         return $this->compilePath($route, $parameters, $host, $type, $name);
     }
 
+    /**
+     * Get the current request context.
+     *
+     * Gets the current set `RequestContext` object or creates a new
+     * instance of `RequestContext`
+     *
+     * @return RequestContextInterface
+     */
     private function getRequest()
     {
         return null === $this->request ? $this->request = new RequestContext : $this->request;
     }
 
     /**
-     * compilePath
+     * Compiles a Route instance into a readable path or url.
      *
-     * @param RouteInterface $route
-     * @param array $parameters
-     * @param mixed $host
-     * @param mixed $type
+     * @param RouteInterface $route the route
+     * @param array          $parameters route parameters
+     * @param string         $host the host name.
+     * @param int            $type the path type
      *
-     * @return void
+     * @throws \InvalidArgumentException if `$route` requires a `$host` and
+     * none is given.
+     * @throws \InvalidArgumentException if a required parameter by `$route` is
+     * amiss.
+     *
+     * @return string
      */
     private function compilePath(RouteInterface $route, array $parameters, $host, $type, $name)
     {
@@ -205,24 +217,6 @@ class UrlGenerator implements UrlGeneratorInterface
     }
 
     /**
-     * varMatchesRequirement
-     *
-     * @param array $token
-     * @param array $parameters
-     *
-     * @throws \InvalidArgumentException
-     * @return boolean
-     */
-    private function varMatchesRequirement(array $token, array $parameters)
-    {
-        if ((bool)preg_match($regexp = '#^'.$token[2].'$#', $param = $parameters[$token[3]])) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
      * getPathPrefix
      *
      * @param RouteInterface $route
@@ -272,9 +266,9 @@ class UrlGenerator implements UrlGeneratorInterface
      *
      * @return string
      */
-    private function getSchemeAndHost()
+    private function getSchemeAndHost($req)
     {
-        $port = $req->getPort();
+        $port = $req->getHttpPort();
         $host = in_array($port, [80, 443]) ? $req->getHost() : $req->getHost() . ':' . $port;
 
         return $req->getScheme() . '://' . $host;

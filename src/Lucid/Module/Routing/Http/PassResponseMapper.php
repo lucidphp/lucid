@@ -22,6 +22,13 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class PassResponseMapper implements ResponseMapperInterface
 {
+    /**
+     * {@inheritdoc}
+     *
+     * Will just pass the input data.
+     *
+     * @return mixed the input value.
+     */
     public function mapResponse($response)
     {
         return $response;

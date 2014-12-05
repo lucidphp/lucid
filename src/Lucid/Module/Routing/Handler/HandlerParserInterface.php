@@ -20,5 +20,12 @@ namespace Lucid\Module\Routing\Handler;
  */
 interface HandlerParserInterface
 {
+    /**
+     * Parsers a route handler to an executable HandlerReflector.
+     *
+     * @param mixed $handler the route handler
+     *
+     * @return HandlerReflector
+     */
     public function parse($handler);
 }

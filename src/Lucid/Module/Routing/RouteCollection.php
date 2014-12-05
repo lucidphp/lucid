@@ -14,13 +14,18 @@ namespace Lucid\Module\Routing;
 /**
  * @class RouteCollection
  *
- * @package Lucid\Module\Routing
+ * @package lucid/routing
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
 class RouteCollection implements RouteCollectionInterface
 {
-    protected $routes = [];
+    /**
+     * The routes.
+     *
+     * @var array
+     */
+    protected $routes;
 
     /**
      * Constructor.
@@ -61,7 +66,7 @@ class RouteCollection implements RouteCollectionInterface
      */
     public function findByMethod($method)
     {
-        return new self(array_filter($this->routes, function ($route) use ($method) {
+        return new static(array_filter($this->routes, function ($route) use ($method) {
             return $route->hasMethod($method);
         }));
     }
@@ -71,7 +76,7 @@ class RouteCollection implements RouteCollectionInterface
      */
     public function findByScheme($scheme)
     {
-        return new self(array_filter($this->routes, function ($route) use ($scheme) {
+        return new static(array_filter($this->routes, function ($route) use ($scheme) {
             return $route->hasScheme($scheme);
         }));
     }
@@ -93,7 +98,7 @@ class RouteCollection implements RouteCollectionInterface
     }
 
     /**
-     * setRoutes
+     * Set Routes from a given array of routes
      *
      * @param array $routes
      *
@@ -101,6 +106,8 @@ class RouteCollection implements RouteCollectionInterface
      */
     protected function setRoutes(array $routes)
     {
+        $this->routes = [];
+
         foreach ($routes as $name => $route) {
             $this->add($name, $route);
         }

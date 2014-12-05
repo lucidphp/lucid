@@ -53,8 +53,8 @@ class RequestContext implements RequestContextInterface
         $this->base       = $base;
         $this->uri        = $path;
         $this->method     = $method;
-        $this->query      = $query ?: '';
-        $this->host       = $host;
+        $this->query      = ltrim($query ?: '', '?&');
+        $this->host       = trim($host, '/');
         $this->scheme     = $scheme;
         $this->port       = (int)$port;
     }
