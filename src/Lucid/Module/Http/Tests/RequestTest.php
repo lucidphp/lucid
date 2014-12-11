@@ -29,16 +29,25 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /** @test */
-    public function itIsExpectedThat()
+    public function itShouldGetProtocolVersion()
     {
-        $req = new Request(['foo' => 'bar'], [], [], [], [], ['QUERY_STRING' => 'bar=baz']);
-        $req->getQueryParams();
-        $req->getProtocolVersion();
+        $request = new Request;
+        $this->assertSame('1.1', $request->getProtocolVersion());
 
-        //$res = fopen('php://input', 'rb');
+        $request = new Request([], [], [], [], [], ['SERVER_PROTOCOL' => 'http/1.0']);
+        $this->assertSame('1.0', $request->getProtocolVersion());
+    }
 
-        //var_dump(stream_get_contents($res));
-        //var_dump($req);
-        //fclose($res);
+    /** @test */
+    public function itShouldGetRequestMethod()
+    {
+        $request = new Request;
+        $this->assertSame('GET', $request->getMethod());
+
+        $request = new Request([], [], [], [], [], ['X_HTTP_METHOD_OVERRIDE' => 'PUT']);
+        $this->assertSame('PUT', $request->getMethod());
+
+        $request = new Request([], ['_method' => 'delete']);
+        $this->assertSame('DELETE', $request->getMethod());
     }
 }

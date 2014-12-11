@@ -32,7 +32,7 @@ interface AttributesInterface extends ParameterMutableInterface
     /**
      * initialize
      *
-     * @param array $data
+     * @param array $data array passed by reference
      *
      * @return void
      */

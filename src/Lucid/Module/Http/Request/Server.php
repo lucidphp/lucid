@@ -54,6 +54,7 @@ class Server extends Parameters implements HeaderAwareParameterInterface
 
         foreach ($this->parameters as $key => $value) {
             if (0 === strpos($lkey = strtolower($key), 'http_') ||
+                0 === strpos($lkey, 'x_http_') ||
                 0 === strpos($lkey, 'content_')
             ) {
                 $this->headers[$key] = $value;

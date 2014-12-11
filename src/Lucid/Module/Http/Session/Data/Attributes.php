@@ -16,14 +16,15 @@ use Lucid\Module\Http\ParametersMutable;
 /**
  * @class Attributes
  * @see AttributesInterface
- * @abstract
  *
  * @package Lucid\Module\Http
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-abstract class Attributes extends ParametersMutable implements AttributesInterface
+class Attributes extends ParametersMutable implements AttributesInterface
 {
+    const DEFAULT_NAME = 'attributes';
+    const DEFAULT_KEY  = '_attrs';
     /**
      * name
      *
@@ -41,22 +42,19 @@ abstract class Attributes extends ParametersMutable implements AttributesInterfa
     /**
      * Constructor.
      *
-     * @param mixed $name
-     * @param mixed $key
+     * @param string $name
+     * @param string $key
      * @param array $attributes
      */
-    public function __construct($name, $key, array &$attributes = [])
+    public function __construct($name = self::DEFAULT_NAME, $key = self::DEFAULT_KEY, array &$attributes = [])
     {
-        $this->key = $key;
         $this->name = $name;
+        $this->key  = $key;
         $this->initialize($attributes);
     }
 
     /**
-     * getName
-     *
-     *
-     * @return void
+     * {@inheritdoc}
      */
     public function getName()
     {

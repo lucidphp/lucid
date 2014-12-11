@@ -22,10 +22,32 @@ use Lucid\Module\Common\Helper\Arr;
  */
 class Files implements UploadedFilesInterface
 {
+    /**
+     * files
+     *
+     * @var array
+     */
     private $files;
+
+    /**
+     * fixed
+     *
+     * @var files
+     */
     private $fixed;
+
+    /**
+     * fileKeys
+     *
+     * @var array
+     */
     private static $fileKeys = ['error', 'name', 'size', 'tmp_name', 'type'];
 
+    /**
+     * Constructor.
+     *
+     * @param array $files
+     */
     public function __construct(array $files = [])
     {
         $this->setFilesArray($files);

@@ -9,7 +9,7 @@
  * that was distributed with this package.
  */
 
-namespace Lucid\Module\Http;
+namespace Lucid\Module\Http\Response;
 
 /**
  * @class Reason

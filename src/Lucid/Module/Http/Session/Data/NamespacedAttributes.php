@@ -23,6 +23,7 @@ use Lucid\Module\Common\Helper\Arr;
  */
 class NamespacedAttributes extends Attributes
 {
+    const DEFAULT_SEPARATOR = '.';
     private $separator;
 
     /**
@@ -31,9 +32,9 @@ class NamespacedAttributes extends Attributes
      * @param array $attributes
      * @param string $separator
      */
-    public function __construct($name, $key, array &$attributes = [], $separator = '.')
+    public function __construct($name, $key, array &$attributes = [], $separator = self::DEFAULT_SEPARATOR)
     {
-        $this->separator = $separator;
+        $this->separator = empty($separator) ? self::DEFAULT_SEPARATOR : $separator;
         parent::__construct($name, $key, $attributes);
     }
 
@@ -62,7 +63,7 @@ class NamespacedAttributes extends Attributes
      */
     public function remove($key)
     {
-        return Arr::unsetKey($this->parameters, $key, $this->getSeparator());
+        Arr::unsetKey($this->parameters, $key, $this->getSeparator());
     }
 
     /**

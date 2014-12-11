@@ -47,7 +47,7 @@ class Body implements StreamableInterface
     }
 
     /**
-     * Create a new instance of `Body`
+     * Create a new instance of `Body` from the php input stream.
      *
      * @param boolean $multipart tell if the incomming request is multipart.
      * @throws RuntimeException if creating stream from $HTTP_RAW_POST_DATA
@@ -57,18 +57,30 @@ class Body implements StreamableInterface
      */
     public static function createFromInput($multipart = false)
     {
-        $size = null;
-        $stream = null;
-
         if (!$multipart) {
-            $stream = fopen('php://input', 'rb');
-        } elseif (isset($HTTP_RAW_POST_DATA) && $stream = fopen('php://memory', 'rwb')) {
-            $size = mb_strlen($HTTP_RAW_POST_DATA);
-            fputs($stream, $HTTP_RAW_POST_DATA);
-        } else {
-            throw new RuntimeException;
+            return new static(fopen('php://input', 'rb'));
         }
 
-        return new static($stream, $size);
+        if (isset($HTTP_RAW_POST_DATA)) {
+            return static::createFromString($HTTP_RAW_POST_DATA);
+        }
+
+        throw new RuntimeException('Reason');
+    }
+
+    /**
+     * Create a new instance of `Body` from a given string.
+     *
+     * @param string $content
+     *
+     * @return StreamableInterface New instance of Body.
+     */
+    public static function createFromString($content)
+    {
+        if ($stream = fopen('php://memory', 'rwb') && fwrite($stream, $content)) {
+            return new static($stream, mb_strlen($content));
+        }
+
+        throw new RuntimeException('Reason');
     }
 }

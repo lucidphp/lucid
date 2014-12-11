@@ -9,9 +9,20 @@
  * that was distributed with this package.
  */
 
-namespace Lucid\Module\Http\Session\Data;
+namespace Lucid\Module\Http\Session\Message;
 
-class FlashData extends NamespacedAttributes implements MessagesInterface
+use Lucid\Module\Http\Session\Data\NamespacedAttributes;
+
+/**
+ * @class Flases
+ * @see MessagesInterface
+ * @see NamespacedAttributes
+ *
+ * @package Lucid\Module\Http
+ * @version $Id$
+ * @author iwyg <mail@thomas-appel.com>
+ */
+class Flashes extends NamespacedAttributes implements MessagesInterface
 {
     const CURRENT_KEY  = '_current';
     const FORMER_KEY  = '_then';
@@ -26,28 +37,27 @@ class FlashData extends NamespacedAttributes implements MessagesInterface
      */
     public function __construct($name = self::DEFAULT_STORE_NAME, $key = self::DEFAULT_STORE_KEY)
     {
-        $this->name = (string)$name;
-        $this->key = (string)$key;
+        parent::__construct($name, $key);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function get($type, $default = [])
+    public function get($message, $default = [])
     {
-        return parent::get(static::CURRENT_KEY.'.'.$type, $default);
+        return parent::get(static::CURRENT_KEY.'.'.$message, $default);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function flush($type, $default = [])
+    public function flush($message, $default = [])
     {
-        $result = parent::get(static::CURRENT_KEY.'.'.$type, $default);
+        $messages = parent::get(static::CURRENT_KEY.'.'.$message, $default);
 
-        $this->remove($type);
+        $this->remove($message);
 
-        return $result;
+        return $messages;
     }
 
     /**

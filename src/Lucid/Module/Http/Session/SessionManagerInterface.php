@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This File is part of the Lucid\Module\Http\Session package
+ * This File is part of the Lucid\Module\Http package
  *
  * (c) iwyg <mail@thomas-appel.com>
  *
@@ -9,16 +9,15 @@
  * that was distributed with this package.
  */
 
-namespace Lucid\Module\Http\Session\Storage;
+namespace Lucid\Module\Http\Session;
 
 /**
- * @interface SessionStorageInterface
+ * @interface SessionManagerInterface
  *
- * @package Lucid\Module\Http\Session
+ * @package Lucid\Module\Http
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-interface SessionStorageInterface
+interface SessionManagerInterface
 {
-
 }

@@ -16,6 +16,7 @@ use Lucid\Module\Http\Request\Body;
 use Lucid\Module\Http\Request\Files;
 use Lucid\Module\Http\Request\Server;
 use Lucid\Module\Http\Request\Headers;
+use Lucid\Module\Http\Request\HeaderAwareParameterInterface;
 
 /**
  * @class Request
@@ -26,54 +27,18 @@ use Lucid\Module\Http\Request\Headers;
  */
 class Request implements RequestInterface
 {
-    /**
-     * version
-     *
-     * @var mixed
-     */
     protected $version;
-
-    /**
-     * method
-     *
-     * @var string
-     */
+    protected $pathInfo;
+    protected $host;
+    protected $port;
     protected $method;
-
-    /**
-     * body
-     *
-     * @var mixed
-     */
     protected $body;
-
-    /**
-     * query
-     *
-     * @var mixed
-     */
-    public $query;
-
-    /**
-     * request
-     *
-     * @var array
-     */
     protected $request;
-
-    /**
-     * queryString
-     *
-     * @var string
-     */
+    protected $query;
+    protected $content;
     protected $queryString;
-
-    /**
-     * requestUrl
-     *
-     * @var string
-     */
     protected $requestUrl;
+    protected $requestUri;
 
     /**
      * headers
@@ -81,14 +46,9 @@ class Request implements RequestInterface
      * @var mixed
      */
     public $server;
-
-    /**
-     * headers
-     *
-     * @var mixed
-     */
     public $files;
     public $cookies;
+    public $session;
     public $headers;
     public $attributes;
 
@@ -108,16 +68,19 @@ class Request implements RequestInterface
         array $attributes = [],
         array $files = [],
         array $cookies = [],
-        array $server = []
+        array $server = [],
+        array $content = null
     ) {
+        $this->content = $content;
+
+        $this->cookies = new Parameters($cookies);
+        $this->files = new Files($files);
+
         $this->setServer($server);
         $this->setQuery($query);
         $this->setRequest($request);
         $this->setAttributes($attributes);
-        $this->cookies = new Parameters($cookies);
-        $this->files = new Files($files);
-
-        $this->headers = new Headers($this->server->getHeaders());
+        $this->setHeaders($this->server);
     }
 
     /**
@@ -160,7 +123,13 @@ class Request implements RequestInterface
     public function getBody()
     {
         if (null === $this->body()) {
-            $this->body = Body::createFromInput(false);
+            if (null === $this->content) {
+                $body = Body::createFromInput(
+                    0 === strcmp('multipart/form-data', $this->server->get('CONTENT_TYPE'))
+                );
+            } else {
+                $body = Body::createFromString($this->content);
+            }
         }
 
         return $this->body;
@@ -212,7 +181,7 @@ class Request implements RequestInterface
     public function getMethod()
     {
         if (null === $this->method) {
-            $this->method = $this->server['REQUEST_METHOD'];
+            $this->method = strtoupper($this->findRequestMethod());
         }
 
         return $this->method;
@@ -228,9 +197,37 @@ class Request implements RequestInterface
     /**
      * {@inheritdoc}
      */
+    public function getRequestUri()
+    {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPathInfo()
+    {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getHost()
+    {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPort()
+    {
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getServerParams()
     {
-        return $this->server;
+        return $this->server->all();
     }
 
     /**
@@ -238,7 +235,7 @@ class Request implements RequestInterface
      */
     public function getCookieParams()
     {
-        return $this->cookies;
+        return $this->cookies->all();
     }
 
     /**
@@ -246,7 +243,7 @@ class Request implements RequestInterface
      */
     public function getFileParams()
     {
-        return $this->files;
+        return $this->files->getFilesArray();
     }
 
     /**
@@ -254,7 +251,7 @@ class Request implements RequestInterface
      */
     public function getQueryParams()
     {
-        return $this->query;
+        return $this->query->all();
     }
 
     /**
@@ -262,7 +259,7 @@ class Request implements RequestInterface
      */
     public function getBodyParams()
     {
-        return $this->request;
+        return $this->request->all();
     }
 
     /**
@@ -298,6 +295,32 @@ class Request implements RequestInterface
     }
 
     /**
+     * getQuery
+     *
+     * @param mixed $key
+     * @param mixed $default
+     *
+     * @return void
+     */
+    public function getQuery($key, $default = null)
+    {
+        return $this->query->get($key, $default);
+    }
+
+    /**
+     * getRequest
+     *
+     * @param mixed $key
+     * @param mixed $default
+     *
+     * @return void
+     */
+    public function getRequest($key, $default = null)
+    {
+        return $this->request->get($key, $default);
+    }
+
+    /**
      * Creates a new request from super php globals
      *
      * @return RequestInterface
@@ -317,6 +340,18 @@ class Request implements RequestInterface
     protected function setServer(array $server = [])
     {
         $this->server = new Server(static::getDefaultServerVars($server));
+    }
+
+    /**
+     * setHeaders
+     *
+     * @param Server $server
+     *
+     * @return void
+     */
+    protected function setHeaders(HeaderAwareParameterInterface $server)
+    {
+        $this->headers = new Headers($server->getHeaders());
     }
 
     /**
@@ -347,6 +382,24 @@ class Request implements RequestInterface
         }
 
         $this->query = new Parameters($get);
+    }
+
+    /**
+     * findMethod
+     *
+     * @return void
+     */
+    protected function findRequestMethod()
+    {
+        if (null !== ($method = $this->headers->get('X_HTTP_METHOD_OVERRIDE'))) {
+            return current($method);
+        }
+
+        if (null !== ($method = $this->request->get('_method'))) {
+            return $method;
+        }
+
+        return $this->server->get('REQUEST_METHOD', 'GET');
     }
 
     /**

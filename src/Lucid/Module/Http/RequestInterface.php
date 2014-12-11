@@ -22,24 +22,29 @@ use Psr\Http\Message\IncomingRequestInterface;
  */
 interface RequestInterface extends IncomingRequestInterface
 {
-    ///**
-    // * getRequestUri
-    // *
-    // * @return void
-    // */
-    //public function getRequestUri();
+    const T_MAIN = 'main';
+    const T_SUB = 'sub';
 
-    ///**
-    // * getScheme
-    // *
-    // * @return void
-    // */
-    //public function getScheme();
+    /**
+     * getRequestUri
+     *
+     * @return void
+     */
+    public function getRequestUri();
 
-    ///**
-    // * getFiles
-    // *
-    // * @return void
-    // */
-    //public function getFiles();
+    public function getPathInfo();
+
+    /**
+     * getHost
+     *
+     * @return void
+     */
+    public function getHost();
+
+    /**
+     * getPort
+     *
+     * @return void
+     */
+    public function getPort();
 }

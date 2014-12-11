@@ -14,6 +14,7 @@ namespace Lucid\Module\Http;
 use RuntimeException;
 use InvalidArgumentException;
 use Lucid\Module\Http\Response\Body;
+use Lucid\Module\Http\Response\Reason;
 use Lucid\Module\Http\Response\Headers;
 
 /**

@@ -9,12 +9,14 @@
  * that was distributed with this package.
  */
 
-namespace Lucid\Module\Http\Session\Data;
+namespace Lucid\Module\Http\Session\Message;
+
+use Lucid\Module\Http\Session\Data\AttributesInterface;
 
 /**
  * @interface MessagesInterface
  *
- * @package Lucid\Module\Http\Session\Data
+ * @package Lucid\Module\Http
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */

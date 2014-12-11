@@ -56,9 +56,22 @@ interface UploadedFileInterface
     public function isError();
 
     /**
+     * Move the uploaded file to a new location.
+     *
+     * @param string $targetPath target directory.
+     * @param string $newName    use this name instead of
+     *                           `UploadedFileInterface::getName()`
+     *
+     * @return \SplObject `FALSE` if error.
+     */
+    public function move($targetPath, $newName = null);
+
+    /**
      * Get the error code.
      *
-     * @return int
+     * @see http://php.net/manual/en/features.file-upload.errors.php
+     *
+     * @return int one of the error codes described above.
      */
     public function getErrorCode();
 }

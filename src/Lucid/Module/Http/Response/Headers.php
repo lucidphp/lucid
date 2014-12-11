@@ -11,6 +11,7 @@
 
 namespace Lucid\Module\Http\Response;
 
+use Lucid\Module\Http\ParameterMutableInterface;
 use Lucid\Module\Http\Request\Headers as RequestHeaders;
 
 /**
@@ -20,9 +21,33 @@ use Lucid\Module\Http\Request\Headers as RequestHeaders;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-class Headers extends RequestHeaders implements ResponseHeaderInterface
+class Headers extends RequestHeaders implements ResponseHeaderInterface, ParameterMutableInterface
 {
     private $cookies = [];
+
+    /**
+     * {@inheritdoc}
+     */
+    public function set($header, $value)
+    {
+        return $this->setHeader($this->parameters, $header, $value);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function add($header, $value)
+    {
+        return $this->addHeader($this->parameters, $header, $value);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function delete($header)
+    {
+        unset($this->parameters[$header]);
+    }
 
     /**
      * send
