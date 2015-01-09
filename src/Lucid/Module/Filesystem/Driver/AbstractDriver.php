@@ -63,9 +63,10 @@ abstract class AbstractDriver implements DriverInterface
     /**
      * {@inheritdoc}
      */
-    public function pathInfoAsObject($obj)
+    public function pathInfoAsObject($obj = null)
     {
-        $this->setOption('pathinfo_as_obj', (bool)$obj);
+        return null === $obj ?
+            (bool)$this->getOption('pathinfo_as_obj') : $this->setOption('pathinfo_as_obj', (bool)$obj);
     }
 
     /**
@@ -153,6 +154,18 @@ abstract class AbstractDriver implements DriverInterface
     }
 
     /**
+     * filePermsAsString
+     *
+     * @param int $perm
+     *
+     * @return string
+     */
+    protected function filePermsAsString($perm)
+    {
+        return '0'.decoct(octdec(substr(sprintf('%o', $perm), -4)));
+    }
+
+    /**
      * setPrefix
      *
      * @param mixed $path
@@ -194,18 +207,36 @@ abstract class AbstractDriver implements DriverInterface
      */
     protected function getUnprefixed($path)
     {
-        if (null === $this->prefix || 0 !== mb_strpos($path, $this->prefix)) {
+        $sp = $this->directorySeparator;
+
+        if (null === $this->prefix || 0 !== mb_strpos(rtrim($path, $sp), rtrim($this->prefix, $sp))) {
             return $path;
         }
 
-        return ltrim(mb_substr($path, mb_strlen($this->prefix) - 1), '/');
+        return ltrim(mb_substr($path, mb_strlen($this->prefix) - 1), $sp);
     }
 
+    /**
+     * setOption
+     *
+     * @param mixed $option
+     * @param mixed $value
+     *
+     * @return void
+     */
     protected function setOption($option, $value)
     {
         $this->options[$option] = $value;
     }
 
+    /**
+     * getOption
+     *
+     * @param mixed $option
+     * @param mixed $default
+     *
+     * @return void
+     */
     protected function getOption($option, $default = null)
     {
         if (isset($this->options[$option])) {
@@ -218,5 +249,10 @@ abstract class AbstractDriver implements DriverInterface
     protected function pathInfoReturnsArray()
     {
         return !$this->getOption('pathinfo_as_obj');
+    }
+
+    protected function filePermission()
+    {
+        return $this->getOption('file_permission');
     }
 }

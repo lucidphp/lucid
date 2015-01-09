@@ -28,6 +28,16 @@ class MimeType
     protected static $defaultType = 'application/octet-stream';
 
     /**
+     * defaultType
+     *
+     * @return string
+     */
+    public static function defaultType()
+    {
+        return static::$defaultType;
+    }
+
+    /**
      * getFromContent
      *
      * @param string $content
@@ -40,10 +50,10 @@ class MimeType
             return static::$default;
         }
 
-        $mime = finfo_buffer($fi = finfo_open(FILEINFO_MIME), $content);
-        finfo_close($fi);
+        list($mime, ) = array_pad(explode(';', finfo_buffer($info = finfo_open(FILEINFO_MIME), $content), 2), 2, null);
+        finfo_close($info);
 
-        return $mime ?: static::$default;
+        return $mime ?: static::$defaultType;
     }
 
     /**
@@ -53,11 +63,16 @@ class MimeType
      *
      * @return string
      */
-    public static function getFromExtension($ext)
+    public static function getFromExtension($file)
     {
-        $map = static::getTypeMap();
+        if (0 !== $pos = strrpos($file, '.')) {
+            $map = static::getTypeMap();
+            $ext = substr($file, $pos + 1);
 
-        return isset($map[$ext]) ? $map[$ext] : static::$defaultType;
+            return isset($map[$ext]) ? $map[$ext] : static::$defaultType;
+        }
+
+        return static::$defaultType;
     }
 
     /**

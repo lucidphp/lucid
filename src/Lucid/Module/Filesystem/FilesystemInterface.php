@@ -11,6 +11,8 @@
 
 namespace Lucid\Module\Filesystem;
 
+use Lucid\Module\Filesystem\Exception\IOException;
+
 /**
  * @interface FilesystemInterface
  *
@@ -148,7 +150,7 @@ interface FilesystemInterface
      *
      * @return string
      */
-    public function enum($path, $start = 0, $prefix = null, $pad = true);
+    public function enum($path, $prefix = null, $pad = true);
 
     /**
      * Creates a copy of a given resrouce.
@@ -181,7 +183,9 @@ interface FilesystemInterface
      *
      * @param string $directory source path ot hthe directory to be removed.
      *
-     * @return boolean
+     * @throws IOException
+     *
+     * @return boolean Always `TRUE`
      */
     public function rmdir($directory);
 
@@ -238,10 +242,11 @@ interface FilesystemInterface
     /**
      * Removes files or directories.
      *
-     * @param string|array $file source paths that should be removed.
+     * @param string $file Path that should be removed.
      *
-     * @return boolean returns true if all files where deleted successfully,
-     * and false if some or one file coulnd not be deleted.
+     * @throws IOException
+     *
+     * @return boolean Always `TRUE`
      */
     public function remove($file);
 
@@ -254,9 +259,9 @@ interface FilesystemInterface
      * @param string  $source
      * @param string  $target
      *
-     * @throws \Selene\Module\Filesystem\Exception\IOException
+     * @throws IOException
      *
-     * @return integer returns the total count of bytes that where copied.
+     * @return integer the total count of bytes that where copied.
      */
     public function copy($source, $target = null);
 
@@ -267,7 +272,7 @@ interface FilesystemInterface
      * @param integer $permission
      * @param boolean $recursive
      *
-     * @throws \Selene\Module\Filesystem\Exception\IOException if permissions
+     * @throws IOException if permissions
      * could not be set.
      *
      * @return boolean true
@@ -283,9 +288,9 @@ interface FilesystemInterface
      * @param string|int $owner
      * @param boolean    $recursive
      *
-     * @throws \Selene\Module\Filesystem\Exception\IOException if UID doesn't
+     * @throws IOException if UID doesn't
      * exist.
-     * @throws \Selene\Module\Filesystem\Exception\IOException if ownership
+     * @throws IOException if ownership
      * could not be changed.
      * @return boolean true
      */
@@ -300,9 +305,9 @@ interface FilesystemInterface
      * @param string|int $group
      * @param boolean    $recursive
      *
-     * @throws \Selene\Module\Filesystem\Exception\IOException if GID doesn't
+     * @throws IOException if GID doesn't
      * exist.
-     * @throws \Selene\Module\Filesystem\Exception\IOException if group
+     * @throws IOException if group
      * could not be changed.
      *
      * @return boolean true

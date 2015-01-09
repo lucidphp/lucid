@@ -30,7 +30,7 @@ interface DriverInterface
      *
      * @return void
      */
-    public function pathInfoAsObject($obj);
+    public function pathInfoAsObject($obj = null);
 
     /**
      * Tells if given path exists.
@@ -74,8 +74,7 @@ interface DriverInterface
      * @param string      $file     the file path to write to
      * @param string|null $contents the file contents.
      *
-     * @return array|PathInfo|boolean Pathinfo object|array of the
-     * new file on success, `FALSE` on failure.
+     * @return boolean `TRUE` on success, `FALSE` on failure.
      */
     public function writeFile($file, $contents = null);
 
@@ -85,10 +84,20 @@ interface DriverInterface
      * @param string      $file     the file path to write to
      * @param string|null $contents the file contents.
      *
-     * @return array|PathInfo|boolean Pathinfo object|array of the
-     * updated file on success, `FALSE` on failure.
+     * @return boolean `TRUE` on success, `FALSE` on failure.
      */
     public function updateFile($file, $contents = null);
+
+    /**
+     * Get the contents of a file.
+     *
+     * @param string $path
+     * @param int $offset
+     * @param int $maxlen
+     *
+     * @return string|boolean The contents of the file, `FALSE` on failure
+     */
+    public function readFile($path, $offset = null, $maxlen = null);
 
     /**
      * Writes a file stream to a path.
@@ -96,10 +105,9 @@ interface DriverInterface
      * @param string   $path the target path
      * @param resource $stream the file stream to read from.
      *
-     * @return array|PathInfo|boolean Pathinfo object|array of the
-     * created file on success, `FALSE` on failure.
+     * @return int|boolean Bytes writte on success, `FALSE` on failure.
      */
-    public function writeStream($path, $stream);
+    public function writeStream($path, $stream, $offset = null, $maxlen = null);
 
     /**
      * Updates a file from a file stream.
@@ -107,10 +115,19 @@ interface DriverInterface
      * @param string   $path the target path
      * @param resource $stream the file stream to read from.
      *
-     * @return array|PathInfo|boolean Pathinfo object|array of the
-     * updated file on success, `FALSE` on failure.
+     * @return int|boolean Bytes writte on success, `FALSE` on failure.
      */
-    public function updateStream($path, $stream);
+    public function updateStream($path, $stream, $offset = null, $maxlen = null);
+
+    /**
+     * Retuens a stream from a path
+     *
+     * @param string $path
+     *
+     * @return resource|boolean Filehandle resource of the given path, `FALSE` on
+     * failure
+     */
+    public function readStream($path);
 
     /**
      * Creates a new directory.
@@ -119,8 +136,7 @@ interface DriverInterface
      * @param int     $permission the permission mode.
      * @param boolean $recursive recursively create path.
      *
-     * @return array|PathInfo|boolean Pathinfo object|array of the
-     * created directory on success, `FALSE` on failure.
+     * @return boolean `TRUE` on success, `FALSE` on failure.
      */
     public function createDirectory($dir, $permission = 0755, $recursive = true);
 
@@ -148,7 +164,7 @@ interface DriverInterface
      * @param string $source the source path
      * @param string $target the new path
      *
-     * @return array|PathInfo|boolean Pathinfo of the target path, `FALSE` on failure.
+     * @return boolean `TRUE` on success, `FALSE` on failure.
      */
     public function rename($source, $target);
 
@@ -158,7 +174,7 @@ interface DriverInterface
      * @param string $file the source file.
      * @param string $target the targer file path.
      *
-     * @return array|PathInfo|boolean Pathinfo of the target path, `FALSE` on failure.
+     * @return boolean, `TRUE` on sucess, `FALSE` on failure.
      */
     public function copyFile($file, $target);
 
@@ -168,7 +184,7 @@ interface DriverInterface
      * @param string $dir the source directory.
      * @param string $target the targer directory path.
      *
-     * @return array|PathInfo|boolean pathinfo of the target path, `FALSE` on failure.
+     * @return int|boolean Bytes copied, `FALSE` on failure.
      */
     public function copyDirectory($dir, $target);
 
@@ -199,7 +215,7 @@ interface DriverInterface
      *
      * @param string $file
      *
-     * @return array|boolean Array containing `$path` and `$mimetype`,
+     * @return string|boolean The mimetype of the file,
      * `FALSE` on failure.
      */
     public function getMimeType($file);
@@ -212,4 +228,31 @@ interface DriverInterface
      * @return array|PathInfo
      */
     public function getPathInfo($path);
+
+    /**
+     * List the contents of a directory
+     *
+     * @param string $path
+     *
+     * @return array Array containing PathInfo objects.
+     */
+    public function listDirectory($path, $recursive = false);
+
+    /**
+     * ensureFile
+     *
+     * @param mixed $path
+     *
+     * @return void
+     */
+    public function ensureFile($path);
+
+    /**
+     * ensureDirectory
+     *
+     * @param mixed $path
+     *
+     * @return void
+     */
+    public function ensureDirectory($path);
 }

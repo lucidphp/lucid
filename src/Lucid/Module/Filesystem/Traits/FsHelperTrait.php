@@ -56,4 +56,5 @@ trait FsHelperTrait
             throw new \RuntimeException(sprintf('trying to write to directory %s but it\'s not writable', $dir));
         }
     }
+
 }

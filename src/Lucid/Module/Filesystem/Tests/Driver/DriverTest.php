@@ -69,14 +69,8 @@ abstract class DriverTest extends \PHPUnit_Framework_TestCase
     public function itShouldCreateNewFile()
     {
         $driver = $this->newDriver();
-        $this->assertInternalType('array', $res = $driver->writeFile('new.file', 'content'));
-
-        $this->assertArrayHasKey('path', $res);
-        $this->assertArrayHasKey('contents', $res);
-        $this->assertArrayHasKey('mimetype', $res);
-        $this->assertArrayHasKey('visibility', $res);
-
-        $this->assertSame('content', $res['contents']);
+        $this->assertInternalType('int', $res = $driver->writeFile('new.file', 'content'));
+        $this->assertSame(mb_strlen('conetnt'), $res);
     }
 
     /** @test */
@@ -85,12 +79,9 @@ abstract class DriverTest extends \PHPUnit_Framework_TestCase
         $this->needsFiles(['file.exists' => 'content']);
 
         $driver = $this->newDriver();
-        $this->assertInternalType('array', $res = $driver->updateFile('file.exists', 'new content'));
 
-        $this->assertArrayHasKey('path', $res);
-        $this->assertArrayHasKey('contents', $res);
-
-        $this->assertSame('new content', $res['contents']);
+        $this->assertInternalType('int', $res = $driver->updateFile('file.exists', 'new content'));
+        $this->assertSame(mb_strlen('new conetnt'), $res);
     }
 
     /** @test */
@@ -99,9 +90,8 @@ abstract class DriverTest extends \PHPUnit_Framework_TestCase
         $this->needsFiles(['file.new' => 'content']);
         $driver = $this->newDriver();
 
-        $this->assertInternalType('array', $res = $driver->readFile('file.new'));
-
-        $this->assertSame('content', $res['contents']);
+        $this->assertInternalType('string', $res = $driver->readFile('file.new'));
+        $this->assertSame('content', $res);
     }
 
     /** @test */
@@ -111,8 +101,7 @@ abstract class DriverTest extends \PHPUnit_Framework_TestCase
         $driver = $this->newDriver();
 
         $res = $driver->readFile('file.new', 1, 3);
-
-        $this->assertSame('ont', $res['contents']);
+        $this->assertSame('ont', $res);
     }
 
     /** @test */
@@ -120,10 +109,8 @@ abstract class DriverTest extends \PHPUnit_Framework_TestCase
     {
         $driver = $this->newDriver();
 
-        $this->assertInternalType('array', $res = $driver->createDirectory('foo/bar', 0775, true));
-
-        $this->assertArrayHasKey('visibility', $res);
-        $this->assertSame('public', $res['visibility']);
+        $this->assertInternalType('boolean', $res = $driver->createDirectory('foo/bar', 0775, true));
+        $this->assertTrue($res);
     }
 
     /** @test */
@@ -147,9 +134,8 @@ abstract class DriverTest extends \PHPUnit_Framework_TestCase
     {
         $driver = $this->newDriver();
         $this->needsFiles(['file.exists' => 'content']);
-        $this->assertInternalType('array', $res = $driver->copyFile('file.exists', 'file.new'));
 
-        $this->assertSame('file.new', $res['path']);
+        $this->assertInternalType('int', $res = $driver->copyFile('file.exists', 'file.new'));
     }
 
     /** @test */
@@ -191,9 +177,7 @@ abstract class DriverTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $driver = $this->newDriver();
-        $this->assertInternalType('array', $res = $driver->copyDirectory('dir_exists', 'dir_copy'));
-
-        $this->assertSame('dir_copy', $res['path']);
+        $this->assertInternalType('integer', $driver->copyDirectory('dir_exists', 'dir_copy'));
     }
 
     /** @test */
@@ -245,12 +229,10 @@ abstract class DriverTest extends \PHPUnit_Framework_TestCase
         $stream = tmpfile();
 
         $res = $driver->writeStream('file.new', $this->newStream('content'));
-
-        $this->assertInternalType('array', $res);
-        $this->assertArrayHasKey('path', $res);
-        $this->assertSame('file.new', $res['path']);
+        $this->assertInternalType('integer', $res);
     }
 
+    /** @test */
     public function itShouldUpdateStream()
     {
         $this->needsFiles(['file.exists', 'content']);
@@ -258,9 +240,7 @@ abstract class DriverTest extends \PHPUnit_Framework_TestCase
 
         $res = $driver->updateStream('file.exists', $this->newStream('content new'));
 
-        $this->assertInternalType('array', $res);
-        $this->assertArrayHasKey('path', $res);
-        $this->assertSame('file.exist', $res['path']);
+        $this->assertInternalType('integer', $res);
     }
 
     /** @test */
@@ -268,8 +248,7 @@ abstract class DriverTest extends \PHPUnit_Framework_TestCase
     {
         $driver = $this->newDriver();
 
-        $this->assertInternalType('array', $res = $driver->ensureFile('new_dir/file.new'));
-        $this->assertSame('new_dir/file.new', $res['path']);
+        $this->assertInternalType('boolean', $res = $driver->ensureFile('new_dir/file.new'));
     }
 
     /** @test */
@@ -277,8 +256,7 @@ abstract class DriverTest extends \PHPUnit_Framework_TestCase
     {
         $driver = $this->newDriver();
 
-        $this->assertInternalType('array', $res = $driver->ensureDirectory('dir/sub'));
-        $this->assertSame('dir/sub', $res['path']);
+        $this->assertInternalType('boolean', $res = $driver->ensureDirectory('dir/sub'));
     }
 
     /** @test */
@@ -287,8 +265,8 @@ abstract class DriverTest extends \PHPUnit_Framework_TestCase
         $this->needsFiles(['file.exists' => '']);
         $driver = $this->newDriver();
 
-        $this->assertInternalType('array', $res = $driver->rename('file.exists', 'file.new'));
-        $this->assertSame('file.new', $res['path']);
+        $this->assertInternalType('boolean', $res = $driver->rename('file.exists', 'file.new'));
+        $this->assertTrue($res);
     }
 
     /** @test */
@@ -321,4 +299,8 @@ abstract class DriverTest extends \PHPUnit_Framework_TestCase
     abstract protected function newDriver($mount = null, array $options = []);
 
     abstract protected function getMount();
+
+    abstract protected function needsFiles(array $files);
+
+    abstract protected function needsDirs(array $dirs);
 }

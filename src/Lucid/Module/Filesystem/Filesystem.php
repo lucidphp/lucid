@@ -63,7 +63,7 @@ class Filesystem implements FilesystemInterface
     /**
      * {@inheritdoc}
      */
-    public function isLink($file)
+    public function isLink($path)
     {
         return $this->driver->isLink($path);
     }
@@ -71,17 +71,17 @@ class Filesystem implements FilesystemInterface
     /**
      * {@inheritdoc}
      */
-    public function ensureDirectory($dir)
+    public function ensureDirectory($path)
     {
-        return $this->driver->ensureDirectory($dir);
+        return $this->driver->ensureDirectory($path);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function ensureFile($file)
+    public function ensureFile($path)
     {
-        return $this->driver->ensureFile($dir);
+        return $this->driver->ensureFile($path);
     }
 
     /**
@@ -89,11 +89,19 @@ class Filesystem implements FilesystemInterface
      */
     public function writeFile($file, $content)
     {
-        if (!$this->driver->isFile($file)) {
-            throw new IOException(sprintf('Cannot write content. %s is not a file', $file));
+        $res = false;
+
+        if (!$this->driver->exists($file)) {
+            $res = $this->driver->writeFile($file, $content);
+        } elseif ($this->driver->isFile($file)) {
+            $res = $this->driver->updateFile($file, $content);
         }
 
-        return $this->driver->writeFile($file, $content);
+        if (false === $res) {
+            throw new IOException(sprintf('Cannot write to file "%s".', $file));
+        }
+
+        return $res;
     }
 
     /**
@@ -102,7 +110,7 @@ class Filesystem implements FilesystemInterface
     public function dumpFile($file, $start = null, $stop = null)
     {
         if (!$this->driver->isFile($file)) {
-            throw new IOException(sprintf('Cannot read content. %s is not a file', $file));
+            throw new IOException(sprintf('Cannot read contents. "%s" is not a file', $file));
         }
 
         return $this->driver->readFile($file, $start, $stop);
@@ -129,11 +137,11 @@ class Filesystem implements FilesystemInterface
      */
     public function mkdir($dir, $mod = 0755, $recursive = true)
     {
-        if ($res = $this->driver->createDirectory($dir, $mod, $recursive)) {
-            return $res;
+        if (!$res = $this->driver->createDirectory($dir, $mod, $recursive)) {
+            throw IOException::createDir($dir);
         }
 
-        throw IOException::createDir($dir);
+        return $res;
     }
 
     /**
@@ -153,28 +161,23 @@ class Filesystem implements FilesystemInterface
      */
     public function unlink($file)
     {
-        return $this->driver->deleteFile($file);
+        if (!$this->driver->deleteFile($file)) {
+            throw IOException::rmFile($file);
+        }
+
+        return true;
     }
 
     /**
-     * remove
-     *
-     * @param string $path
-     *
-     * @return void
+     * {@inheritdoc}
      */
     public function remove($path)
     {
         if ($this->driver->isDir($path)) {
-            return $this->driver->deleteDirectory($path);
+            return $this->rmdir($path);
         }
 
-        try {
-            return $this->driver->removeFile($path);
-        } catch (\Exception $e) {
-        }
-
-        return false;
+        return $this->unlink($path);
     }
 
     /**
@@ -188,8 +191,9 @@ class Filesystem implements FilesystemInterface
     /**
      * {@inheritdoc}
      */
-    public function enum($path, $start = 1, $prefix = null, $pad = true)
+    public function enum($path, $prefix = null, $pad = true)
     {
+        $start = 0;
         $files = array_change_key_case($this->driver->listDirectory($dir = dirname($path)), CASE_LOWER);
 
         $prefix = $prefix ?: self::COPY_PREFIX;
@@ -202,7 +206,10 @@ class Filesystem implements FilesystemInterface
             $bn     = substr($bn, 0, $pos);
         }
 
-        while (isset($files[strtolower($name = $bn . ' ' . $prefix . ' ' . $start . $suffix)])) {
+        $enum = '';
+
+        while (isset($files[strtolower($name = $bn . ' ' . $prefix . $enum . $suffix)])) {
+            $enum = 0 < $start ? ' '.$start : '';
             $start++;
         }
 
@@ -249,7 +256,7 @@ class Filesystem implements FilesystemInterface
         }
 
         $pname = dirname($path) . $this->getSeparator().$suffix.basename($path);
-        $backupName = $this->enum($pname, 1, (new \DateTime())->format($dateFormat));
+        $backupName = $this->enum($pname, (new \DateTime())->format($dateFormat));
 
         if ($this->driver->isFile($path)) {
             return $this->driver->copyFile($path, $backupName);
@@ -277,6 +284,7 @@ class Filesystem implements FilesystemInterface
     public function chown($file, $owner, $recursive = true)
     {
     }
+
     public function chgrp($file, $group, $recursive = true)
     {
     }
