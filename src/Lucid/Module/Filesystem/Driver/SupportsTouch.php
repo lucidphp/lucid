@@ -18,7 +18,7 @@ namespace Lucid\Module\Filesystem\Driver;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-interface NativeInterface
+interface SupportsTouch
 {
     public function touch($path, $time, $atime);
 }

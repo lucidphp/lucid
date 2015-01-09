@@ -53,9 +53,10 @@ abstract class AbstractFtp extends AbstractDriver
     protected function setConnectionAndOptions(Connection $conn = null, array $options = [])
     {
         $options = array_merge(static::defaultOptions(), $options);
-        $this->setupConnection($conn, $options);
+        $keys = array_flip(static::$connKeys);
+        $this->setupConnection($conn, array_intersect_key($options, $keys));
 
-        $this->options = array_diff_key($options, array_flip(static::$connKeys));
+        $this->options = array_diff_key($options, $keys = array_flip(static::$connKeys));
     }
 
     /**

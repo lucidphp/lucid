@@ -308,14 +308,14 @@ class FtpDriver extends AbstractFtp implements SupportsVisibility, SupportsPermi
         // we just want the very first bytes of the file:
         while (FTP_MOREDATA === $ret && is_resource($tmp)) {
             if (ftell($tmp) > 16) {
-                $cnt = $this->finisChuckedStream($tmp);
+                $cnt = $this->finishChuckedStream($tmp);
             } else {
                 $ret = ftp_nb_continue($conn);
             }
         }
 
         if (is_resource($tmp)) {
-            $cnt = $this->finisChuckedStream($tmp);
+            $cnt = $this->finishChuckedStream($tmp);
         }
 
         if (MimeType::defaultType() === $mime = MimeType::getFromContent($cnt)) {
@@ -326,13 +326,13 @@ class FtpDriver extends AbstractFtp implements SupportsVisibility, SupportsPermi
     }
 
     /**
-     * finisChuckedStream
+     * finishChuckedStream
      *
      * @param resource $stream
      *
      * @return string
      */
-    protected function finisChuckedStream(&$stream)
+    protected function finishChuckedStream(&$stream)
     {
         rewind($stream);
         $cnt = stream_get_contents($stream);

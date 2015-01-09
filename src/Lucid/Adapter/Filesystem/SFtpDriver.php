@@ -15,7 +15,9 @@ use Net_SSH2;
 use Net_SFTP;
 use Lucid\Module\Filesystem\Mime\MimeType;
 use Lucid\Module\Filesystem\FilesystemInterface;
-use Lucid\Module\Filesystem\Driver\NativeInterface;
+use Lucid\Module\Filesystem\Driver\SupportsTouch;
+use Lucid\Module\Filesystem\Driver\SupportsVisibility;
+use Lucid\Module\Filesystem\Driver\SupportsPermission;
 use Lucid\Adapter\Filesystem\Sftp\Connection as SftpConnection;
 use Lucid\Adapter\Filesystem\FtpConnectionInterface as Connection;
 
@@ -26,8 +28,13 @@ use Lucid\Adapter\Filesystem\FtpConnectionInterface as Connection;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-class SFtpDriver extends AbstractFtp implements NativeInterface
+class SFtpDriver extends AbstractFtp implements SupportsTouch, SupportsVisibility, SupportsPermission
 {
+    /**
+     * connKeys
+     *
+     * @var array
+     */
     protected static $connKeys = ['host', 'port', 'user', 'password', 'private_key', 'timeout'];
 
     /**
@@ -257,9 +264,8 @@ class SFtpDriver extends AbstractFtp implements NativeInterface
             fclose($stream);
         }
 
-        if ($ret) {
-            $p = $this->doSetPermission($target, $this->getConnection()->fileperms($file), true, false);
-            var_dump($p);
+        if (!$this->doSetPermission($target, $this->getConnection()->fileperms($file), true, false)) {
+            return false;
         }
 
         return $ret;

@@ -30,7 +30,7 @@ use Lucid\Module\Filesystem\Exception\IOException;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-class LocalDriver extends AbstractDriver implements NativeInterface, SupportsPermission, SupportsVisibility
+class LocalDriver extends AbstractDriver implements SupportsTouch, SupportsPermission, SupportsVisibility
 {
     /**
      * Constructor.
