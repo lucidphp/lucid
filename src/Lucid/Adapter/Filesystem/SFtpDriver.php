@@ -15,6 +15,7 @@ use Net_SSH2;
 use Net_SFTP;
 use Lucid\Module\Filesystem\Mime\MimeType;
 use Lucid\Module\Filesystem\FilesystemInterface;
+use Lucid\Module\Filesystem\Driver\NativeInterface;
 use Lucid\Adapter\Filesystem\Sftp\Connection as SftpConnection;
 use Lucid\Adapter\Filesystem\FtpConnectionInterface as Connection;
 
@@ -25,8 +26,9 @@ use Lucid\Adapter\Filesystem\FtpConnectionInterface as Connection;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-class SFtpDriver extends AbstractFtp
+class SFtpDriver extends AbstractFtp implements NativeInterface
 {
+    protected static $connKeys = ['host', 'port', 'user', 'password', 'private_key', 'timeout'];
 
     /**
      * {@inheritdoc}
@@ -63,13 +65,21 @@ class SFtpDriver extends AbstractFtp
     /**
      * {@inheritdoc}
      */
+    public function touch($path, $mtime = null, $atime = null)
+    {
+        return $this->getConnection()->touch($path, $mtime, $atime);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function writeStream($path, $stream, $offset = null, $maxlen = null)
     {
         $this->ensureDirectory(dirname($path));
 
         $bytes = $this->doWriteStream($path, $stream, $offset, $maxlen);
 
-        if (false !== $bytes  && $this->getConnection()->chmod($this->filePermission(), $path, false)) {
+        if (false !== $bytes && $this->doSetPermission($path, $this->filePermission(), true, false)) {
             return $bytes;
         }
 
@@ -123,7 +133,7 @@ class SFtpDriver extends AbstractFtp
      */
     public function createDirectory($dir, $permission = null, $recursive = true)
     {
-        return $this->getConnection()->mkdir($dir, $permission ?: $this->directoryPermissions(), $recursive);
+        return $this->getConnection()->mkdir($dir, $permission ?: $this->directoryPermission(), $recursive);
     }
 
     /**
@@ -142,7 +152,7 @@ class SFtpDriver extends AbstractFtp
             return false;
         }
 
-        return null !== $contents ? mb_strlen($contents) : 0;
+        return $this->contentSize($contents ?: '');
     }
 
     /**
@@ -154,7 +164,7 @@ class SFtpDriver extends AbstractFtp
             return false;
         }
 
-        return null !== $contents ? mb_strlen($contents) : 0;
+        return $this->contentSize($contents ?: '');
     }
 
     /**
@@ -190,23 +200,6 @@ class SFtpDriver extends AbstractFtp
 
         return $this->statToPathInfo($path, $stat);
 
-    }
-
-    protected function statToPathInfo($path, $stat)
-    {
-        $result['path'] = $path;
-        $result['type'] = $this->getObjectType($stat['type']);
-        $result['timestamp'] = $stat['mtime'];
-
-        if ('file' === $result['type']) {
-            $result['size'] = $stat['size'];
-        }
-
-        $result['permission'] = $this->filePermsAsString($stat['permissions']);
-        $result['visibility'] = $this->getVisibilityFromMod($stat['permissions']);
-
-
-        return $this->createPathInfo($result);
     }
 
     /**
@@ -254,6 +247,22 @@ class SFtpDriver extends AbstractFtp
      */
     public function copyFile($file, $target)
     {
+        if (!$stream = $this->readStream($file)) {
+            return false;
+        }
+
+        $ret = $this->doWriteStream($target, $stream);
+
+        if (is_resource($stream)) {
+            fclose($stream);
+        }
+
+        if ($ret) {
+            $p = $this->doSetPermission($target, $this->getConnection()->fileperms($file), true, false);
+            var_dump($p);
+        }
+
+        return $ret;
     }
 
     /**
@@ -261,6 +270,62 @@ class SFtpDriver extends AbstractFtp
      */
     public function copyDirectory($dir, $target)
     {
+        if ($this->exists($target)) {
+            return false;
+        }
+
+        return $this->doCopyDirectory($dir, $target);
+    }
+
+    /**
+     * doCopyDirectory
+     *
+     * @param mixed $dir
+     * @param mixed $target
+     *
+     * @return void
+     */
+    protected function doCopyDirectory($dir, $target)
+    {
+        if (!$this->ensureDirectory($target)) {
+            return false;
+        }
+
+        if (!$this->setPermission($target, $this->getConnection()->fileperms($target), true)) {
+            return false;
+        }
+
+        $sp = $this->directorySeparator;
+        $bytes = 0;
+
+        foreach ($this->getConnection()->rawlist($dir) as $filename => $object) {
+
+            if (in_array($filename, ['.', '..'])) {
+                continue;
+            }
+
+            $pName = $dir.$sp.$filename;
+            $tName = $target.$sp.$filename;
+
+            if ('link' === $this->getObjectType($object['type'])) {
+                //@TODO add support for copy links
+                continue;
+            } if ('file' === $this->getObjectType($object['type'])) {
+                if (false !== ($ret = $this->copyFile($pName, $tName))) {
+                    $bytes += $ret;
+                    continue;
+                }
+            } elseif ('dir' === $this->getObjectType($object['type'])) {
+                if (false !== $ret = $this->copyDirectory($pName, $tName)) {
+                    $bytes += $ret;
+                    continue;
+                }
+            }
+
+            return false;
+        }
+
+        return $bytes;
     }
 
     /**
@@ -268,7 +333,7 @@ class SFtpDriver extends AbstractFtp
      */
     public function setPermission($path, $mod, $recursive = true)
     {
-        return $this->getConnection()->chmod($mod, $path, (bool)$recursive);
+        return $this->doSetPermission($path, $mod, $this->isFile($path), $recursive);
     }
 
     /**
@@ -276,9 +341,9 @@ class SFtpDriver extends AbstractFtp
      */
     public function getPermission($path)
     {
-        if ($stat = $this->getConnection()->stat($path)) {
-            $permission = $this->filePermsAsString($stat['permissions']);
-            $visibility = $this->getVisibilityFromMod($stat['permissions']);
+        if ($perms = $this->getConnection()->fileperms($path)) {
+            $permission = $this->filePermsAsString($perms);
+            $visibility = $this->getVisibilityFromMod($perms);
 
             return compact('permission', 'visibility');
         }
@@ -307,6 +372,45 @@ class SFtpDriver extends AbstractFtp
     }
 
     /**
+     * doSetPermission
+     *
+     * @param string $path
+     * @param int $mod
+     * @param boolean $isFile
+     * @param boolean $recursive
+     *
+     * @return boolean
+     */
+    protected function doSetPermission($path, $mod, $isFile = true, $recursive = false)
+    {
+        return $this->getConnection()->chmod($mod, $path, $isFile ? true : (bool)$recursive);
+    }
+
+    /**
+     * Convert a list response to a pathinfo array/object
+     *
+     * @param string $path
+     * @param array $stat
+     *
+     * @return void
+     */
+    protected function statToPathInfo($path, array $stat)
+    {
+        $result['path'] = $path;
+        $result['type'] = $this->getObjectType($stat['type']);
+        $result['timestamp'] = $stat['mtime'];
+
+        if ('file' === $result['type']) {
+            $result['size'] = $stat['size'];
+        }
+
+        $result['permission'] = $this->filePermsAsString($stat['permissions']);
+        $result['visibility'] = $this->getVisibilityFromMod($stat['permissions']);
+
+        return $this->createPathInfo($result);
+    }
+
+    /**
      * {@inheritdoc}
      */
     protected function uploadStream($path, $stream)
@@ -330,7 +434,6 @@ class SFtpDriver extends AbstractFtp
      */
     protected function doListDirectory($dir, $recursive, Net_SFTP $conn, $parent = null, array &$contents = [])
     {
-
         if (!$list = $conn->rawlist($dir)) {
             return false;
         }
@@ -354,7 +457,7 @@ class SFtpDriver extends AbstractFtp
     }
 
     /**
-     * getObjectType
+     * Get the object file type returned by the Net_SFTP List response.
      *
      * @param int $type
      *
@@ -377,14 +480,9 @@ class SFtpDriver extends AbstractFtp
     /**
      * {@inheritdoc}
      */
-    protected function setupConnection(Connection $connection = null)
+    protected function setupConnection(Connection $connection = null, array $creds = [])
     {
         if (null === $connection) {
-            $creds = array_intersect_key(
-                $this->options,
-                array_flip(['host', 'port', 'user', 'password', 'private_key', 'timeout'])
-            );
-
             $this->connection = new SftpConnection($creds);
         } else {
             $this->connection = $connection;
@@ -392,20 +490,15 @@ class SFtpDriver extends AbstractFtp
     }
 
     /**
-     * defaultOptions
-     *
-     * @return array
+     * {@inheritdoc}
      */
     protected static function defaultOptions()
     {
-        return [
+        return array_merge(parent::defaultOptions(), [
             'host' => '',
             'port' => 22,
             'user' => '',
             'password' => '',
-            'force_detect_mime' => false,
-            'directory_permission' => 0755,
-            'file_permission' => 0664,
-        ];
+        ]);
     }
 }

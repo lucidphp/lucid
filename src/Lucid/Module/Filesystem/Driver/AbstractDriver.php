@@ -154,6 +154,18 @@ abstract class AbstractDriver implements DriverInterface
     }
 
     /**
+     * contentSize
+     *
+     * @param string $content
+     *
+     * @return int
+     */
+    protected function contentSize($content)
+    {
+        return mb_strlen($content, '8bit');
+    }
+
+    /**
      * filePermsAsString
      *
      * @param int $perm
@@ -251,8 +263,38 @@ abstract class AbstractDriver implements DriverInterface
         return !$this->getOption('pathinfo_as_obj');
     }
 
+    /**
+     * filePermission
+     *
+     * @return int
+     */
     protected function filePermission()
     {
         return $this->getOption('file_permission');
+    }
+
+    /**
+     * directoryPermission
+     *
+     * @return int
+     */
+    protected function directoryPermission()
+    {
+        return $this->getOption('directory_permission');
+    }
+
+    /**
+     * defaultOptions
+     *
+     * @return void
+     */
+    protected static function defaultOptions()
+    {
+        return [
+            'directory_permission' => 0755,
+            'file_permission' => 0664,
+            'pathinfo_as_obj' => false,
+            'force_detect_mime' => false
+        ];
     }
 }

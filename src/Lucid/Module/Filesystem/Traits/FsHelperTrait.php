@@ -34,9 +34,9 @@ trait FsHelperTrait
      *
      * @return int
      */
-    public function contentSize($contents = '')
+    public function contentSize($contents)
     {
-        return mb_strlen($conetnts, '8bit');
+        return mb_strlen($contents, '8bit');
     }
 
     /**

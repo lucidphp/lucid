@@ -11,6 +11,7 @@
 
 namespace Lucid\Adapter\Twig;
 
+use Twig_Environment;
 use Lucid\Module\Template\EngineInterface;
 use Lucid\Module\Template\DisplayInterface;
 use Lucid\Module\Template\ViewManagerInterface;
@@ -38,12 +39,12 @@ class TwigEngine implements EngineInterface, DisplayInterface, ViewAwareInterfac
      * @param \Twig_Environment $twig
      * @param TemplateIdentityInterface $identity
      */
-    public function __construct(\Twig_Environment $twig, IdentityParserInterface $parser = null)
+    public function __construct(Twig_Environment $twig, IdentityParserInterface $parser = null)
     {
         $this->twig = $twig;
         $this->identity = $parser ?: new IdentityParser;
 
-        $this->twig->setBaseTemplateClass(__NAMESPACE__.'\TwigTemplate');
+        $twig->setBaseTemplateClass(__NAMESPACE__.'\TwigTemplate');
     }
 
     /**
@@ -118,7 +119,7 @@ class TwigEngine implements EngineInterface, DisplayInterface, ViewAwareInterfac
             return true;
         }
 
-        return 'twig' === $this->getIdentity()->identify($template)->getType();
+        return 'twig' === $this->identity->identify($template)->getType();
     }
 
     /**
@@ -129,16 +130,6 @@ class TwigEngine implements EngineInterface, DisplayInterface, ViewAwareInterfac
     public function getTwig()
     {
         return $this->twig;
-    }
-
-    /**
-     * getIdentity
-     *
-     * @return TemplateIdentityInterface
-     */
-    protected function getIdentity()
-    {
-        return $this->identity;
     }
 
     /**

@@ -145,7 +145,7 @@ class LocalDriver extends AbstractDriver implements NativeInterface, SupportsPer
     {
         if (false !== @mkdir(
             $this->getPrefixed($dir),
-            $permission ?: $this->directoryPermissions(),
+            $permission ?: $this->directoryPermission(),
             (bool)$recursive
         )) {
             return true;
@@ -475,7 +475,7 @@ class LocalDriver extends AbstractDriver implements NativeInterface, SupportsPer
      */
     protected function ensureDirectoryExists($dir)
     {
-        if (!is_dir($dir) && !@mkdir($dir, $this->directoryPermissions(), true)) {
+        if (!is_dir($dir) && !@mkdir($dir, $this->directoryPermission(), true)) {
             return false;
         }
 
@@ -552,16 +552,6 @@ class LocalDriver extends AbstractDriver implements NativeInterface, SupportsPer
     }
 
     /**
-     * directoryPermissions
-     *
-     * @return void
-     */
-    protected function directoryPermissions()
-    {
-        return $this->options['directory_permission'];
-    }
-
-    /**
      * followSymlinks
      *
      * @return boolean
@@ -624,18 +614,11 @@ class LocalDriver extends AbstractDriver implements NativeInterface, SupportsPer
         return $info;
     }
 
-    protected function filePermission()
-    {
-        return $this->options['file_permission'];
-    }
-
+    /**
+     * {@inheritdoc}
+     */
     protected static function defaultOptions()
     {
-        return [
-            'directory_permission' => 0755,
-            'file_permission' => 0664,
-            'follow_symlinks' => false,
-            'pathinfo_as_obj' => false,
-        ];
+        return array_merge(parent::defaultOptions(), ['follow_symlinks' => false]);
     }
 }

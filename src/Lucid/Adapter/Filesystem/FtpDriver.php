@@ -13,7 +13,6 @@ namespace Lucid\Adapter\Filesystem;
 
 use Lucid\Module\Filesystem\Mime\MimeType;
 use Lucid\Module\Filesystem\FilesystemInterface;
-use Lucid\Module\Filesystem\Traits\StreamHelperTrait;
 use Lucid\Module\Filesystem\Driver\SupportsVisibility;
 use Lucid\Module\Filesystem\Driver\SupportsPermission;
 use Lucid\Adapter\Filesystem\Ftp\Connection as FtpConnection;
@@ -31,7 +30,8 @@ use Lucid\Adapter\Filesystem\FtpConnectionInterface as Connection;
  */
 class FtpDriver extends AbstractFtp implements SupportsVisibility, SupportsPermission
 {
-    use StreamHelperTrait;
+    protected static $connKeys = ['host', 'port', 'user', 'password', 'ssl', 'passive'];
+
     /**
      * {@inheritdoc}
      */
@@ -134,9 +134,9 @@ class FtpDriver extends AbstractFtp implements SupportsVisibility, SupportsPermi
      */
     public function writeStream($path, $stream, $offset = null, $maxlen = null)
     {
-        $byte = $this->doWriteStream($path, $stream, $offset, $maxlen);
+        $bytes = $this->doWriteStream($path, $stream, $offset, $maxlen);
 
-        if (false !== $bytes && false !== ftp_chmod($this->getConnection(), $path, $this->filePermission())) {
+        if (false !== $bytes && false !== ftp_chmod($this->getConnection(), $this->filePermission(), $path)) {
             return $bytes;
         }
 
@@ -485,14 +485,33 @@ class FtpDriver extends AbstractFtp implements SupportsVisibility, SupportsPermi
         return $list;
     }
 
-    protected function getDirPermissionMode($mode)
+    /**
+     * doWriteSteam
+     *
+     * @param string $path
+     * @param resource $stream
+     * @param int $offset
+     * @param int $maxlen
+     *
+     * @return int|boolean
+     */
+    protected function doWriteSteam($path, $stream, $offset, $maxlen)
     {
-        return $this->options['permission_dir'][$mode];
-    }
+        $pos = ftell($stream);
 
-    protected function getFilePermissionMode($mode)
-    {
-        return $this->options['permission_file'][$mode];
+        if (null !== $maxlen) {
+            $stream = stream_copy_to_stream($stream, $this->getTempfile(), $maxlen);
+        }
+
+        fseek($stream, $pos + (null !== $offset ? (int)$offset : 0));
+
+        if (ftp_fput($this->getConnection(), $path, $stream, $this->getOption('transfer_mode'))) {
+            fseek($pos);
+
+            return $this->contentSize(stream_get_contents($stream));
+        }
+
+        return false;
     }
 
     /**
@@ -543,13 +562,23 @@ class FtpDriver extends AbstractFtp implements SupportsVisibility, SupportsPermi
     }
 
     /**
-     * defaultOptions
-     *
-     * @return array
+     * {@inheritdoc}
+     */
+    protected function setupConnection(Connection $connection = null, array $creds = [])
+    {
+        if (null === $connection) {
+            $this->connection = new FtpConnection($creds);
+        } else {
+            $this->connection = $connection;
+        }
+    }
+
+    /**
+     * {@inheritdoc}
      */
     protected static function defaultOptions()
     {
-        return [
+        return array_merge(parent::defaultOptions(), [
             'host' => '',
             'port' => 21,
             'user' => '',
@@ -557,22 +586,6 @@ class FtpDriver extends AbstractFtp implements SupportsVisibility, SupportsPermi
             'ssl' => true,
             'passive' => false,
             'transfer_mode' => FTP_BINARY,
-            'mount' => '',
-            'force_detect_mime' => false
-        ];
-    }
-
-    protected function setupConnection(Connection $connection = null)
-    {
-        if (null === $connection) {
-            $creds = array_intersect_key(
-                $this->options,
-                array_flip(['host', 'port', 'user', 'password', 'ssl', 'passive'])
-            );
-
-            $this->connection = new FtpConnection($creds);
-        } else {
-            $this->connection = $connection;
-        }
+        ]);
     }
 }

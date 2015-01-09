@@ -26,52 +26,37 @@ abstract class AbstractFtp extends AbstractDriver
 {
     protected $options;
     protected $connection;
+    protected static $connKeys = [];
 
+    /**
+     * Constructor.
+     *
+     * @param string $mount
+     * @param array $options
+     * @param Connection $conn
+     *
+     * @return void
+     */
     public function __construct($mount = null, array $options = [], Connection $conn = null)
     {
-        $this->options = array_merge(static::defaultOptions(), $options);
+        $this->setConnectionAndOptions($conn, $options);
         $this->setPrefix($mount);
-
-        $this->setupConnection($conn);
     }
 
     /**
-     * doWriteStream
+     * setOptions
      *
-     * @param mixed $path
-     * @param mixed $stream
-     * @param mixed $maxlen
-     * @param int $start
+     * @param array $options
      *
-     * @return int|boolean
+     * @return void
      */
-    protected function doWriteStream($path, $stream, $maxlen = null, $start = 0)
+    protected function setConnectionAndOptions(Connection $conn = null, array $options = [])
     {
-        if (null !== $maxlen) {
-            $tmp = tmpfile();
-            $stream = stream_copy_to_stream($stream, $tmp, $maxlen);
-        }
+        $options = array_merge(static::defaultOptions(), $options);
+        $this->setupConnection($conn, $options);
 
-        if (null !== $offset) {
-            fseek($stream, ftell($stream) + (int)$offset);
-        }
-
-        $pos = ftell($stream);
-
-        if (!$this->uploadStream($path, $stream)) {
-            return false;
-        }
-
-        if (0 === $pos) {
-            rewind($stream);
-        } else {
-            fseek($stream, $pos);
-        }
-
-        return mb_strlen(stream_get_contents($stream));
+        $this->options = array_diff_key($options, array_flip(static::$connKeys));
     }
-
-    abstract protected function uploadStream($path, $stream);
 
     /**
      * Gets an FTP Buffer or creates a new one..
@@ -86,6 +71,47 @@ abstract class AbstractFtp extends AbstractDriver
         }
 
         return $this->connection->getConnection();
+    }
+
+    /**
+     * uploadStream
+     *
+     * @param string $path
+     * @param resource $stream
+     *
+     * @return boolean
+     */
+    abstract protected function uploadStream($path, $stream);
+
+    /**
+     * doWriteStream
+     *
+     * @param string $path
+     * @param resource $stream
+     * @param int $maxlen
+     * @param int $start
+     *
+     * @return int|boolean
+     */
+    protected function doWriteStream($path, $stream, $offset = null, $maxlen = null)
+    {
+        $pos = ftell($stream);
+
+        if (null !== $maxlen) {
+            $maxlen = (int)$offset + (int)$maxlen;
+            stream_copy_to_stream($stream, $tmp = $this->getTempfile(), $maxlen);
+            $stream = $tmp;
+        }
+
+        fseek($stream, $pos = $pos + (null !== $offset ? (int)$offset : 0));
+
+        if ($this->uploadStream($path, $stream)) {
+            fseek($stream, $pos);
+
+            return $this->contentSize(stream_get_contents($stream));
+        }
+
+        return false;
     }
 
     /**
@@ -228,5 +254,5 @@ abstract class AbstractFtp extends AbstractDriver
      *
      * @return void
      */
-    abstract protected function setupConnection(Connection $connection = null);
+    abstract protected function setupConnection(Connection $connection = null, array $options = []);
 }
