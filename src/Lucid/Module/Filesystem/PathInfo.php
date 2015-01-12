@@ -103,6 +103,16 @@ class PathInfo implements \Serializable, \ArrayAccess
     }
 
     /**
+     * getPath
+     *
+     * @return string
+     */
+    public function getRealPath()
+    {
+        return null;
+    }
+
+    /**
      * getType
      *
      * @return string

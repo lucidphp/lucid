@@ -44,6 +44,25 @@ abstract class AbstractFtp extends AbstractDriver
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function copyDirectory($dir, $target)
+    {
+        if ($this->exists($target)) {
+            return false;
+        }
+
+        // make sure to return fileperms as integer an not as string while
+        // listing:
+        $opts = $this->getOption('permission_as_string');
+        $opts = $this->setOption('permission_as_string', false);
+        $ret = $this->doCopyDirectory($dir, $target);
+        $opts = $this->setOption('permission_as_string', $opts);
+
+        return $ret;
+    }
+
+    /**
      * setOptions
      *
      * @param array $options
@@ -116,6 +135,85 @@ abstract class AbstractFtp extends AbstractDriver
     }
 
     /**
+     * doCopyFile
+     *
+     * @param mixed $file
+     * @param mixed $target
+     * @param mixed $perm
+     *
+     * @return int
+     */
+    abstract protected function doCopyFile($file, $target, $perm);
+
+    /**
+     * supportsLink
+     *
+     *
+     * @return boolean
+     */
+    abstract protected function supportsLink();
+
+    /**
+     * doCopyDirectory
+     *
+     * @param mixed $dir
+     * @param mixed $target
+     *
+     * @return void
+     */
+    protected function doCopyDirectory($dir, $target, $mode = null)
+    {
+        if (null === $mode) {
+            if (false === $perm = $this->getPermission($dir)) {
+                return false;
+            }
+
+            $mode = $perm->getMode();
+        }
+
+        if (!$this->createDirectory($target, $mode, false)) {
+            return false;
+        }
+
+        if (!$list = $this->listDirectory($dir)) {
+            return false;
+        }
+
+        $bytes = 0;
+        $sp = $this->directorySeparator;
+
+        foreach ($list as $relPath => $object) {
+
+            $basename = basename($object['path']);
+            $pName = $object['path'];
+            $tName = $target.$sp.$basename;
+
+            if ('link' === $object['type'] && $this->supportsLink()) {
+                //@TODO add support for copy links
+                continue;
+            }
+
+            if ('file' === $object['type']) {
+                if (false !== ($ret = $this->doCopyFile($pName, $tName, $object['permission']))) {
+                    $bytes += $ret;
+                    continue;
+                }
+            }
+
+            if ('dir' === $object['type']) {
+                if (false !== $ret = $this->doCopyDirectory($pName, $tName, $object['permission'])) {
+                    $bytes += $ret;
+                    continue;
+                }
+            }
+
+            return false;
+        }
+
+        return $bytes;
+    }
+
+    /**
      * {@inheritdoc}
      */
     protected function supportsPemMod()
@@ -161,72 +259,6 @@ abstract class AbstractFtp extends AbstractDriver
         }
 
         $this->options['transfer_mode'] = $mode;
-    }
-
-    /**
-     * normalizeResult
-     *
-     * @param mixed $path
-     * @param mixed $item
-     * @param string $base
-     *
-     * @return PathInfo
-     */
-    protected function normalizeResult($path, $item, $base = '')
-    {
-        list ($pem, $num, $size, $month, $day, $time,) = $this->listStatPath($item);
-
-        $visibility = $this->getVisibilityFromMod($permission = $this->translatePemString($pem));
-
-        $type = $this->getTypeFromPemStrig($pem);
-        $size = 'dir' !== $type ? (int)$size : null;
-        $path = $base . $this->directorySeparator . $path;
-        $timestamp = strtotime(implode(' ', [$month, $day, $time]));
-
-        return compact('type', 'path', 'size', 'timestamp', 'visibility', 'permission');
-    }
-
-    /**
-     * listStatPath
-     *
-     * @param mixed $item
-     *
-     * @return void
-     */
-    protected function listStatPath($item)
-    {
-        $parts = explode(' ', preg_replace('~\s+~', ' ', ltrim($item)), 9);
-
-        return [$parts[0], $parts[1], $parts[4], $parts[5], $parts[6], $parts[7], $parts[8]];
-    }
-
-    /**
-     * modstrToInt
-     *
-     * @param string $mod
-     *
-     * @return int
-     */
-    protected function modstrToInt($mod)
-    {
-        return array_sum(str_split(substr($mod, -3)));
-    }
-
-    /**
-     * mapPemString
-     *
-     * @param string $pem
-     *
-     * @return string 4 character representation of the access permission
-     * settings.
-     */
-    protected function translatePemString($pem)
-    {
-        $map = ['-' => 0, 'r' => 4, 'w' => 2, 'x' => 1];
-
-        return '0' . implode('', (array_map(function ($part) {
-            return array_sum(str_split($part));
-        }, str_split(strtr(substr($pem, 1), $map), 3))));
     }
 
     /**

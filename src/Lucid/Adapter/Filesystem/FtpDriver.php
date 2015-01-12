@@ -12,6 +12,7 @@
 namespace Lucid\Adapter\Filesystem;
 
 use Lucid\Module\Filesystem\Mime\MimeType;
+use Lucid\Module\Filesystem\Permission;
 use Lucid\Module\Filesystem\FilesystemInterface;
 use Lucid\Module\Filesystem\Driver\SupportsVisibility;
 use Lucid\Module\Filesystem\Driver\SupportsPermission;
@@ -30,7 +31,15 @@ use Lucid\Adapter\Filesystem\FtpConnectionInterface as Connection;
  */
 class FtpDriver extends AbstractFtp implements SupportsVisibility, SupportsPermission
 {
-    protected static $connKeys = ['host', 'port', 'user', 'password', 'ssl', 'passive'];
+    /**
+     * connKeys
+     *
+     * @var array
+     */
+    protected static $connKeys = [
+        'host', 'port', 'user',
+        'password', 'ssl', 'passive'
+    ];
 
     /**
      * {@inheritdoc}
@@ -49,7 +58,7 @@ class FtpDriver extends AbstractFtp implements SupportsVisibility, SupportsPermi
             return false;
         }
 
-        return 'file' === $this->getTypeFromStrig($stat[0]);
+        return 'file' === $this->getTypeFromString($stat[0]);
     }
 
     /**
@@ -61,7 +70,7 @@ class FtpDriver extends AbstractFtp implements SupportsVisibility, SupportsPermi
             return false;
         }
 
-        return 'dir' === $this->getTypeFromStrig($stat[0]);
+        return 'dir' === $this->getTypeFromString($stat[0]);
     }
 
     /**
@@ -71,22 +80,6 @@ class FtpDriver extends AbstractFtp implements SupportsVisibility, SupportsPermi
     public function isLink($path)
     {
         return false;
-    }
-
-    /**
-     * getPathInfo
-     *
-     * @param mixed $path
-     *
-     * @return void
-     */
-    public function getPathInfo($path)
-    {
-        $path = (null === $path || 0 === strlen($path)) ? '.' : $path;
-
-        if ($stat = $this->statPath($path)) {
-            return $this->normalizeResult($path, $stat[0]);
-        }
     }
 
     /**
@@ -156,7 +149,7 @@ class FtpDriver extends AbstractFtp implements SupportsVisibility, SupportsPermi
      */
     public function readStream($path)
     {
-        if (!ftp_fget($this->getConnection(), $stream = tmpfile(), $path, $this->getOption('transfer_mode'))) {
+        if (false === @ftp_fget($this->getConnection(), $stream = tmpfile(), $path, $this->getOption('transfer_mode'))) {
             fclose($stream);
 
             return false;
@@ -196,6 +189,7 @@ class FtpDriver extends AbstractFtp implements SupportsVisibility, SupportsPermi
 
         } while (0 !== count($dirs));
 
+        return true;
     }
 
     /**
@@ -209,34 +203,10 @@ class FtpDriver extends AbstractFtp implements SupportsVisibility, SupportsPermi
     /**
      * {@inheritdoc}
      */
-    public function deleteDirectory($path, $recursive = true)
+    public function deleteDirectory($path)
     {
-        if ($recursive) {
-            $this->doWipeDir($path);
-        }
-
-        $this->doRemoveDir($path);
-
-        return true;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function copyFile($file, $target)
-    {
-        if (!$stream = $this->readStream($file)) {
-            return false;
-        }
-
-        if (!$perm = $this->getPermission($file)) {
-            return false;
-        }
-
-        $bytes = $this->doWriteStream($target, $stream);
-
-        if (false !== $bytes && ftp_chmod($this->getConnection(), $target, $perm['permission'])) {
-            return true;
+        if ($this->doWipeDir($path)) {
+            return $this->doRemoveDir($path);
         }
 
         return false;
@@ -245,9 +215,15 @@ class FtpDriver extends AbstractFtp implements SupportsVisibility, SupportsPermi
     /**
      * {@inheritdoc}
      */
-    public function copyDirectory($dir, $target)
+    public function copyFile($file, $target)
     {
+        if (!$perm = $this->getPermission($file)) {
+            return false;
+        }
+
+        return $this->doCopyFile($file, $target, $perm->getMode());
     }
+
 
     /**
      * {@inheritdoc}
@@ -266,8 +242,8 @@ class FtpDriver extends AbstractFtp implements SupportsVisibility, SupportsPermi
      */
     public function setPermission($path, $permission, $recursive = true)
     {
-        if (false !== ftp_chmod($this->getConnection(), $permission, $path)) {
-            true;
+        if (false !== $ret = ftp_chmod($this->getConnection(), $permission, $path)) {
+            return true;
         }
 
         return false;
@@ -278,9 +254,10 @@ class FtpDriver extends AbstractFtp implements SupportsVisibility, SupportsPermi
      */
     public function getPermission($path)
     {
-        if ($meta = $this->getMetaData($path)) {
-            return ['permission' => $meta['permission'], 'visibility' => $meta['visibility']];
-        }
+        $stat = $this->statPath($path);
+        $res = $this->parseFtpStat($path, $stat[0]);
+
+        return new Permission($res['permission']);
     }
 
     /**
@@ -326,6 +303,124 @@ class FtpDriver extends AbstractFtp implements SupportsVisibility, SupportsPermi
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getPathInfo($path)
+    {
+        $path = (null === $path || 0 === strlen($path)) ? '.' : $path;
+
+        if (!$stat = $this->statPath($path)) {
+            return false;
+        }
+
+        return $this->createPathInfo(
+            $this->statInfoToPathInfo($this->parseFtpStat($path, $stat[0]))
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function ensureFile($path)
+    {
+        if ($this->isFile($path)) {
+            return true;
+        }
+
+        if (!$this->ensureDirectory(dirname($path))) {
+            return false;
+        }
+
+        return (bool)$this->writeFile($path, null);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function ensureDirectory($dir)
+    {
+        if ($this->isDir($dir)) {
+            return true;
+        }
+
+        return $this->createDirectory($dir, true);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function listDirectory($dir, $recursive = true)
+    {
+        return $this->doListDirectory($dir, (bool)$recursive);
+    }
+
+    /**
+     * doCopyFile
+     *
+     * @param mixed $file
+     * @param mixed $target
+     * @param mixed $perm
+     *
+     * @return void
+     */
+    protected function doCopyFile($file, $target, $perm)
+    {
+        if (!$stream = $this->readStream($file)) {
+            return false;
+        }
+
+        $bytes = $this->doWriteStream($target, $stream);
+
+        if (false !== $bytes && ftp_chmod($this->getConnection(), $perm, $target)) {
+            return $bytes;
+        }
+
+        return false;
+    }
+
+    /**
+     * parseFtpStat
+     *
+     * @param mixed $path
+     * @param mixed $item
+     * @param string $base
+     *
+     * @return PathInfo
+     */
+    protected function parseFtpStat($path, $item, $base = '')
+    {
+        list ($pem, $num, $size, $month, $day, $time, $filename) = $this->listStatPath($item);
+
+        // $permission = 0100000 | octdec($this->translatePemString($pem));
+        // back conversion to 4 digit octal value: `$permission & 0777`;
+        // @see SftpDriver
+        $permission = octdec($this->translatePemString($pem));
+
+        $ds   = $this->directorySeparator;
+        $type = $this->getTypeFromString($item);
+
+        $size = 'dir' !== $type ? (int)$size : null;
+        $path = ltrim($base . $ds . $path, $ds) . $ds . $filename;
+        $timestamp = strtotime(implode(' ', [$month, $day, $time]));
+
+        return compact('type', 'path', 'size', 'timestamp', 'permission');
+    }
+
+    /**
+     * listStatPath
+     *
+     * @param string $item
+     *
+     * @return array
+     */
+    protected function listStatPath($item)
+    {
+        $parts = explode(' ', preg_replace('~\s+~', ' ', ltrim($item)), 9);
+
+        return [$parts[0], $parts[1], $parts[4], $parts[5], $parts[6], $parts[7], $parts[8]];
+    }
+
+    /**
      * finishChuckedStream
      *
      * @param resource $stream
@@ -341,16 +436,57 @@ class FtpDriver extends AbstractFtp implements SupportsVisibility, SupportsPermi
         return $cnt;
     }
 
-    public function ensureFile($path)
+    /**
+     * doListDirectory
+     *
+     * @param string  $dir
+     * @param boolean $recursive
+     * @param array   $result
+     * @param string  $parent
+     *
+     * @return array
+     */
+    protected function doListDirectory($dir, $recursive = false, &$result = [], $parent = null)
     {
+        $stat = $this->statPath($dir);
+
+        foreach ($stat as $item) {
+            $info = $this->statInfoToPathInfo($this->parseFtpStat($dir, $item));
+            $bn = basename($info['path']);
+
+            if (in_array($bn, ['.', '..'])) {
+                continue;
+            }
+
+            $sp = $this->directorySeparator;
+            $key = $parent ? $parent . $sp . $bn : $bn;
+            $path = 0 === strlen($dir) ? $bn : $dir . $sp . $bn;
+
+            $result[$key] = $this->createPathInfo($info);
+
+            if ('dir' === $info['type'] && $recursive) {
+                $prefix =  $parent ? $parent . $sp . $bn : $bn;
+                $this->doListDirectory($path, $recursive, $result, $prefix);
+            }
+        }
+
+        return $result;
     }
 
-    public function ensureDirectory($dir)
+    /**
+     * {@inheritdoc}
+     */
+    protected function statInfoToPathInfo(array $stat)
     {
-    }
+        $info = array_intersect_key($stat, array_flip(['type', 'path', 'timestamp']));
 
-    public function listDirectory($dir, $recursive = true)
-    {
+        if ('file' === $info['type']) {
+            $info['size'] = $stat['size'];
+        }
+
+        $this->setInfoPermission($info, $stat['permission']);
+
+        return $info;
     }
 
     /**
@@ -403,86 +539,15 @@ class FtpDriver extends AbstractFtp implements SupportsVisibility, SupportsPermi
     }
 
     /**
-     * login
-     *
-     * @param mixed $connection
-     *
-     * @return void
-     */
-    protected function login($connection)
-    {
-        if (!@ftp_login($connection, $u = $this->options['user'], $pw = $this->options['password'])) {
-            throw new \RuntimeException(
-                sprintf('Could not log in user %s using password: %s.', $u, 0 !== strlen($pw) ? 'yes' : 'no')
-            );
-        }
-    }
-
-    /**
-     * setPassiveMode
-     *
-     * @param resource $connection
-     * @param boolean $mode
-     *
-     * @return void
-     */
-    protected function setPassiveMode($connection, $mode)
-    {
-        if ($mode === ftp_pasv($connection, $mode)) {
-            return $mode;
-        }
-
-        throw new \RuntimeException(
-            sprintf('Could not set passive mode for %s:%s.', $this->options['host'], $this->options['port'])
-        );
-    }
-
-    /**
-     * setFtpMount
-     *
-     * @param resource $connection
-     * @param string|null $mount
-     *
-     * @return void
-     */
-    protected function setFtpMount($connection, $mount = null)
-    {
-        if (null === $mount) {
-            return;
-        }
-
-        if (false === @ftp_chdir($connection, $mount)) {
-            ftp_close($connection);
-            throw new \RuntimeException(sprintf('Could mount ftp driver to "%s".', $mount));
-        }
-    }
-
-    /**
      * getTypeFromPemStrig
      *
      * @param string $pem
      *
      * @return string
      */
-    protected function getTypeFromStrig($pem)
+    protected function getTypeFromString($stat)
     {
-        return 'd' === substr($pem, 1) ? 'dir' : 'file';
-    }
-
-    /**
-     * getListForPath
-     *
-     * @param mixed $path
-     *
-     * @return array
-     */
-    protected function getListForPath($path)
-    {
-        if (false === ($list = @ftp_rawlist($this->getConnection(), '-lna ' . $path))) {
-            return [];
-        }
-
-        return $list;
+        return 'd' === substr($stat, 0, 1) ? 'dir' : 'file';
     }
 
     /**
@@ -531,10 +596,10 @@ class FtpDriver extends AbstractFtp implements SupportsVisibility, SupportsPermi
 
             $parts = $this->listStatParts($file);
 
-            $this->deleteFile($path . '/'. $parts[6]);
+            $this->deleteFile($path . $this->directorySeparator . $parts[6]);
         }
 
-        ftp_rmdir($this->getConnection(), $path);
+        return ftp_rmdir($this->getConnection(), $path);
     }
 
     /**
@@ -550,15 +615,56 @@ class FtpDriver extends AbstractFtp implements SupportsVisibility, SupportsPermi
         foreach ($this->statPath($path) as $file) {
 
             $parts = $this->listStatParts($file);
-            $file = $path . '/' . $parts[6];
+            $file = $path . $this->directorySeparator . $parts[6];
 
             if ('dir' === $this->getTypeFromString($file)) {
                 $this->doRemoveDir($file);
                 continue;
             }
 
-            $this->deleteFile($file);
+            if (!$this->deleteFile($file)) {
+                return false;
+            }
         }
+
+        return true;
+    }
+
+    /**
+     * modstrToInt
+     *
+     * @param string $mod
+     *
+     * @return int
+     */
+    protected function modstrToInt($mod)
+    {
+        return array_sum(str_split(substr($mod, -3)));
+    }
+
+    /**
+     * mapPemString
+     *
+     * @param string $pem
+     *
+     * @return string 4 character representation of the access permission
+     * settings.
+     */
+    protected function translatePemString($pem)
+    {
+        $map = ['-' => 0, 'r' => 4, 'w' => 2, 'x' => 1, 's' => 1, 'T' => 0];
+
+        return implode('', (array_map(function ($part) {
+            return array_sum(str_split($part));
+        }, str_split(strtr(substr($pem, 1), $map), 3))));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function supportsLink()
+    {
+        return false;
     }
 
     /**

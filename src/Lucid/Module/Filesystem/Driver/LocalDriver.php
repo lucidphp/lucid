@@ -16,6 +16,7 @@ use FilesystemIterator;
 use RecursiveIteratorIterator;
 use RecursiveDirectoryIterator;
 use Lucid\Module\Filesystem\PathInfo;
+use Lucid\Module\Filesystem\Permission;
 use Lucid\Module\Filesystem\FilesystemInterface;
 use Lucid\Module\Filesystem\Exception\IOException;
 
@@ -248,9 +249,7 @@ class LocalDriver extends AbstractDriver implements SupportsTouch, SupportsPermi
             return false;
         }
 
-        list($permission, $visibility) = $this->pathPermissions($location);
-
-        return compact('visibility', 'permission');
+        return new Permission(fileperms($location));
     }
 
     /**
@@ -608,8 +607,7 @@ class LocalDriver extends AbstractDriver implements SupportsTouch, SupportsPermi
             $info['size'] = $file->getSize();
         }
 
-        $info['permission'] = $this->filePermsAsString($mod = $file->getPerms());
-        $info['visibility'] = $this->getVisibilityFromMod($mod);
+        $this->setInfoPermission($info, $file->getPerms());
 
         return $info;
     }

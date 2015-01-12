@@ -13,6 +13,7 @@ namespace Lucid\Adapter\Filesystem;
 
 use Net_SSH2;
 use Net_SFTP;
+use Lucid\Module\Filesystem\Permission;
 use Lucid\Module\Filesystem\Mime\MimeType;
 use Lucid\Module\Filesystem\FilesystemInterface;
 use Lucid\Module\Filesystem\Driver\SupportsTouch;
@@ -35,7 +36,10 @@ class SFtpDriver extends AbstractFtp implements SupportsTouch, SupportsVisibilit
      *
      * @var array
      */
-    protected static $connKeys = ['host', 'port', 'user', 'password', 'private_key', 'timeout'];
+    protected static $connKeys = [
+        'host', 'port', 'user',
+        'password', 'private_key', 'timeout'
+    ];
 
     /**
      * {@inheritdoc}
@@ -254,84 +258,11 @@ class SFtpDriver extends AbstractFtp implements SupportsTouch, SupportsVisibilit
      */
     public function copyFile($file, $target)
     {
-        if (!$stream = $this->readStream($file)) {
+        if (!$mode = $this->getConnection()->fileperms($file)) {
             return false;
         }
 
-        $ret = $this->doWriteStream($target, $stream);
-
-        if (is_resource($stream)) {
-            fclose($stream);
-        }
-
-        if (!$this->doSetPermission($target, $this->getConnection()->fileperms($file), true, false)) {
-            return false;
-        }
-
-        return $ret;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function copyDirectory($dir, $target)
-    {
-        if ($this->exists($target)) {
-            return false;
-        }
-
-        return $this->doCopyDirectory($dir, $target);
-    }
-
-    /**
-     * doCopyDirectory
-     *
-     * @param mixed $dir
-     * @param mixed $target
-     *
-     * @return void
-     */
-    protected function doCopyDirectory($dir, $target)
-    {
-        if (!$this->ensureDirectory($target)) {
-            return false;
-        }
-
-        if (!$this->setPermission($target, $this->getConnection()->fileperms($target), true)) {
-            return false;
-        }
-
-        $sp = $this->directorySeparator;
-        $bytes = 0;
-
-        foreach ($this->getConnection()->rawlist($dir) as $filename => $object) {
-
-            if (in_array($filename, ['.', '..'])) {
-                continue;
-            }
-
-            $pName = $dir.$sp.$filename;
-            $tName = $target.$sp.$filename;
-
-            if ('link' === $this->getObjectType($object['type'])) {
-                //@TODO add support for copy links
-                continue;
-            } if ('file' === $this->getObjectType($object['type'])) {
-                if (false !== ($ret = $this->copyFile($pName, $tName))) {
-                    $bytes += $ret;
-                    continue;
-                }
-            } elseif ('dir' === $this->getObjectType($object['type'])) {
-                if (false !== $ret = $this->copyDirectory($pName, $tName)) {
-                    $bytes += $ret;
-                    continue;
-                }
-            }
-
-            return false;
-        }
-
-        return $bytes;
+        return $this->doCopyFile($file, $target, $mode);
     }
 
     /**
@@ -348,10 +279,7 @@ class SFtpDriver extends AbstractFtp implements SupportsTouch, SupportsVisibilit
     public function getPermission($path)
     {
         if ($perms = $this->getConnection()->fileperms($path)) {
-            $permission = $this->filePermsAsString($perms);
-            $visibility = $this->getVisibilityFromMod($perms);
-
-            return compact('permission', 'visibility');
+            return new Permission($perms & 0777);
         }
 
         return false;
@@ -402,18 +330,17 @@ class SFtpDriver extends AbstractFtp implements SupportsTouch, SupportsVisibilit
      */
     protected function statToPathInfo($path, array $stat)
     {
-        $result['path'] = $path;
-        $result['type'] = $this->getObjectType($stat['type']);
-        $result['timestamp'] = $stat['mtime'];
+        $info['type'] = $this->getObjectType($stat['type']);
+        $info['path'] = $path;
+        $info['timestamp'] = $stat['mtime'];
 
-        if ('file' === $result['type']) {
-            $result['size'] = $stat['size'];
+        if ('file' === $info['type']) {
+            $info['size'] = $stat['size'];
         }
 
-        $result['permission'] = $this->filePermsAsString($stat['permissions']);
-        $result['visibility'] = $this->getVisibilityFromMod($stat['permissions']);
+        $this->setInfoPermission($info, $stat['permissions'] & 0777);
 
-        return $this->createPathInfo($result);
+        return $this->createPathInfo($info);
     }
 
     /**
@@ -426,6 +353,28 @@ class SFtpDriver extends AbstractFtp implements SupportsTouch, SupportsVisibilit
         }
 
         return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function doCopyFile($file, $target, $perm)
+    {
+        if (!$stream = $this->readStream($file)) {
+            return false;
+        }
+
+        $ret = $this->doWriteStream($target, $stream);
+
+        if (is_resource($stream)) {
+            fclose($stream);
+        }
+
+        if (!$this->doSetPermission($target, $this->getConnection()->fileperms($file), true, false)) {
+            return false;
+        }
+
+        return $ret;
     }
 
     /**
@@ -460,6 +409,14 @@ class SFtpDriver extends AbstractFtp implements SupportsTouch, SupportsVisibilit
         }
 
         return $contents;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function supportsLink()
+    {
+        return true;
     }
 
     /**

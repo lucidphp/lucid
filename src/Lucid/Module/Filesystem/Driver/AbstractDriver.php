@@ -12,6 +12,7 @@
 namespace Lucid\Module\Filesystem\Driver;
 
 use Lucid\Module\Filesystem\PathInfo;
+use Lucid\Module\Filesystem\Permission;
 use Lucid\Module\Filesystem\FilesystemInterface;
 
 /**
@@ -57,7 +58,7 @@ abstract class AbstractDriver implements DriverInterface
     public function __construct($mount)
     {
         $this->setPrefix($mount);
-        $this->setRootObject();
+        //$this->setRootObject();
     }
 
     /**
@@ -90,34 +91,6 @@ abstract class AbstractDriver implements DriverInterface
         $this->pathInfoAsObject(true);
         $this->rootObj = $this->getPathinfo('/');
         $this->pathInfoAsObject($robj);
-    }
-
-    /**
-     * sumPemMod
-     *
-     * @param mixed $mod
-     *
-     * @return void
-     */
-    protected function sumPemMod($mod)
-    {
-        $modstr = substr(is_int($mod) ? decoct($mod) : (string)$mod, -3);
-
-        return array_sum(str_split($modstr));
-    }
-
-    /**
-     * getVisibilityFromMod
-     *
-     * @param mixed $mod
-     *
-     * @return void
-     */
-    protected function getVisibilityFromMod($mod)
-    {
-        return 0 === ($this->sumPemMod($mod) & 0442) ?
-            FilesystemInterface::PERM_PUBLIC :
-            FilesystemInterface::PERM_PRIVATE;
     }
 
     /**
@@ -165,16 +138,9 @@ abstract class AbstractDriver implements DriverInterface
         return mb_strlen($content, '8bit');
     }
 
-    /**
-     * filePermsAsString
-     *
-     * @param int $perm
-     *
-     * @return string
-     */
-    protected function filePermsAsString($perm)
+    protected function baseName($path)
     {
-        return '0'.decoct(octdec(substr(sprintf('%o', $perm), -4)));
+        return basename($path);
     }
 
     /**
@@ -217,15 +183,17 @@ abstract class AbstractDriver implements DriverInterface
      *
      * @return string
      */
-    protected function getUnprefixed($path)
+    protected function getUnprefixed($path, $prefix = null)
     {
         $sp = $this->directorySeparator;
 
-        if (null === $this->prefix || 0 !== mb_strpos(rtrim($path, $sp), rtrim($this->prefix, $sp))) {
+        $prefix = $prefix ? trim($prefix, $sp).$sp : $this->prefix;
+
+        if (null === $prefix || 0 !== mb_strpos(rtrim($path, $sp), rtrim($prefix, $sp), 0)) {
             return $path;
         }
 
-        return ltrim(mb_substr($path, mb_strlen($this->prefix) - 1), $sp);
+        return ltrim(mb_substr($path, mb_strlen($prefix) - 1), $sp);
     }
 
     /**
@@ -283,6 +251,17 @@ abstract class AbstractDriver implements DriverInterface
         return $this->getOption('directory_permission');
     }
 
+    protected function setInfoPermission(array &$info, $perm = null, $visibility = null)
+    {
+        if (null === $perm) {
+            $info['permission'] = null;
+            $info['visibility'] = $this instanceof SupportsVisibility ? Permission::V_PUBLIC : $visibility;
+        } else {
+            $info['permission'] = $this->getOption('permission_as_string') ? Permission::filePermsAsString($perm) : $perm;
+            $info['visibility'] = Permission::getVisibilityFromMode($perm);
+        }
+    }
+
     /**
      * defaultOptions
      *
@@ -294,6 +273,7 @@ abstract class AbstractDriver implements DriverInterface
             'directory_permission' => 0755,
             'file_permission' => 0664,
             'pathinfo_as_obj' => false,
+            'permission_as_string' => false,
             'force_detect_mime' => false
         ];
     }
