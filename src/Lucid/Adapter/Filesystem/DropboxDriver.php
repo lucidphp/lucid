@@ -161,7 +161,7 @@ class DropboxDriver extends AbstractDriver implements SupportsVisibility
             return false;
         }
 
-        $contents = stream_get_contents($stream);
+        $contents = stream_get_contents($stream, null === $maxlen ? -1 : $maxlen, null === $offset ? -1 : $offset);
 
         fclose($stream);
 

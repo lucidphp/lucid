@@ -44,23 +44,45 @@ class WebDavDriver extends AbstractDriver
         parent::__construct($mount);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function exists($path)
     {
-
+        return (bool)$this->statPath($path);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function isFile($path)
     {
+        if ($info = $this->statPath($path)) {
+            return 'file' === $info['type'];
+        }
+
+        return false;
 
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function isLink($path)
     {
         return false;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function isDir($path)
     {
+        if ($info = $this->statPath($path)) {
+            return 'dir' === $info['type'];
+        }
+
+        return false;
     }
 
     /**
@@ -68,8 +90,8 @@ class WebDavDriver extends AbstractDriver
      */
     public function writeFile($file, $contents = null)
     {
-        if ($this->client->put($this->getPrefixed($file, $contents ?: ''))) {
-            return $this->contentSize($content ?: '');
+        if ($this->client->request('PUT', $this->getPrefixed($file, $contents ?: ''))) {
+            return $this->contentSize($contents ?: '');
         }
 
         return false;
@@ -88,6 +110,21 @@ class WebDavDriver extends AbstractDriver
      */
     public function readFile($path, $offset = null, $maxlen = null)
     {
+        try {
+            $ret = $this->client->request('GET', $this->getPrefixed($path));
+            if (200 !== $ret['statusCode']) {
+                return false;
+            }
+
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        $max = (int)current($ret['headers']['content-length']);
+        $offset = $offset !== null ? (int)$offset : 0;
+        $maxlen = $maxlen !== null ? min($max, (int)$maxlen) : $max;
+
+        return mb_substr($ret['body'], $offset, $maxlen, '8bit');
     }
 
     /**
@@ -95,6 +132,19 @@ class WebDavDriver extends AbstractDriver
      */
     public function writeStream($path, $stream, $offset = null, $maxlen = null)
     {
+        $offset = null !== $offset ? (int)$offset : -1;
+        $maxlen = null !== $maxlen ? (int)$maxlen : -1;
+
+        try {
+            $ret = $this->client->request('PUT', $this->getPrefixed($path), $cnt = stream_get_contents($stream, $maxlen, $offset));
+            if (!in_array($ret['statusCode'], [201, 204])) {
+                return false;
+            }
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        return $this->contentSize($cnt);
     }
 
     /**
@@ -102,34 +152,145 @@ class WebDavDriver extends AbstractDriver
      */
     public function updateStream($path, $stream, $offset = null, $maxlen = null)
     {
+        return $this->writeStream($path, $stream, $offset, $maxlen);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function readStream($path)
     {
+        if (false === $contents = $this->readFile($path)) {
+            return false;
+        }
+
+        $stream = tmpfile();
+        fwrite($stream, $contents);
+        rewind($stream);
+
+        return $stream;
     }
 
-    public function createDirectory($dir, $permission = 0755, $recursive = true)
+    /**
+     * {@inheritdoc}
+     */
+    public function createDirectory($dir, $permission = null, $recursive = true)
     {
+        $ret = $this->client->request('MKCOL', $this->getPrefixed($dir));
+        if (201 !== $ret['statusCode']) {
+            return false;
+        }
+
+        return true;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function deleteFile($file)
     {
+        return $this->deleteObject($this->getPrefixed($file));
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function deleteDirectory($dir)
     {
+        return $this->deleteObject($this->getPrefixed($dir));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function deleteObject($path)
+    {
+        $ret = $this->client->request('DELETE', $path);
+        if (204 !== $ret['statusCode']) {
+            return false;
+        }
+
+        return true;
     }
 
     public function rename($source, $target)
     {
+        if ($this->exists($target)) {
+            return false;
+        }
+
+        $info = (parse_url($this->client->getAbsoluteUrl($this->getPrefixed(''))));
+        $sp = $this->directorySeparator;
+        $ret = $this->client->request(
+            'MOVE',
+            ltrim($this->getPrefixed($source), $sp),
+            null,
+            ['Destination' => $info['path'].ltrim($this->getPrefixed($target), $sp)]
+        );
+
+        if (201 !== $ret['statusCode']) {
+            return false;
+        }
+
+        return true;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function copyFile($file, $target)
     {
+        if (false !== $stream = $this->readStream($file)) {
+            rewind($stream);
+            $bytes = $this->writeStream($target, $stream);
+            fclose($stream);
+
+            return $bytes;
+        }
+
+        return false;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function copyDirectory($dir, $target)
     {
+        if (false === $stat = $this->listDirectory($dir, false)) {
+            return false;
+        }
+
+        if (!$this->createDirectory($target)) {
+            return false;
+        }
+
+        $sp = $this->directorySeparator;
+        $bytes = 0;
+
+        foreach ($stat as $relPath => $info) {
+
+            $basename = basename($info['path']);
+            $pName = $info['path'];
+            $tName = $target.$sp.$basename;
+
+            if ('file' === $info['type']) {
+                if (false !== $ret = $this->copyFile($info['path'], $tName)) {
+                    $bytes += $ret;
+                    continue;
+                }
+            }
+
+            if ('dir' === $info['type']) {
+                if (false !== $ret = $this->copyDirectory($info['path'], $tName)) {
+                    $bytes += $ret;
+                    continue;
+                }
+            }
+
+            return false;
+        }
+
+        return $bytes;
     }
 
     /**
@@ -173,9 +334,10 @@ class WebDavDriver extends AbstractDriver
      */
     public function listDirectory($path, $recursive = true)
     {
-        if ($result = $this->doListDirectory($path, $recursive)) {
+        if (is_array($result = $this->doListDirectory($path, $recursive))) {
             return $result;
         }
+
 
         return false;
     }
@@ -185,6 +347,11 @@ class WebDavDriver extends AbstractDriver
      */
     public function ensureFile($path)
     {
+        if ($this->isFile($path)) {
+            return true;
+        }
+
+        return (bool)$this->writeFile($path, null);
     }
 
     /**
@@ -192,6 +359,11 @@ class WebDavDriver extends AbstractDriver
      */
     public function ensureDirectory($path)
     {
+        if ($this->isDir($path)) {
+            return true;
+        }
+
+        return $this->createDirectory($path, true);
     }
 
     /**
