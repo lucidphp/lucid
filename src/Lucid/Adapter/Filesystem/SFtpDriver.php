@@ -21,6 +21,7 @@ use Lucid\Module\Filesystem\Driver\SupportsVisibility;
 use Lucid\Module\Filesystem\Driver\SupportsPermission;
 use Lucid\Adapter\Filesystem\Sftp\Connection as SftpConnection;
 use Lucid\Adapter\Filesystem\FtpConnectionInterface as Connection;
+use Lucid\Adapter\Filesystem\Traits\StatCacheTrait;
 
 /**
  * @class SFtpDriver
@@ -31,6 +32,8 @@ use Lucid\Adapter\Filesystem\FtpConnectionInterface as Connection;
  */
 class SFtpDriver extends AbstractFtp implements SupportsTouch, SupportsVisibility, SupportsPermission
 {
+    use StatCacheTrait;
+
     /**
      * connKeys
      *
@@ -46,7 +49,11 @@ class SFtpDriver extends AbstractFtp implements SupportsTouch, SupportsVisibilit
      */
     public function exists($path)
     {
-        return $this->getConnection()->file_exists($path);
+        if ($stat = $this->getStat($path)) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -54,7 +61,12 @@ class SFtpDriver extends AbstractFtp implements SupportsTouch, SupportsVisibilit
      */
     public function isFile($path)
     {
-        return $this->getConnection()->is_file($path);
+        //return $this->getConnection()->is_file($path);
+        if ($stat = $this->getStat($path)) {
+            return NET_SFTP_TYPE_REGULAR === $stat['type'];
+        }
+
+        return false;
     }
 
     /**
@@ -62,7 +74,12 @@ class SFtpDriver extends AbstractFtp implements SupportsTouch, SupportsVisibilit
      */
     public function isDir($path)
     {
-        return $this->getConnection()->is_dir($path);
+        //return $this->getConnection()->is_dir($path);
+        if ($stat = $this->getStat($path)) {
+            return NET_SFTP_TYPE_DIRECTORY === $stat['type'];
+        }
+
+        return false;
     }
 
     /**
@@ -70,7 +87,12 @@ class SFtpDriver extends AbstractFtp implements SupportsTouch, SupportsVisibilit
      */
     public function isLink($path)
     {
-        return $this->getConnection()->is_link($path);
+        //return $this->getConnection()->is_dir($path);
+        if ($stat = $this->getStat($path)) {
+            return NET_SFTP_TYPE_SYMLINK === $stat['type'];
+        }
+
+        return false;
     }
 
     /**
@@ -136,7 +158,13 @@ class SFtpDriver extends AbstractFtp implements SupportsTouch, SupportsVisibilit
      */
     public function rename($source, $target)
     {
-        return $this->getConnection()->rename($source, $target);
+        if ($this->getConnection()->rename($source, $target)) {
+            $this->reStat($source, $target);
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -144,6 +172,10 @@ class SFtpDriver extends AbstractFtp implements SupportsTouch, SupportsVisibilit
      */
     public function createDirectory($dir, $permission = null, $recursive = true)
     {
+        if ($this->hasStat($dir)) {
+            return false;
+        }
+
         return $this->getConnection()->mkdir($dir, $permission ?: $this->directoryPermission(), $recursive);
     }
 
@@ -183,7 +215,13 @@ class SFtpDriver extends AbstractFtp implements SupportsTouch, SupportsVisibilit
      */
     public function deleteFile($file)
     {
-        return $this->getConnection()->delete($file);
+        if ($this->getConnection()->delete($file)) {
+            $this->clearStat($file);
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -191,7 +229,13 @@ class SFtpDriver extends AbstractFtp implements SupportsTouch, SupportsVisibilit
      */
     public function deleteDirectory($dir)
     {
-        return $this->getConnection()->delete($dir, true);
+        if ($this->getConnection()->delete($dir, true)) {
+            $this->clearStat($file);
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -218,7 +262,7 @@ class SFtpDriver extends AbstractFtp implements SupportsTouch, SupportsVisibilit
      */
     public function listDirectory($dir, $recursive = false)
     {
-        if (!$contents = $this->doListDirectory($dir, (bool)$recursive, $this->getConnection())) {
+        if (false === $contents = $this->doListDirectory($dir, (bool)$recursive, $this->getConnection())) {
             return false;
         }
 
@@ -389,11 +433,11 @@ class SFtpDriver extends AbstractFtp implements SupportsTouch, SupportsVisibilit
      */
     protected function doListDirectory($dir, $recursive, Net_SFTP $conn, $parent = null, array &$contents = [])
     {
-        if (!$list = $conn->rawlist($dir)) {
+        if (false === $stat = $this->getStat($path)) {
             return false;
         }
 
-        foreach ($list as $filename => $object) {
+        foreach ($stat as $filename => $object) {
             if (in_array($filename, ['.', '..'])) {
                 continue;
             }
@@ -409,6 +453,15 @@ class SFtpDriver extends AbstractFtp implements SupportsTouch, SupportsVisibilit
         }
 
         return $contents;
+    }
+
+    protected function statPath($dir)
+    {
+        if ($list = $conn->rawlist($dir)) {
+            return $list;
+        }
+
+        return false;
     }
 
     /**

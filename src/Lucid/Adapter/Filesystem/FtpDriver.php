@@ -18,6 +18,7 @@ use Lucid\Module\Filesystem\Driver\SupportsVisibility;
 use Lucid\Module\Filesystem\Driver\SupportsPermission;
 use Lucid\Adapter\Filesystem\Ftp\Connection as FtpConnection;
 use Lucid\Adapter\Filesystem\FtpConnectionInterface as Connection;
+use Lucid\Adapter\Filesystem\Traits\StatCacheTrait;
 
 /**
  * @class FtpDriver
@@ -31,6 +32,8 @@ use Lucid\Adapter\Filesystem\FtpConnectionInterface as Connection;
  */
 class FtpDriver extends AbstractFtp implements SupportsVisibility, SupportsPermission
 {
+    use StatCacheTrait;
+
     /**
      * connKeys
      *
@@ -54,7 +57,7 @@ class FtpDriver extends AbstractFtp implements SupportsVisibility, SupportsPermi
      */
     public function isFile($path)
     {
-        if (!($stat = $this->statPath($path))) {
+        if (!($stat = $this->getStat($path))) {
             return false;
         }
 
@@ -66,7 +69,7 @@ class FtpDriver extends AbstractFtp implements SupportsVisibility, SupportsPermi
      */
     public function isDir($path)
     {
-        if (!($stat = $this->statPath($path))) {
+        if (!($stat = $this->getStat($path))) {
             return false;
         }
 
@@ -163,18 +166,21 @@ class FtpDriver extends AbstractFtp implements SupportsVisibility, SupportsPermi
     /**
      * {@inheritdoc}
      */
-    public function createDirectory($dir, $recursive = true, $permission = 0755)
+    public function createDirectory($dir, $recursive = true, $permission = null)
     {
+        if ($this->hasStat($dir)) {
+            return false;
+        }
+
         $dirs = explode($this->directorySeparator, $dir);
 
         if (!$recursive && 1 < count($dirs) && !$this->exists(dirname($dir))) {
-            throw new \RuntimeException(
-                sprintf('Cannot create directory %s, parent directory does not exist.', $dir)
-            );
+            return false;
         }
 
         $root = $dirs[0];
         $current = '';
+        $permission ?: $this->directoryPermission();
 
         $connection = $this->getConnection();
 
@@ -197,7 +203,13 @@ class FtpDriver extends AbstractFtp implements SupportsVisibility, SupportsPermi
      */
     public function deleteFile($path)
     {
-        return ftp_delete($this->getConnection(), $path);
+        if (ftp_delete($this->getConnection(), $path)) {
+            $this->clearStat($path);
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -206,6 +218,8 @@ class FtpDriver extends AbstractFtp implements SupportsVisibility, SupportsPermi
     public function deleteDirectory($path)
     {
         if ($this->doWipeDir($path)) {
+            $this->clearStat($path);
+
             return $this->doRemoveDir($path);
         }
 
@@ -224,13 +238,14 @@ class FtpDriver extends AbstractFtp implements SupportsVisibility, SupportsPermi
         return $this->doCopyFile($file, $target, $perm->getMode());
     }
 
-
     /**
      * {@inheritdoc}
      */
     public function rename($source, $target)
     {
         if (ftp_rename($this->getConnection(), $source, $target)) {
+            $this->reStat($source, $target);
+
             return true;
         }
 
@@ -254,8 +269,8 @@ class FtpDriver extends AbstractFtp implements SupportsVisibility, SupportsPermi
      */
     public function getPermission($path)
     {
-        $stat = $this->statPath($path);
-        $res = $this->parseFtpStat($path, $stat[0]);
+        $stat = $this->getStat($path);
+        $res = $this->parseFtpStat($stat[0]);
 
         return new Permission($res['permission']);
     }
@@ -309,13 +324,17 @@ class FtpDriver extends AbstractFtp implements SupportsVisibility, SupportsPermi
     {
         $path = (null === $path || 0 === strlen($path)) ? '.' : $path;
 
-        if (!$stat = $this->statPath($path)) {
+        if (!$stat = $this->getStat($path)) {
             return false;
         }
 
-        return $this->createPathInfo(
-            $this->statInfoToPathInfo($this->parseFtpStat($path, $stat[0]))
-        );
+        $info = $this->statInfoToPathInfo($this->parseFtpStat($stat[0]));
+
+        if ('.' === $info['path']) {
+            $info['path'] = $path;
+        }
+
+        return $this->createPathInfo($info);
     }
 
     /**
@@ -387,20 +406,19 @@ class FtpDriver extends AbstractFtp implements SupportsVisibility, SupportsPermi
      *
      * @return PathInfo
      */
-    protected function parseFtpStat($path, $item, $base = '')
+    protected function parseFtpStat($item, $base = '')
     {
         list ($pem, $num, $size, $month, $day, $time, $filename) = $this->listStatPath($item);
+
+        $ds   = $this->directorySeparator;
 
         // $permission = 0100000 | octdec($this->translatePemString($pem));
         // back conversion to 4 digit octal value: `$permission & 0777`;
         // @see SftpDriver
         $permission = octdec($this->translatePemString($pem));
-
-        $ds   = $this->directorySeparator;
         $type = $this->getTypeFromString($item);
-
         $size = 'dir' !== $type ? (int)$size : null;
-        $path = ltrim($base . $ds . $path, $ds) . $ds . $filename;
+        $path = trim($base.$ds.$filename, $ds);
         $timestamp = strtotime(implode(' ', [$month, $day, $time]));
 
         return compact('type', 'path', 'size', 'timestamp', 'permission');
@@ -448,17 +466,21 @@ class FtpDriver extends AbstractFtp implements SupportsVisibility, SupportsPermi
      */
     protected function doListDirectory($dir, $recursive = false, &$result = [], $parent = null)
     {
-        $stat = $this->statPath($dir);
+        if (false === $stat = $this->getStat($dir)) {
+            return false;
+        }
 
         foreach ($stat as $item) {
-            $info = $this->statInfoToPathInfo($this->parseFtpStat($dir, $item));
-            $bn = basename($info['path']);
 
-            if (in_array($bn, ['.', '..'])) {
+            $info = $this->statInfoToPathInfo($this->parseFtpStat($item, $dir));
+
+            if (in_array($bn = basename($info['path']), ['.', '..'])) {
                 continue;
             }
 
             $sp = $this->directorySeparator;
+            //$info['path'] = trim($dir.$sp.basename($info['path']), $sp);
+
             $key = $parent ? $parent . $sp . $bn : $bn;
             $path = 0 === strlen($dir) ? $bn : $dir . $sp . $bn;
 
@@ -588,14 +610,15 @@ class FtpDriver extends AbstractFtp implements SupportsVisibility, SupportsPermi
      */
     protected function doRemoveDir($path)
     {
-        foreach ($this->statPath($path) as $file) {
+        if (false === $stat = $this->getStat($path)) {
+            return false;
+        }
 
+        foreach ($stat as $file) {
             if ('dir' === $this->getTypeFromString($file)) {
                 continue;
             }
-
             $parts = $this->listStatParts($file);
-
             $this->deleteFile($path . $this->directorySeparator . $parts[6]);
         }
 
@@ -612,7 +635,11 @@ class FtpDriver extends AbstractFtp implements SupportsVisibility, SupportsPermi
      */
     protected function doWipeDir($path)
     {
-        foreach ($this->statPath($path) as $file) {
+        if (false === $stat = $this->getStat($path)) {
+            return false;
+        }
+
+        foreach ($stat as $file) {
 
             $parts = $this->listStatParts($file);
             $file = $path . $this->directorySeparator . $parts[6];
