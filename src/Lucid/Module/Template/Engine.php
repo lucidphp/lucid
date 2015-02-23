@@ -262,12 +262,16 @@ class Engine extends AbstractPhpEngine implements ViewAwareInterface
      *
      * @return void
      */
-    public function extend($template)
+    public function extend($template, array $vars = [])
     {
         list ($resource,) = $this->getCurrent();
 
         if (isset($this->parents[$hash = $resource->getHash()])) {
             throw new RenderException('Circular reference.');
+        }
+
+        if (!empty($vars)) {
+            $this->mergeShared($vars);
         }
 
         $this->parents[$hash] = $template;
@@ -350,17 +354,18 @@ class Engine extends AbstractPhpEngine implements ViewAwareInterface
     /**
      * getCurrent
      *
-     * @return void
+     * @return array
      */
     protected function getCurrent()
     {
-        //$item = $this->stack->pop();
-
-        //$this->stack->push($item);
-
         return $this->stack->top();
     }
 
+    /**
+     * getRoot
+     *
+     * @return array
+     */
     protected function getRoot()
     {
         return $this->stack->bottom();

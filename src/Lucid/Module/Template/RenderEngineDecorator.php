@@ -30,9 +30,9 @@ class RenderEngineDecorator implements PhpRenderInterface
     /**
      * {@inheritdoc}
      */
-    public function extend($template)
+    public function extend($template, array $vars = [])
     {
-        return $this->engine->extend($template);
+        return $this->engine->extend($template, $vars);
     }
 
     /**

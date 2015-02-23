@@ -24,10 +24,11 @@ interface PhpRenderInterface
      * extend
      *
      * @param mixed $template
+     * @param array $replacement
      *
      * @return void
      */
-    public function extend($template);
+    public function extend($template, array $vars = []);
 
     /**
      * insert
@@ -37,7 +38,7 @@ interface PhpRenderInterface
      *
      * @return void
      */
-    public function insert($template, array $replacement = []);
+    public function insert($template, array $vars = []);
 
     /**
      * escape

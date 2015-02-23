@@ -20,6 +20,11 @@ namespace Lucid\Module\Template;
  */
 class Section
 {
+    /**
+     * Interal content buffer.
+     *
+     * @var array array of strings.
+     */
     private $cbuff = [];
 
     /**
