@@ -214,8 +214,13 @@ class Engine extends AbstractPhpEngine implements ViewAwareInterface
             $this->mergeShared($this->getParameters($template, $parameters))
         ]);
 
-        //$hash = $resource->getHash();
-        unset($this->parents[$hash = $resource->getHash()]);
+        $hash = $resource->getHash();
+
+        if (isset($this->parents[$hash])) {
+            throw new RenderException(sprintf('Circular reference in %s.', $template));
+        }
+
+        unset($this->parents[$hash]);
 
         $this->startErrorHandling();
 
@@ -262,19 +267,15 @@ class Engine extends AbstractPhpEngine implements ViewAwareInterface
      *
      * @return void
      */
-    public function extend($template, array $vars = [])
+    public function extend($template)
     {
         list ($resource,) = $this->getCurrent();
 
-        if (isset($this->parents[$hash = $resource->getHash()])) {
-            throw new RenderException('Circular reference.');
-        }
+        //if (isset($this->parents[$hash = $resource->getHash()])) {
+            //throw new RenderException('Circular reference.');
+        //}
 
-        if (!empty($vars)) {
-            $this->mergeShared($vars);
-        }
-
-        $this->parents[$hash] = $template;
+        $this->parents[$resource->getHash()] = $template;
     }
 
     /**
@@ -361,15 +362,15 @@ class Engine extends AbstractPhpEngine implements ViewAwareInterface
         return $this->stack->top();
     }
 
-    /**
-     * getRoot
-     *
-     * @return array
-     */
-    protected function getRoot()
-    {
-        return $this->stack->bottom();
-    }
+    ///**
+    // * getRoot
+    // *
+    // * @return array
+    // */
+    //protected function getRoot()
+    //{
+    //    return $this->stack->bottom();
+    //}
 
     /**
      * getLastSection

@@ -52,6 +52,13 @@ interface FunctionInterface
     public function getOptions();
 
     /**
+     * getOption
+     *
+     * @return void
+     */
+    public function getOption($option);
+
+    /**
      * Returns the function alias.
      *
      * @return void

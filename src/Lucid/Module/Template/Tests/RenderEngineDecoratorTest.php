@@ -11,7 +11,6 @@
 
 namespace Lucid\Module\Template\Tests;
 
-use Mockery as m;
 use Lucid\Module\Template\RenderEngineDecorator;
 
 /**
@@ -41,13 +40,14 @@ class RenderEngineDecoratorTest extends \PHPUnit_Framework_TestCase
         $rd = new RenderEngineDecorator($engine = $this->mockEngine());
         $called = false;
 
-        $engine->shouldReceive($method)->andReturnUsing(function () use (&$called, $args, $method) {
+        $engine->method('func')->willReturn(null);
+        $engine->method($method)->will($this->returnCallback(function () use (&$called, $args, $method) {
             if ($args === func_get_args()) {
                 $called = true;
             } else {
                 $this->fail('Arguments missmatch.');
             }
-        });
+        }));
 
         call_user_func_array([$rd, $method], $args);
 
@@ -57,7 +57,7 @@ class RenderEngineDecoratorTest extends \PHPUnit_Framework_TestCase
     public function methodProvider()
     {
         return [
-            ['extend', ['template']],
+            ['extend', ['template', []]],
             ['insert', ['template', []]],
             ['escape', ['string']],
             ['section', ['name']],
@@ -68,11 +68,8 @@ class RenderEngineDecoratorTest extends \PHPUnit_Framework_TestCase
 
     public function mockEngine()
     {
-        return m::mock('Lucid\Module\Template\PhpRenderInterface');
-    }
-
-    protected function tearDown()
-    {
-        m::close();
+        return $this->getMockBuilder('Lucid\Module\Template\PhpRenderInterface')
+            ->disableOriginalConstructor()
+            ->getMock();
     }
 }

@@ -2,8 +2,9 @@
 <html>
   <head>
     <meta charset="utf-8"/>
-    <title><?=$title?></title>
+    <title>title</title>
   </head>
   <body>
+  <?= $view->endsection() ?>
   </body>
 </html>

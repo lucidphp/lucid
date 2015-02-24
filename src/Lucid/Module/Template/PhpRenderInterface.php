@@ -24,11 +24,10 @@ interface PhpRenderInterface
      * extend
      *
      * @param mixed $template
-     * @param array $replacement
      *
      * @return void
      */
-    public function extend($template, array $vars = []);
+    public function extend($template);
 
     /**
      * insert
@@ -64,4 +63,11 @@ interface PhpRenderInterface
      * @return void
      */
     public function endsection();
+
+    /**
+     * func
+     *
+     * @return void
+     */
+    public function func();
 }

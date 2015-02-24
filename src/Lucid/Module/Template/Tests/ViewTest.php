@@ -11,7 +11,6 @@
 
 namespace Lucid\Module\Template\Tests;
 
-use Mockery as m;
 use Lucid\Module\Template\View;
 
 /**
@@ -35,14 +34,14 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 
         $params = ['name' => 'Carl'];
 
-        $engine->shouldReceive('supports')->with('template')->andReturn(true);
-        $engine->shouldReceive('render')->with('template', m::any())->andReturnUsing(function ($t, $p) {
+        $engine->method('supports')->with('template')->willReturn(true);
+        $engine->expects($this->once())->method('render')->will($this->returnCallback(function ($t, $p) {
             $this->assertTrue(isset($p['foo']));
             $this->assertTrue(isset($p['bar']));
             $this->assertTrue(isset($p['fake']));
             $this->assertTrue(isset($p['baz']));
             $this->assertTrue(isset($p['name']));
-        });
+        }));
 
         $view->render('template', $params);
     }
@@ -51,8 +50,13 @@ class ViewTest extends \PHPUnit_Framework_TestCase
     public function itShouldSupportTemplate()
     {
         $engine = $this->mockEngine();
-        $engine->shouldReceive('supports')->with('template.php')->andReturn(true);
-        $engine->shouldReceive('supports')->with('template.twig')->andReturn(false);
+
+        $map = [
+            ['template.php', true],
+            ['template.twig', false]
+        ];
+
+        $engine->method('supports')->will($this->returnValueMap($map));
         $view = $this->newView($engine);
 
         $this->assertTrue($view->supports('template.php'));
@@ -66,10 +70,10 @@ class ViewTest extends \PHPUnit_Framework_TestCase
         $view = $this->newView($engine);
 
         $called = false;
-        $listener = m::mock('Lucid\Module\Template\Listener\ListenerInterface');
-        $listener->shouldReceive('onRender')->andReturnUsing(function () use (&$called) {
+        $listener = $this->getMock('Lucid\Module\Template\Listener\ListenerInterface');
+        $listener->method('onRender')->will($this->returnCallback(function () use (&$called) {
             $called = true;
-        });
+        }));
 
         $view->setListeners(['template' => $listener]);
         $view->notifyListeners('template');
@@ -87,10 +91,10 @@ class ViewTest extends \PHPUnit_Framework_TestCase
         $engine = $this->mockEngine();
         $view = $this->newView($engine);
 
-        $listener = m::mock('Lucid\Module\Template\Listener\ListenerInterface');
-        $listener->shouldReceive('onRender')->andReturnUsing(function ($data) {
+        $listener = $this->getMock('Lucid\Module\Template\Listener\ListenerInterface');
+        $listener->method('onRender')->will($this->returnCallback(function ($data) {
             $data->add('foo', 'bar');
-        });
+        }));
 
         $view->addListener('template', $listener);
 
@@ -104,11 +108,15 @@ class ViewTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function itShouldCallDisplayOnDisplayInterfaces()
     {
-        $engine = m::mock('Lucid\Module\Template\EngineInterface, Lucid\Module\Template\DisplayInterface');
-        $engine->shouldReceive('supports')->with('template')->andReturn(true);
+        $engine = $this->getMock('Lucid\Module\Template\Tests\Stubs\Displayable');
+        $engine->method('supports')->with('template')->willReturn(true);
         $view = $this->newView($engine);
 
-        $engine->shouldReceive('display')->with('template', m::any());
+        $engine->expects($this->once())->method('display')->will($this->returnCallback(function ($name) {
+            if ('template' !== $name) {
+                $this->fail();
+            }
+        }));
 
         $view->display('template');
     }
@@ -117,9 +125,14 @@ class ViewTest extends \PHPUnit_Framework_TestCase
     public function itShouldCallRenderOnNoneDisplayInterfaces()
     {
         $view = $this->newView($engine = $this->mockEngine());
-        $engine->shouldReceive('supports')->with('template')->andReturn(true);
+        $engine->method('supports')->with('template')->willReturn(true);
 
-        $engine->shouldReceive('render')->with('template', m::any());
+        $engine->expects($this->once())->method('render')->will($this->returnCallback(function () {
+            $args = func_get_args();
+            if ('template' !== $args[0]) {
+                $this->fail();
+            }
+        }));
 
         $view->display('template');
     }
@@ -128,7 +141,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
     public function itShouldReturnItsEngine()
     {
         $view = $this->newView($engine = $this->mockEngine());
-        $engine->shouldReceive('supports')->with('template')->andReturn(true);
+        $engine->method('supports')->with('template')->willReturn(true);
 
         $view->getEngineForTemplate('template');
     }
@@ -140,11 +153,8 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 
     protected function mockEngine()
     {
-        return $e = m::mock('Lucid\Module\Template\EngineInterface');
-    }
-
-    protected function tearDown()
-    {
-        m::close();
+        return $this->getMockBuilder('Lucid\Module\Template\EngineInterface')
+            ->disableOriginalConstructor()
+            ->getMock();
     }
 }

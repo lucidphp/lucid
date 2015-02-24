@@ -1,8 +1,6 @@
 {
   "name": "lucid/template",
-  "require-dev": {
-    "phpunit/phpunit": "4.4.*"
-  },
+  "description": "Templating library for native php templates",
   "license": "MIT",
   "authors": [
     {
@@ -10,9 +8,13 @@
       "email": "mail@thomas-appel.com"
     }
   ],
+  "require-dev": {
+    "phpunit/phpunit": "4.4.*",
+    "satooshi/php-coveralls": "dev-master"
+  },
   "autoload": {
     "psr-4": {
-      "Lucid\\":""
+      "Lucid\\Module\\Template\\":""
     }
   },
   "minimum-stability": "dev"

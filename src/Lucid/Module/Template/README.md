@@ -62,3 +62,25 @@ The templates
     </body>
 </html>
 ```
+
+## Partials
+
+### Includes
+
+```php
+<html>
+    <body>
+
+    <div id="container">
+        $view->include('partials/footer.php');
+        $view->include('partials/content.php');
+        $view->include('partials/footer.php');
+    </div>
+
+    </body>
+</html>
+```
+
+### Extending existing templates
+
+### Sections

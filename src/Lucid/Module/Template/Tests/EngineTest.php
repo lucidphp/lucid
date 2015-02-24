@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This File is part of the Lucid\Module\Template\Tests package
+ * This File is part of the Lucid\Module\Template package
  *
  * (c) iwyg <mail@thomas-appel.com>
  *
@@ -17,7 +17,7 @@ use Lucid\Module\Template\Loader\FilesystemLoader;
 /**
  * @class EngineTest
  *
- * @package Lucid\Module\Template\Tests
+ * @package Lucid\Module\Template
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
@@ -51,6 +51,20 @@ class EngineTest extends \PHPUnit_Framework_TestCase
     }
 
     /** @test */
+    public function itShouldDisplayTemplate()
+    {
+        $engine = $this->newEngine();
+
+        $this->loader->method('load')->willReturn($this->mockResource());
+        ob_start();
+        $engine->display('template.php');
+        $content = ob_get_contents();
+        ob_end_clean();
+
+        $this->assertInternalType('string', $content);
+    }
+
+    /** @test */
     public function itShouldRegisterGlobalData()
     {
         $engine = $this->newEngine();
@@ -72,6 +86,92 @@ class EngineTest extends \PHPUnit_Framework_TestCase
         } catch (\Lucid\Module\Template\Exception\RenderException $e) {
             $this->assertSame('Undefined variable: dontexist', $e->getMessage());
         }
+    }
+
+    /** @test */
+    public function itShouldHandleCircularReferencesOnExtends()
+    {
+        $engine = new Engine(new FilesystemLoader(__DIR__.'/Fixures/view/'));
+        try {
+            $engine->render('partials/extend.1.php');
+        } catch (\Lucid\Module\Template\Exception\RenderException $e) {
+            $this->assertSame('Circular reference in partials/extend.1.php.', $e->getMessage());
+
+            return;
+        }
+
+        $this->fail();
+    }
+
+    /** @test */
+    public function itShouldThrowExceptionOnFaultySections()
+    {
+        $engine = new Engine(new FilesystemLoader(__DIR__.'/Fixures/view/'));
+        try {
+            $engine->render('index.1.php');
+        } catch (\Lucid\Module\Template\Exception\RenderException $e) {
+            $this->assertSame('Cannot end a section. You must start a section first.', $e->getMessage());
+
+            return;
+        }
+
+        $this->fail();
+    }
+
+    /** @test */
+    public function itShouldRegisterExtension()
+    {
+        $engine = new Engine(new FilesystemLoader(__DIR__.'/Fixures/view/'));
+
+        $func = $this->getMock('Lucid\Module\Template\Extension\FunctionInterface');
+        $func->method('getName')->willReturn('my_func');
+        $ext = $this->getMock('Lucid\Module\Template\Extension\ExtensionInterface');
+        $ext->method('functions')->willReturn([$func]);
+
+        $func->expects($this->once())->method('call');
+
+        $engine->registerExtension($ext);
+
+        $engine->render('func.0.php');
+    }
+
+    /** @test */
+    public function itShouldUnregisterExtension()
+    {
+        $engine = new Engine(new FilesystemLoader(__DIR__.'/Fixures/view/'));
+
+        $func = $this->getMock('Lucid\Module\Template\Extension\FunctionInterface');
+        $func->method('getName')->willReturn('my_func');
+        $ext = $this->getMock('Lucid\Module\Template\Extension\ExtensionInterface');
+        $ext->method('functions')->willReturn([$func]);
+
+        $func->expects($this->once())->method('call');
+
+        $engine->registerExtension($ext);
+
+        $engine->render('func.0.php');
+
+        $engine->removeExtension($ext);
+
+        try {
+            $engine->render('func.0.php');
+        } catch (\RuntimeException $e) {
+            $this->assertTrue(true);
+
+            return;
+        }
+
+        $this->fail();
+    }
+
+    /**
+     * @test
+     * @expectedException \RuntimeException
+     */
+    public function callingUnknowenFuncShouldThrowException()
+    {
+        $engine = new Engine(new FilesystemLoader(__DIR__.'/Fixures/view/'));
+        $engine->render('func.1.php');
     }
 
     protected function newEngine()
