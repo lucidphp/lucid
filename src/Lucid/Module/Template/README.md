@@ -1,5 +1,8 @@
 # Templating library
 
+![Build Status](https://img.shields.io/travis/iwyg/template.svg?style=flat-square)
+![Coverage](https://img.shields.io/coveralls/iwyg/template.svg?style=flat-square)
+
 An extendable templating library for php.
 
 ## Installation
@@ -54,7 +57,7 @@ $engine->render('partials/content.php', ['title' => 'Hello World!']);
 
 The templates
 
-`partial/contents.php`:
+`partials/content.php`:
 
 ```php
 
