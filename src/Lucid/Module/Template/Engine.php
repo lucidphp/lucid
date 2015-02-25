@@ -108,19 +108,12 @@ class Engine extends AbstractPhpEngine implements ViewAwareInterface
         $this->globals = [];
         $this->sections = [];
         $this->functions = [];
-
         $this->setEncoding($enc);
         $this->stack = new SplStack;
 
         parent::__construct($loader, $parser);
-    }
+        $this->addType(self::SUPPORT_TYPE);
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getTypes()
-    {
-        return [self::SUPPORT_TYPE];
     }
 
     /**

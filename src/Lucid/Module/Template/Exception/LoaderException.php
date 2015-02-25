@@ -11,7 +11,7 @@
 
 namespace Lucid\Module\Template\Exception;
 
-use Lucid\Module\Template\TemplateInterface;
+use Lucid\Module\Template\IdentityInterface;
 
 /**
  * @class LoaderException
@@ -20,7 +20,7 @@ use Lucid\Module\Template\TemplateInterface;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-class LoaderException extends \InvalidArgumentException implements TemplateExteption
+class LoaderException extends \InvalidArgumentException implements TemplateException
 {
     /**
      * Constructor.
@@ -34,7 +34,7 @@ class LoaderException extends \InvalidArgumentException implements TemplateExtep
         parent::__construct($message, $code, $prevException);
     }
 
-    public static function templateNotFound(TemplateInterface $template)
+    public static function templateNotFound(IdentityInterface $template)
     {
         return new self(sprintf('Template "%s" not found.', $template->getName()));
     }

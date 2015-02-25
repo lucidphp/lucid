@@ -30,6 +30,28 @@ $engine->render('partials/content.php', ['title' => 'Hello World!']);
 
 ```
 
+
+
+## Partials
+
+### Inserts
+
+```php
+<html>
+    <body>
+
+    <div id="container">
+        $view->insert('partials/footer.php');
+        $view->insert('partials/content.php');
+        $view->insert('partials/footer.php');
+    </div>
+
+    </body>
+</html>
+```
+
+### Extending existing templates
+
 The templates
 
 `partial/contents.php`:
@@ -50,37 +72,18 @@ The templates
 ```php
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8"/>
-        <title><?= $title ?></title>
-    </head>
-    <body>
+  <head>
+    <meta charset="utf-8"/>
+    <title><?= $title ?></title>
+  </head>
+  <body>
     <div id="main">
-        <?= $view->section('content') ?>
-        <?= $view->endsection() ?>
+      <?= $view->section('content') ?>
+        <p>The default content.</p>
+      <?= $view->endsection() ?>
     </div>
-    </body>
+  </body>
 </html>
 ```
-
-## Partials
-
-### Includes
-
-```php
-<html>
-    <body>
-
-    <div id="container">
-        $view->include('partials/footer.php');
-        $view->include('partials/content.php');
-        $view->include('partials/footer.php');
-    </div>
-
-    </body>
-</html>
-```
-
-### Extending existing templates
 
 ### Sections

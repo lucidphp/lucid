@@ -32,6 +32,26 @@ class EngineTest extends \PHPUnit_Framework_TestCase
     }
 
     /** @test */
+    public function itShouldTellIfTemplateExists()
+    {
+        $engine = $this->newEngine();
+
+        $map = [
+            ['template.php', true],
+            ['template.html', false],
+        ];
+
+        $this->loader->expects($this->any())
+            ->method('supports')->will($this->returnValueMap($map));
+
+        $this->loader->expects($this->once())
+            ->method('load')->with('template.php')->willReturn($this->mockResource());
+
+        $this->assertTrue($engine->exists('template.php'));
+        $this->assertFalse($engine->exists('template.html'));
+    }
+
+    /** @test */
     public function renderShouldReturnString()
     {
         $engine = $this->newEngine();
@@ -172,6 +192,15 @@ class EngineTest extends \PHPUnit_Framework_TestCase
     {
         $engine = new Engine(new FilesystemLoader(__DIR__.'/Fixures/view/'));
         $engine->render('func.1.php');
+    }
+
+    /** @test */
+    public function viewShouldBeSettable()
+    {
+        $engine = $this->newEngine();
+
+        $engine->setManager($view = $this->getMock('Lucid\Module\Template\ViewManagerInterface'));
+        $this->assertSame($view, $engine->getManager());
     }
 
     protected function newEngine()

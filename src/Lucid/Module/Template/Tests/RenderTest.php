@@ -59,7 +59,6 @@ EOF;
   </body>
 </html>
 EOF;
-
         $this->assertXmlStringEqualsXmlString($expected, $engine->render('include.0.php'));
     }
 

@@ -70,7 +70,7 @@ class DelegatingEngine implements EngineInterface, DisplayInterface
      */
     public function render($template, array $parameters = [])
     {
-        return $this->getEngine()->render($template, $parameters);
+        return $this->getEngine($template)->render($template, $parameters);
     }
 
     /**
@@ -78,7 +78,7 @@ class DelegatingEngine implements EngineInterface, DisplayInterface
      */
     public function display($template, array $parameters = [])
     {
-        if (($engine = $this->resolveEngine(($template))) instanceof DisplayInterface) {
+        if (($engine = $this->getEngine($template)) instanceof DisplayInterface) {
             $engine->display($template, $parameters);
         } else {
             echo $engine->render($template, $parameters);
@@ -125,5 +125,14 @@ class DelegatingEngine implements EngineInterface, DisplayInterface
         }
 
         return false;
+    }
+
+    private function getEngine($template)
+    {
+        if (!$engine = $this->resolveEngine($template)) {
+            throw new \InvalidArgumentException(sprintf('No suitable engine found for template %s.', $template));
+        }
+
+        return $engine;
     }
 }

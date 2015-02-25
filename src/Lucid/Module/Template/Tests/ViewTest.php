@@ -146,6 +146,45 @@ class ViewTest extends \PHPUnit_Framework_TestCase
         $view->getEngineForTemplate('template');
     }
 
+    /** @test */
+    public function itShouldResolveEngineOnDelegatingEngine()
+    {
+        $engine = $this->getMockbuilder('Lucid\Module\Template\DelegatingEngine')
+            ->disableOriginalConstructor()->getMock();
+        $view = $this->newView($engine);
+
+        $engine->expects($this->once())->method('resolveEngine')->with('template')->willReturn($this->mockEngine());
+        $view->getEngineForTemplate('template');
+    }
+
+    /** @test */
+    public function itShouldSetSelfOnViewAwareEngines()
+    {
+        $engine = $this->getMockbuilder('Lucid\Module\Template\Engine')
+            ->disableOriginalConstructor()->getMock();
+        $view = $this->newView($engine);
+
+        $engine->expects($this->once())->method('supports')->with('template')->willReturn(true);
+        $engine->expects($this->once())->method('setManager')->with($view);
+        $view->getEngineForTemplate('template');
+    }
+
+    /** @test */
+    public function itShouldThrowExceptionOnNoneSupportedTemplate()
+    {
+        $view = $this->newView($engine = $this->mockEngine());
+        $engine->method('supports')->with('template.html')->willReturn(false);
+
+        try {
+            $view->getEngineForTemplate('template.html');
+        } catch (\InvalidArgumentException $e) {
+            $this->assertTrue(true);
+            return;
+        }
+
+        $this->fail();
+    }
+
     protected function newView($engine = null)
     {
         return new View($engine ?: $this->mockEngine());
