@@ -14,8 +14,9 @@ namespace Lucid\Module\Template;
 use SplStack;
 use Lucid\Module\Template\Loader\LoaderInterface;
 use Lucid\Module\Template\Resource\FileResource;
+use Lucid\Module\Template\Resource\StringResource;
 use Lucid\Module\Template\Resource\ResourceInterface;
-use Lucid\Module\Template\IdentityParser as Parser;
+use Lucid\Module\Template\IdentityParserInterface as Parser;
 use Lucid\Module\Template\Exception\LoaderException;
 use Lucid\Module\Template\Exception\RenderException;
 use Lucid\Module\Template\Exception\TemplateException;
@@ -297,7 +298,7 @@ class Engine extends AbstractPhpEngine implements ViewAwareInterface
             $view->notifyListeners($name = $this->getIdentity()->identify($template)->getName());
 
             if ($data = $view->flushData($name)) {
-                return $data->all($parameters);
+                $parameters = $data->all($parameters);
             }
         }
 

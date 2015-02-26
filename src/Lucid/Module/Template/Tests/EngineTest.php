@@ -12,6 +12,7 @@
 namespace Lucid\Module\Template\Tests;
 
 use Lucid\Module\Template\Engine;
+use Lucid\Module\Template\Data\Data;
 use Lucid\Module\Template\Loader\FilesystemLoader;
 
 /**
@@ -201,6 +202,37 @@ class EngineTest extends \PHPUnit_Framework_TestCase
 
         $engine->setManager($view = $this->getMock('Lucid\Module\Template\ViewManagerInterface'));
         $this->assertSame($view, $engine->getManager());
+    }
+
+    /** @test */
+    public function itShouldRenderStrings()
+    {
+        $id = $this->getMock('Lucid\Module\Template\IdentityInterface');
+        $id->method('__toString')->willreturn('my string');
+        $id->method('getType')->willreturn('string');
+        $idp = $this->getMock('Lucid\Module\Template\IdentityParserInterface');
+        $idp->method('identify')->with('my string')->willReturn($id);
+
+        $engine = new Engine($loader = $this->mockLoader(), $idp);
+        $engine->addType('string');
+
+        $loader->method('load')->willReturn(new \Lucid\Module\Template\Resource\StringResource('my string'));
+
+        $engine->render('my string');
+    }
+
+    /** @test */
+    public function itShouldNotifyListener()
+    {
+        $data = new Data;
+        $data->set(['foo' => 'bar']);
+        $engine = new Engine($loader = $this->mockLoader());
+        $loader->method('load')->willReturn($this->mockResource());
+        $engine->setManager($view = $this->getMock('Lucid\Module\Template\ViewManagerInterface'));
+        $view->expects($this->once())->method('notifyListeners')->with('template.php');
+        $view->expects($this->once())->method('flushData')->with('template.php')->willReturn($data);
+
+        $engine->render('template.php');
     }
 
     protected function newEngine()

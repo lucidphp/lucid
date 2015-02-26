@@ -29,7 +29,7 @@ class StringResource extends AbstractResource
      */
     public function __construct($string)
     {
-        $this->content = $content;
+        $this->content = $string;
     }
 
     /**

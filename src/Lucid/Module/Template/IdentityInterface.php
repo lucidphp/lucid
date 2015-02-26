@@ -35,4 +35,11 @@ interface IdentityInterface
      * @return string
      */
     public function getType();
+
+    /**
+     * __toString
+     *
+     * @return string
+     */
+    public function __toString();
 }

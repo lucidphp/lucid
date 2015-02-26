@@ -11,7 +11,7 @@
 
 namespace Lucid\Module\Template\Tests\Resource;
 
-use Lucid\Module\Template\Resource\FileResource;
+use Lucid\Module\Template\Resource\StringResource;
 
 /**
  * @class FileResourceTest
@@ -20,25 +20,25 @@ use Lucid\Module\Template\Resource\FileResource;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-class FileResourceTest extends \PHPUnit_Framework_TestCase
+class StringResourceTest extends \PHPUnit_Framework_TestCase
 {
     /** @test */
     public function itShouldBeInstantiable()
     {
-        $this->assertInstanceof('Lucid\Module\Template\Resource\ResourceInterface', new FileResource('file'));
+        $this->assertInstanceof('Lucid\Module\Template\Resource\ResourceInterface', new StringResource('string'));
     }
 
     /** @test */
     public function itShouldGetPath()
     {
-        $res = new FileResource('file');
-        $this->assertSame('file', $res->getResource());
+        $res = new StringResource('file');
+        $this->assertSame(null, $res->getResource());
     }
 
     /** @test */
     public function itShouldContents()
     {
-        $res = new FileResource(__FILE__);
-        $this->assertStringEqualsFile(__FILE__, $res->getContents());
+        $res = new StringResource('string');
+        $this->assertSame('string', $res->getContents());
     }
 }

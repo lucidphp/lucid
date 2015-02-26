@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This File is part of the Lucid\Module\Template\Tests package
+ * This File is part of the Lucid\Module\Template package
  *
  * (c) iwyg <mail@thomas-appel.com>
  *
@@ -18,7 +18,7 @@ use Lucid\Module\Template\Loader\FilesystemLoader;
 /**
  * @class RenderTest
  *
- * @package Lucid\Module\Template\Tests
+ * @package Lucid\Module\Template
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
