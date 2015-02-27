@@ -11,7 +11,6 @@
 
 namespace Lucid\Module\Event\Tests;
 
-use Mockery as m;
 use Lucid\Module\Event\ChainedEvent;
 
 /**
@@ -29,14 +28,9 @@ class ChainedEventTest extends EventTest
     {
         $event = $this->newEvent();
 
-        $event->setDispatcher($d = m::mock('Lucid\Module\Event\EventDispatcherInterface'));
+        $event->setDispatcher($d = $this->getMock('Lucid\Module\Event\EventDispatcherInterface'));
 
         $this->assertSame($d, $event->getDispatcher());
-    }
-
-    protected function tearDown()
-    {
-        m::close();
     }
 
     protected function newEvent()

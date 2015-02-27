@@ -11,7 +11,6 @@
 
 namespace Lucid\Module\Event\Tests;
 
-use Mockery as m;
 use Lucid\Module\Event\Event;
 use Lucid\Module\Event\EventDispatcher;
 use Lucid\Module\Event\Tests\Stubs\SimpleSubscriber;
@@ -88,7 +87,15 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase
             10
         );
 
+        $events->addHandler(
+            'myevent',
+            $c = function () {
+            },
+            100
+        );
+
         $this->assertSame([$b, $a], $events->getHandlers('event'));
+        $this->assertSame([$a, $b, $c], $events->getHandlers());
     }
 
     /** @test */
@@ -143,10 +150,10 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase
     {
         $called = false;
 
-        $handler = m::mock('Lucid\Module\Event\HandlerInterface');
-        $handler->shouldReceive('handleEvent')->andReturnUsing(function () use (&$called) {
+        $handler = $this->getMock('Lucid\Module\Event\HandlerInterface');
+        $handler->method('handleEvent')->will($this->returnCallback(function () use (&$called) {
             $called = true;
-        });
+        }));
 
         $events = new EventDispatcher;
         $events->addHandler('event', $handler);
@@ -194,10 +201,5 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->ordered = [];
-    }
-
-    protected function tearDown()
-    {
-        m::close();
     }
 }
