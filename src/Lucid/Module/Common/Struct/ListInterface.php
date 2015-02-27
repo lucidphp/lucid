@@ -9,6 +9,8 @@
  * that was distributed with this package.
  */
 
+namespace Lucid\Module\Common\Struct;
+
 /**
  * @class ListInterface
  *
