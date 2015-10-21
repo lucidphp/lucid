@@ -14,12 +14,12 @@ namespace Lucid\Adapter\Filesystem;
 use Dropbox\Client;
 use Dropbox\WriteMode;
 use Dropbox\Exception as DboxException;
-use Lucid\Module\Filesystem\Permission;
-use Lucid\Module\Filesystem\Mime\MimeType;
-use Lucid\Module\Filesystem\FilesystemInterface;
-use Lucid\Module\Filesystem\Driver\AbstractDriver;
-use Lucid\Module\Filesystem\Driver\SupportsVisibility;
-use Lucid\Module\Filesystem\Driver\DriverInterface;
+use Lucid\Filesystem\Permission;
+use Lucid\Filesystem\Mime\MimeType;
+use Lucid\Filesystem\FilesystemInterface;
+use Lucid\Filesystem\Driver\AbstractDriver;
+use Lucid\Filesystem\Driver\SupportsVisibility;
+use Lucid\Filesystem\Driver\DriverInterface;
 
 /**
  * @class DropBoxDriver

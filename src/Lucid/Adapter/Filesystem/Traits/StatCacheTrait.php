@@ -40,7 +40,12 @@ trait StatCacheTrait
             return $this->statCache[$path];
         }
 
-        return $this->statCache[$path] = $this->statPath($path);
+        if ($stat = $this->statPath($path)) {
+            return $stat;
+            //return $this->statCache[$path] = $stat;
+        }
+
+        return false;
     }
 
     /**
@@ -52,6 +57,7 @@ trait StatCacheTrait
      */
     protected function clearStat($path)
     {
+        $this->statCache[$path] = null;
         unset($this->statCache[$path]);
     }
 

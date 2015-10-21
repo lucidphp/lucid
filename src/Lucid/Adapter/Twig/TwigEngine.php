@@ -12,13 +12,13 @@
 namespace Lucid\Adapter\Twig;
 
 use Twig_Environment;
-use Lucid\Module\Template\EngineInterface;
-use Lucid\Module\Template\DisplayInterface;
-use Lucid\Module\Template\ViewManagerInterface;
-use Lucid\Module\Template\IdentityParser;
-use Lucid\Module\Template\IdentityParserInterface;
-use Lucid\Module\Template\ViewAwareInterface;
-use Lucid\Module\Template\Exception\LoaderException;
+use Lucid\Template\EngineInterface;
+use Lucid\Template\DisplayInterface;
+use Lucid\Template\ViewManagerInterface;
+use Lucid\Template\IdentityParser;
+use Lucid\Template\IdentityParserInterface;
+use Lucid\Template\ViewAwareInterface;
+use Lucid\Template\Exception\LoaderException;
 
 /**
  * @class TwigEngine

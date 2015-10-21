@@ -11,7 +11,7 @@
 
 namespace Lucid\Adapter\HttpKernel\Event;
 
-use Lucid\Module\Event\Event;
+use Lucid\Event\Event;
 use Symfony\Component\HttpFoundation\Response;
 
 /**

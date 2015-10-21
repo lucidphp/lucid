@@ -13,12 +13,12 @@ namespace Lucid\Adapter\Filesystem;
 
 use Net_SSH2;
 use Net_SFTP;
-use Lucid\Module\Filesystem\Permission;
-use Lucid\Module\Filesystem\Mime\MimeType;
-use Lucid\Module\Filesystem\FilesystemInterface;
-use Lucid\Module\Filesystem\Driver\SupportsTouch;
-use Lucid\Module\Filesystem\Driver\SupportsVisibility;
-use Lucid\Module\Filesystem\Driver\SupportsPermission;
+use Lucid\Filesystem\Permission;
+use Lucid\Filesystem\Mime\MimeType;
+use Lucid\Filesystem\FilesystemInterface;
+use Lucid\Filesystem\Driver\SupportsTouch;
+use Lucid\Filesystem\Driver\SupportsVisibility;
+use Lucid\Filesystem\Driver\SupportsPermission;
 use Lucid\Adapter\Filesystem\Sftp\Connection as SftpConnection;
 use Lucid\Adapter\Filesystem\FtpConnectionInterface as Connection;
 use Lucid\Adapter\Filesystem\Traits\StatCacheTrait;

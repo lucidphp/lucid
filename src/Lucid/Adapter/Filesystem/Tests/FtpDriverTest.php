@@ -13,8 +13,8 @@
 namespace Lucid\Adapter\Filesystem\Tests;
 
 use Lucid\Adapter\Filesystem\FtpDriver;
-use Lucid\Module\Filesystem\Driver\DriverInterface;
-use Lucid\Module\Filesystem\Tests\Driver\DriverTest;
+use Lucid\Filesystem\Driver\DriverInterface;
+use Lucid\Filesystem\Tests\Driver\DriverTest;
 use Lucid\Adapter\Filesystem\Tests\Helper\FtpHelper;
 
 /**

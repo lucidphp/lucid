@@ -11,8 +11,8 @@
 
 namespace Lucid\Adapter\Twig;
 
-use Lucid\Module\Template\ViewAwareInterface;
-use Lucid\Module\Template\ViewManagerInterface;
+use Lucid\Template\ViewAwareInterface;
+use Lucid\Template\ViewManagerInterface;
 
 /**
  * @class TwigTemplate

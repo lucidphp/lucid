@@ -12,9 +12,9 @@
 namespace Lucid\Adapter\Filesystem;
 
 use Sabre\DAV\Client;
-use Lucid\Module\Filesystem\Permission;
-use Lucid\Module\Filesystem\Mime\MimeType;
-use Lucid\Module\Filesystem\Driver\AbstractDriver;
+use Lucid\Filesystem\Permission;
+use Lucid\Filesystem\Mime\MimeType;
+use Lucid\Filesystem\Driver\AbstractDriver;
 
 /**
  * @class WebDavDriver

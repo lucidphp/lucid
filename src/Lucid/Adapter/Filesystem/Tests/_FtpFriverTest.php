@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This File is part of the Lucid\Module\Filesystem\Tests\Driver package
+ * This File is part of the Lucid\Filesystem\Tests\Driver package
  *
  * (c) iwyg <mail@thomas-appel.com>
  *
@@ -9,14 +9,14 @@
  * that was distributed with this package.
  */
 
-namespace Lucid\Module\Filesystem\Tests\Driver;
+namespace Lucid\Filesystem\Tests\Driver;
 
-use Lucid\Module\Filesystem\Driver\FtpDriver;
+use Lucid\Filesystem\Driver\FtpDriver;
 
 /**
  * @class FtpFriverTest
  *
- * @package Lucid\Module\Filesystem\Tests\Driver
+ * @package Lucid\Filesystem\Tests\Driver
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */

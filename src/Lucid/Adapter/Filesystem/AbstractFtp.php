@@ -11,8 +11,8 @@
 
 namespace Lucid\Adapter\Filesystem;
 
-use Lucid\Module\Filesystem\FilesystemInterface;
-use Lucid\Module\Filesystem\Driver\AbstractDriver;
+use Lucid\Filesystem\FilesystemInterface;
+use Lucid\Filesystem\Driver\AbstractDriver;
 use Lucid\Adapter\Filesystem\FtpConnectionInterface as Connection;
 
 /**

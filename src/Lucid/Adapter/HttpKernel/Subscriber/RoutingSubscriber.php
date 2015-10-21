@@ -11,11 +11,11 @@
 
 namespace Lucid\Adapter\HttpKernel\Subscriber;
 
-use Lucid\Module\Event\SubscriberInterface;
-use Lucid\Module\Routing\RouterInterface;
+use Lucid\Event\SubscriberInterface;
+use Lucid\Routing\RouterInterface;
 use Lucid\Adapter\HttpKernel\Event\KernelEvents as Events;
 use Lucid\Adapter\HttpKernel\Event\RequestEvent;
-use Lucid\Module\Routing\Http\RequestContext;
+use Lucid\Routing\Http\RequestContext;
 use Symfony\Component\HttpFoundation\Response;
 
 /**

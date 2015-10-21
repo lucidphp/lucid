@@ -12,8 +12,8 @@
 namespace Lucid\Adapter\Twig;
 
 use Twig_Environment;
-use Lucid\Module\Template\ViewAwareInterface;
-use Lucid\Module\Template\Traits\ViewAwareTrait;
+use Lucid\Template\ViewAwareInterface;
+use Lucid\Template\Traits\ViewAwareTrait;
 
 /**
  * @class TwigEnvironment

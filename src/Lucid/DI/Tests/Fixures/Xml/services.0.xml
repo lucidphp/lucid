@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<container>
+
+  <parameters>
+    <parameter key="my.key"></parameter>
+  </parameters>
+
+  <services>
+
+    <blueprint id="helper_a" class="SomeClass">
+    </blueprint>
+
+    <service id="service_a" use="service_blueprint">
+    </service>
+
+    <service id="service_a" class="SimpleService">
+      <argument>foo</argument>
+      <argument>bar</argument>
+    </service>
+
+    <factory provides="service_b" with="SimpleFactory::make">
+    </factory>
+  </services>
+</container>

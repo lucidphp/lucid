@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This File is part of the Lucid\Module\Http package
+ * This File is part of the Lucid\Http package
  *
  * (c) iwyg <mail@thomas-appel.com>
  *
@@ -16,7 +16,7 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 /**
  * @interface Middleware
  *
- * @package Lucid\Module\Http
+ * @package Lucid\Http
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */

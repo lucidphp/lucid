@@ -1,10 +1,18 @@
 {
-  "name": "lucid/modules",
+  "name": "lucid/lucid",
   "require-dev": {
     "phpunit/phpunit": "4.4.*",
     "mockery/mockery": "0.9.*", 
+    "container-interop/container-interop": "dev-master",
     "symfony/http-foundation": "2.6.*",
-    "symfony/http-kernel": "2.6.*"
+    "symfony/http-kernel": "2.6.*",
+    "twig/twig":"dev-master",
+    "mustache/mustache": "dev-master",
+    "psr/http-message": "1.0.*@dev",
+    "apigen/apigen": "4.0.*",
+    "phpseclib/phpseclib": "0.3.*@dev",
+    "dropbox/dropbox-sdk": "dev-master",
+    "sabre/dav": "dev-master"
   },
   "license": "MIT",
   "authors": [
@@ -18,6 +26,13 @@
       "Lucid\\":"src/Lucid"
     }
   },
+  "provides": {
+    "lucid/common": "dev-master",
+    "lucid/event": "dev-master",
+    "lucid/routing": "dev-master",
+    "lucid/template": "dev-master"
+  },
   "minimum-stability": "dev",
-  "require": {}
+  "require": {
+  }
 }

@@ -12,7 +12,7 @@
 namespace Lucid\Adapter\HttpKernel;
 
 use Symfony\Component\HttpKernel\HttpKernelInterface;
-use Lucid\Module\Common\DataTypes\ReversePriorityQueue;
+use Lucid\Common\DataTypes\ReversePriorityQueue;
 
 /**
  * @class StackBuilder

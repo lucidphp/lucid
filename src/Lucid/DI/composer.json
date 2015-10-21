@@ -1,0 +1,24 @@
+{
+  "name": "lucid/di",
+  "description": "A dependency injection library",
+  "authors": [
+    {
+      "name": "iwyg",
+      "email": "mail@thomas-appel.com"
+    }
+  ],
+  "license": "MIT",
+  "require": {
+    "container-interop/container-interop": "dev-master",
+    "lucid/common":"dev-master"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "dev-master"
+  },
+  "autoload": {
+    "psr-4": {
+      "Lucid\\Module\\DI\\":""
+    }
+  },
+  "minimum-stability": "dev"
+}

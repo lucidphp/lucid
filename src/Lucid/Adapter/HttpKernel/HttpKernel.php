@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Lucid\Module\Event\EventDispatcherInterface;
+use Lucid\Event\EventDispatcherInterface;
 use Lucid\Adapter\HttpKernel\Event\KernelEvents as Events;
 use Lucid\Adapter\HttpKernel\Event\RequestEvent;
 use Lucid\Adapter\HttpKernel\Event\ResponseEvent;
