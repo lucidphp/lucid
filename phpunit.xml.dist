@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit backupGlobals="false"
+    backupStaticAttributes="false"
+    bootstrap="vendor/autoload.php"
+    colors="true"
+    convertErrorsToExceptions="true"
+    convertNoticesToExceptions="true"
+    convertWarningsToExceptions="true"
+    processIsolation="false"
+    stopOnFailure="true"
+    syntaxCheck="true">
+  <testsuites>
+    <testsuite name="Cache">
+      <directory>lucid/cache/tests</directory>
+    </testsuite>
+    <testsuite name="Common">
+      <directory>lucid/common/tests</directory>
+    </testsuite>
+    <testsuite name="Config">
+      <directory>lucid/config/tests</directory>
+    </testsuite>
+    <testsuite name="DI">
+      <directory>lucid/di/tests</directory>
+    </testsuite>
+    <testsuite name="Signal">
+      <directory>lucid/signal/tests</directory>
+    </testsuite>
+    <testsuite name="Filesystem">
+      <directory>lucid/filesystem/tests</directory>
+    </testsuite>
+    <testsuite name="Hash">
+      <directory>lucid/hash/tests</directory>
+    </testsuite>
+    <testsuite name="Http">
+      <directory>lucid/http/tests</directory>
+    </testsuite>
+    <testsuite name="Mux">
+      <directory>lucid/mux/tests</directory>
+    </testsuite>
+    <testsuite name="Template">
+      <directory>lucid/template/tests</directory>
+    </testsuite>
+    <testsuite name="Writer">
+      <directory>lucid/writer/tests</directory>
+    </testsuite>
+    <testsuite name="Xml">
+      <directory>lucid/xml/tests</directory>
+    </testsuite>
+  </testsuites>
+</phpunit>

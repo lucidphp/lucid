@@ -1,0 +1,69 @@
+{
+  "name": "lucid/lucid",
+  "require": {
+    "php":">=5.6.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "5.2.*@dev",
+    "psr/http-message": "1.0.*@dev",
+    "container-interop/container-interop": "dev-master",
+    "phpseclib/phpseclib": "0.3.*@dev"
+  },
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "iwyg",
+      "email": "mail@thomas-appel.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Lucid\\Cache\\":"lucid/cache/src/",
+      "Lucid\\Common\\":"lucid/common/src/",
+      "Lucid\\Config\\":"lucid/config/src/",
+      "Lucid\\DI\\":"lucid/di/src/",
+      "Lucid\\Filesystem\\":"lucid/filesystem/src/",
+      "Lucid\\Hash\\":"lucid/hash/src/",
+      "Lucid\\Http\\":"lucid/http/src/",
+      "Lucid\\Mux\\":"lucid/mux/src/",
+      "Lucid\\Mux\\Cache\\":"lucid/mux-cache/src/",
+      "Lucid\\Resource\\":"lucid/resource/src/",
+      "Lucid\\Signal\\":"lucid/signal/src/",
+      "Lucid\\Template\\":"lucid/template/src/",
+      "Lucid\\Writer\\":"lucid/writer/src/",
+      "Lucid\\Xml\\":"lucid/xml/src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Lucid\\Cache\\Tests\\":"lucid/cache/tests/",
+      "Lucid\\Common\\Tests\\":"lucid/common/tests/",
+      "Lucid\\Config\\Tests\\":"lucid/config/tests/",
+      "Lucid\\DI\\Tests\\":"lucid/di/tests/",
+      "Lucid\\Filesystem\\Tests\\":"lucid/filesystem/tests/",
+      "Lucid\\Hash\\Tests\\":"lucid/hash/tests/",
+      "Lucid\\Http\\Tests\\":"lucid/http/tests/",
+      "Lucid\\Mux\\Tests\\":"lucid/mux/tests/",
+      "Lucid\\Mux\\Cache\\Tests\\":"lucid/mux-cache/tests/",
+      "Lucid\\Resource\\Tests\\":"lucid/resource/tests/",
+      "Lucid\\Signal\\Tests\\":"lucid/signal/tests/",
+      "Lucid\\Template\\Tests\\":"lucid/template/tests/",
+      "Lucid\\Writer\\Tests\\":"lucid/writer/tests/",
+      "Lucid\\Xml\\Tests\\":"lucid/xml/tests/"
+    }
+  },
+  "provides": {
+    "lucid/common": "dev-master",
+    "lucid/config": "dev-master",
+    "lucid/di": "dev-master",
+    "lucid/filesystem": "dev-master",
+    "lucid/mux": "dev-master",
+    "lucid/mux-cache": "dev-master",
+    "lucid/resource": "dev-master",
+    "lucid/signal": "dev-master",
+    "lucid/template": "dev-master",
+    "lucid/writer": "dev-master",
+    "lucid/xml": "dev-master"
+  },
+  "minimum-stability": "dev"
+}

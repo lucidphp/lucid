@@ -1,0 +1,29 @@
+{
+  "name": "selene/cache",
+  "description": "selene cache",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Thomas Appel",
+      "email": "mail@thomas-appel.com"
+    }
+  ],
+  "require": {
+    "php":">=5.4.0",
+    "selene/common":"dev-development"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~4.0",
+    "selene/filesystem":"dev-development",
+    "league/phpunit-coverage-listener":"dev-master",
+    "selene/testsuite":"dev-development"
+  },
+  "suggest": {
+    "predis/predis": "To use redis cache drivers",
+    "selene/filesystem":""
+  },
+  "autoload": {
+    "psr-4": {"Selene\\Module\\Cache\\": ""}
+  },
+  "minimum-stability": "dev"
+}
