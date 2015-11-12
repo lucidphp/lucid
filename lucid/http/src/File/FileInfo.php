@@ -9,10 +9,12 @@
  * that was distributed with this package.
  */
 
-namespace Lucid\Http\Request;
+namespace Lucid\Http\File;
+
+use LogicException;
 
 /**
- * @class
+ * @class FileInfo
  *
  * @package Lucid\Http
  * @version $Id$
@@ -20,39 +22,19 @@ namespace Lucid\Http\Request;
  */
 class FileInfo
 {
-    /**
-     * name
-     *
-     * @var string
-     */
+    /** @var string */
     public $name;
 
-    /**
-     * tmpName
-     *
-     * @var string
-     */
+    /** @var string */
     public $tmpName;
 
-    /**
-     * size
-     *
-     * @var int
-     */
+    /** @var int */
     public $size;
 
-    /**
-     * type
-     *
-     * @var string
-     */
+    /** @var string */
     public $type;
 
-    /**
-     * error
-     *
-     * @var int
-     */
+    /** @var int */
     public $error;
 
     /**
@@ -72,8 +54,17 @@ class FileInfo
         $this->error = $error;
     }
 
+    /**
+     * Restricts Setter for public properties.
+     *
+     * @param string $key
+     * @param mixed $value
+     * @throws LogicException if a undefined properties is about to be set.
+     *
+     * @return void
+     */
     public function __set($key, $value)
     {
-        throw new \LogicException('dont\' touch my stuff');
+        throw new LogicException(sprintf('Can\'t set undefined property "%s".', $key));
     }
 }

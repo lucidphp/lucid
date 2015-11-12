@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This File is part of the Lucid\Http\Request package
+ * This File is part of the Lucid\Http package
  *
  * (c) iwyg <mail@thomas-appel.com>
  *
@@ -9,14 +9,14 @@
  * that was distributed with this package.
  */
 
-namespace Lucid\Http\Request;
+namespace Lucid\Http\File;
 
 use Psr\Http\Message\UploadedFileInterface;
 
 /**
  * @interface UploadedFilesInterface
  *
- * @package Lucid\Http\Request
+ * @package Lucid\Http
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
@@ -27,33 +27,13 @@ interface UploadedFilesInterface
      *
      * This should return an array of
      * files or a single file, if `$path` points to one file in particular.
-     * Use `$fileAsObj` to get files as instance of UploadedFileInterface
-     * instead of an array.
      *
      * @param string $path
      * @param boolean $fileAsObj
      *
-     * @return UploadedFileInterface
+     * @return \Psr\http\Message\UploadedFileInterface
      */
-    public function get($getClientFilename);
-
-    /**
-     * setFiles
-     *
-     * @param array $files
-     *
-     * @return void
-     */
-    public function setFiles(array $files);
-
-    /**
-     * add
-     *
-     * @param UploadedFileInterface $file
-     *
-     * @return void
-     */
-    public function add(UploadedFileInterface $file);
+    public function get($filePath);
 
     /**
      * Get the fixed files array
@@ -62,9 +42,9 @@ interface UploadedFilesInterface
      * objects. File Objects must implement the
      * Psr\Http\Message\UploadedFileInterface.
      *
-     * @return array[Psr\Http\Message\UploadedFileInterface]
+     * @return array an array containing instances of Psr\Http\Message\UploadedFileInterface
      */
-    public function all($flat = false);
+    public function all();
 
     /**
      * Get the raw files input array.
