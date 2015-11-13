@@ -40,10 +40,10 @@ class EventTest extends \PHPUnit_Framework_TestCase
     public function aNameShouldBeSettable()
     {
         $event = $this->newEvent();
-        $this->assertNull($event->getName());
+        $this->assertInstanceOf('Lucid\Signal\EventName', $event->getName());
 
         $event->setName('event');
-        $this->assertSame('event', $event->getName());
+        $this->assertSame('event', (string)$event->getName());
     }
 
     protected function newEvent()

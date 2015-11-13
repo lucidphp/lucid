@@ -22,15 +22,17 @@ use Lucid\Signal\ChainedEvent;
  */
 class ChainedEventTest extends EventTest
 {
-
     /** @test */
     public function aDispatcherShouldBeSettable()
     {
         $event = $this->newEvent();
 
-        $event->setDispatcher($d = $this->getMock('Lucid\Signal\EventDispatcherInterface'));
+        $d = $this->getMockBuilder('Lucid\Signal\EventDispatcherInterface')
+            ->disableOriginalConstructor()
+            ->getMock();
+        $event->setDispatcher($d);
 
-        $this->assertSame($d, $event->getDispatcher());
+        $this->assertTrue($d === $event->getDispatcher());
     }
 
     protected function newEvent()

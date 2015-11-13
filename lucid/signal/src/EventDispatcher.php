@@ -20,32 +20,16 @@ namespace Lucid\Signal;
  */
 class EventDispatcher implements EventDispatcherInterface
 {
-    /**
-     * Sorted events.
-     *
-     * string => bool
-     * @var array
-     */
-    private $sorted = [];
-
-    /**
-     * Event Handlers
-     *
-     * string => [int => string]
-     * @var array
-     */
+    /** @var array */
     private $handlers = [];
 
     /**
      * {@inheritdoc}
      */
-    public function addHandler($events, $handler, $priority = self::PRIORITY_NORMAL)
+    public function addHandler($events, $handler, $priority = PriorityInterface::PRIORITY_NORMAL)
     {
-        list ($handler, $hash) = $this->getHandlerAndHash($handler);
-
         foreach ((array)$events as $event) {
-            unset($this->sorted[$event]);
-            $this->handlers[$event][$priority][$hash] = $handler;
+            $this->getHandlerQueue($event)->add($this->getHandler($handler), $priority);
         }
     }
 
@@ -54,28 +38,11 @@ class EventDispatcher implements EventDispatcherInterface
      */
     public function removeHandler($events, $handler = null)
     {
-        $events = (array)$events;
-
-        if (null !== $handler) {
-            list ($handler, $hash) = $this->getHandlerAndHash($handler);
-        } else {
-            $hash = null;
-        }
-
         foreach ((array)$events as $event) {
-            if (!$this->hasEvent($event)) {
-                continue;
-            }
-
-            if (null === $hash) {
+            if (null === $handler) {
                 unset($this->handlers[$event]);
-                continue;
-            }
-
-            foreach ($this->handlers[$event] as &$prio) {
-                if (isset($prio[$hash])) {
-                    unset($prio[$hash]);
-                }
+            } elseif ($this->hasEvent($event)) {
+                $this->getHandlerQueue($event)->remove($this->getHandler($handler));
             }
         }
     }
@@ -152,17 +119,14 @@ class EventDispatcher implements EventDispatcherInterface
                 continue;
             }
 
-            $this->sort($name, $this->handlers);
             $event->setName($name);
 
-            foreach ($this->handlers[$name] as &$handlers) {
-                foreach ($handlers as $hash => &$handler) {
-                    if ($event->isStopped()) {
-                        break;
-                    }
-
-                    call_user_func($handler, $event);
+            foreach ($this->handlers[$name]->flush() as $handler) {
+                if ($event->isStopped()) {
+                    break;
                 }
+
+                call_user_func($handler, $event);
             }
         }
     }
@@ -172,11 +136,21 @@ class EventDispatcher implements EventDispatcherInterface
      */
     public function getHandlers($events = null)
     {
+        $handlers = [];
+
         if (null === $events) {
-            return $this->pullHandlers($this->handlers);
+            foreach ($this->handlers as $event => $queue) {
+                $handlers = array_merge($handlers, $queue->toArray());
+            }
         }
 
-        return $this->pullHandlers(array_intersect_key($this->handlers, array_flip(((array)$events))));
+        foreach ((array)$events as $event) {
+            if ($this->hasEvent($event)) {
+                $handlers = array_merge($handlers, $this->handlers[$event]->toArray());
+            }
+        }
+
+        return $handlers;
     }
 
     /**
@@ -188,73 +162,58 @@ class EventDispatcher implements EventDispatcherInterface
     }
 
     /**
-     * pullHandlers
+     * getHandler
      *
-     * @param array $handlers
-     *
-     * @return array
-     */
-    private function pullHandlers(array $handlers)
-    {
-        $out = [];
-
-        foreach ($handlers as $event => &$pri) {
-            $this->sort($event, $handlers);
-            foreach ($pri as $i => $handler) {
-                foreach ($handler as $hash => $callable) {
-                    $out[$hash] = $callable;
-                }
-            }
-        }
-
-        return array_values($out);
-    }
-
-    /**
-     * sort
-     *
-     * @param mixed $event
-     * @param array $handlers
-     *
-     * @return void
-     */
-    private function sort($event, array &$handlers)
-    {
-        if (!isset($this->sorted[$event])) {
-            krsort($handlers[$event]);
-            $this->sorted[$event] = true;
-        }
-    }
-
-    /**
-     * getHandlerAndHash
-     *
-     * @param mixed $handler
-     *
+     * @param  $handler
      * @throws \InvalidArgumentException
      *
-     * @return string
+     * @return callable
      */
-    private function getHandlerAndHash($handler)
+    protected function getHandler($handler)
     {
         if ($handler instanceof HandlerInterface) {
-            $handler = [$handler, 'handleEvent'];
+            return [$handler, 'handleEvent'];
         }
 
         if (is_callable($handler)) {
-            if (is_string($handler)) {
-                return [$handler, $handler];
-            }
-
-            if (is_array($handler)) {
-                return [$handler, spl_object_hash($handler[0]).'@'.$handler[1], $handler];
-            }
-
-            return [$handler, spl_object_hash($handler)];
+            return $handler;
         }
 
         throw new \InvalidArgumentException(
             sprintf('Invalid handler "%s".', is_string($handler) ? $handler : gettype($handler))
         );
+    }
+
+    /**
+     * resolveHandler
+     *
+     * @param mixed $handler
+     * @throws \RuntimeException
+     *
+     * @return void
+     */
+    protected function resolveHandler($handler)
+    {
+        if (is_callable($handler)) {
+            return $handler;
+        }
+
+        throw new \RuntimeException(sprintf('Handler is not resolveable.'));
+    }
+
+    /**
+     * getHandlerQueue
+     *
+     * @param mixed $event
+     *
+     * @return PriorityInterface
+     */
+    private function getHandlerQueue($event)
+    {
+        if (!isset($this->handlers[$event])) {
+            $this->handlers[$event] = new Priority;
+        }
+
+        return $this->handlers[$event];
     }
 }

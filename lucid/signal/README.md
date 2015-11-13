@@ -10,28 +10,10 @@
 
 ## Installation
 
-Require `lucid/event` in your `composer.json` file.
-
-```json
-{
-    "require": {
-        "lucid/event":"dev-master"
-    }
-}
-```
-
-Then run
+You may install `lucid/signal` with composer.
 
 ```bash
-
-$ composer install
-```
-
-or
-
-```bash
-
-$ composer update
+$ composer require lucid/signal
 ```
 
 ## Usage
@@ -39,8 +21,8 @@ $ composer update
 ```php
 <?php
 
-use Lucid\Event\EventInterface;
-use Lucid\Event\EventDispatcher;
+use Lucid\Signal\EventInterface;
+use Lucid\Signal\EventDispatcher;
 
 $dispatcher = new EventDispatcher;
 
@@ -59,9 +41,9 @@ Using handlers the implement the `HandlerInterface` will automatically call the 
 ```php
 <?php
 
-use Lucid\Event\EventInterface;
-use Lucid\Event\HandlerInterface;
-use Lucid\Event\EventDispatcher;
+use Lucid\Signal\EventInterface;
+use Lucid\Signal\HandlerInterface;
+use Lucid\Signal\EventDispatcher;
 
 class MyHandler implements HandlerInterface
 {
@@ -101,7 +83,7 @@ extending the `Event` base class.
 
 namespace Acme\Message;
 
-use Lucid\Event\Event;
+use Lucid\Signal\Event;
 
 class SysMessage extends Event
 {

@@ -18,30 +18,123 @@ namespace Lucid\Signal;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-class Priority
+class Priority implements PriorityInterface
 {
+    /** @var bool */
+    private $sorted;
+
+    /** @var array */
+    private $handlers;
+
+    /** @var array */
+    private $lut;
+
+    /**
+     * Constructor.
+     */
+    public function __construct()
+    {
+        $this->handlers = [];
+        $this->lut      = [];
+        $this->sorted   = true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function add($handler, $priority)
     {
-        $this->stach[$priority][] = $handler;
-        $this->lut[$this->getHandlerString($handler)] = [$priority];
+        $this->sorted = false;
+        $this->handlers[$priority][] = $handler;
+        $this->lut[$this->getHandlerString($handler)][] = $priority;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function remove($handler)
     {
-        $str = $this->getHandlerString
-        if ($this->has($handler)) {
+        $str = $this->getHandlerString($handler);
+
+        if (!isset($this->lut[$str])) {
+            return false;
         }
 
+        // remove handler from lut and handlers array
+        foreach ($this->lut[$str] as $i => $prio) {
+            unset($this->handlers[$prio]);
+            unset($this->lut[$str][$i]);
+        }
+
+        return true;
     }
 
-    private function getHandlerString()
+    /**
+     * {@inheritdoc}
+     */
+    public function flush()
+    {
+        $this->sort();
+
+        foreach ($this->handlers as $handlers) {
+            foreach ($handlers as $handler) {
+                yield $handler;
+            }
+        }
+    }
+
+    /**
+     * toArray
+     *
+     * @return array
+     */
+    public function toArray()
+    {
+        $handlers = [];
+
+        foreach ($this->flush() as $handler) {
+            $handlers[] = $handler;
+        }
+
+        return $handlers;
+    }
+
+    /**
+     * getHandlerString
+     *
+     * @param mixed $handler
+     * @throws \RuntimeException
+     *
+     * @return string
+     */
+    private function getHandlerString($handler)
     {
         if (is_string($handler)) {
             return $handler;
         }
 
-        if (is_object($handler)) {
+        if (is_object($handler) || $handler instanceof \Closure) {
             return spl_object_hash($handler);
         }
+
+        if (is_callable($handler) && is_array($handler)) {
+            return $this->getHandlerString($handler[0]) . '@' . $handler[1];
+        }
+
+        throw new \RuntimeException('Can\'t convert handler to string.');
+    }
+
+    /**
+     * sort
+     *
+     * @return void
+     */
+    private function sort()
+    {
+        if ($this->sorted) {
+            return;
+        }
+
+        krsort($this->handlers);
     }
 }

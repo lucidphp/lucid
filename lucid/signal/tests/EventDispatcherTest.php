@@ -24,48 +24,84 @@ use Lucid\Signal\Tests\Stubs\SimpleSubscriber;
  */
 class EventDispatcherTest extends \PHPUnit_Framework_TestCase
 {
-    protected $ordered;
+    /** @test */
+    public function itShouldAllowInvokableHandlers()
+    {
+        $invoked = false;
+
+        $handler = $this->getMock('InvokableHandler', ['__invoke']);
+        $handler->method('__invoke')->willReturnCallback(function () use (&$invoked) {
+            $invoked = true;
+        });
+
+        $events = new EventDispatcher;
+        $events->addHandler('event', $handler);
+
+        $events->dispatch('event');
+
+        $this->assertTrue($invoked);
+    }
 
     /** @test */
     public function itShouldAddHandlers()
     {
+        $handle = false;
         $events = new EventDispatcher;
 
-        $events->addHandler('event', [$this, 'fakeHandlerA']);
+        $events->addHandler('event', $handler = $this->mockHandler());
+
+        $handler->method('handleEvent')->willReturnCallback(function () use (&$handle) {
+            $handle = true;
+        });
 
         $events->dispatch('event');
 
-        $this->assertSame(['A'], $this->ordered);
+        $this->assertTrue($handle);
     }
 
     /** @test */
-    public function itShouldExecuteInOrder()
+    public function itShouldDispatchEventHandlersInOrder()
     {
-
+        $order = [];
         $events = new EventDispatcher;
 
-        $events->addHandler('event', [$this, 'fakeHandlerA'], 1);
-        $events->addHandler('event', [$this, 'fakeHandlerB'], 10);
-        $events->addHandler('event', [$this, 'fakeHandlerC'], 0);
+        $events->addHandler('event', $handlerA = $this->mockHandler(), 1);
+        $events->addHandler('event', $handlerB = $this->mockHandler(), 10);
+        $events->addHandler('event', $handlerC = $this->mockHandler(), 0);
+
+        $handlerA->method('handleEvent')->willReturnCallback(function () use (&$order) {
+            $order[] = 'A';
+        });
+        $handlerB->method('handleEvent')->willReturnCallback(function () use (&$order) {
+            $order[] = 'B';
+        });
+        $handlerC->method('handleEvent')->willReturnCallback(function () use (&$order) {
+            $order[] = 'C';
+        });
 
         $events->dispatch('event');
 
-        $this->assertSame(['B', 'A', 'C'], $this->ordered);
+        $this->assertSame(['B', 'A', 'C'], $order);
 
     }
 
     /** @test */
     public function itShouldDispatchEvents()
     {
-        $event = new Event;
-        $event->setName('my_event');
+        $event = new Event('my_event');
 
+        $event->setName('my_event');
         $events = new EventDispatcher;
-        $events->addHandler('my_event', [$this, 'fakeHandlerA'], 1);
+        $events->addHandler('my_event', $handler = $this->mockHandler(), 1);
+
+        $invoked = false;
+        $handler->method('handleEvent')->willReturnCallback(function () use (&$invoked) {
+            $invoked = true;
+        });
 
         $events->dispatchEvents([$event]);
 
-        $this->assertSame(['A'], $this->ordered);
+        $this->assertTrue($invoked);
     }
 
     /** @test */
@@ -73,29 +109,12 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase
     {
         $events = new EventDispatcher;
 
-        $events->addHandler(
-            'event',
-            $a = function () {
-            },
-            1
-        );
+        $events->addHandler('event', $a = $this->mockHandler(), 1);
+        $events->addHandler('event', $b = $this->mockHandler(), 10);
+        $events->addHandler('myevent', $c = $this->mockHandler(), 100);
 
-        $events->addHandler(
-            'event',
-            $b = function () {
-            },
-            10
-        );
-
-        $events->addHandler(
-            'myevent',
-            $c = function () {
-            },
-            100
-        );
-
-        $this->assertSame([$b, $a], $events->getHandlers('event'));
-        $this->assertSame([$a, $b, $c], $events->getHandlers());
+        $this->assertSame([[$b, 'handleEvent'], [$a, 'handleEvent']], $events->getHandlers('event'));
+        $this->assertSame([[$b, 'handleEvent'], [$a, 'handleEvent'], [$c, 'handleEvent']], $events->getHandlers());
     }
 
     /** @test */
@@ -165,41 +184,38 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function itShouldRemoveHandler()
     {
+        $order = [];
         $events = new EventDispatcher;
 
-        $events->addHandler('event', [$this, 'fakeHandlerA'], 1);
-        $events->addHandler('event', [$this, 'fakeHandlerB'], 10);
-        $events->addHandler('event', [$this, 'fakeHandlerC'], 20);
+        $events->addHandler('event', $handlerA = $this->mockHandler(), 1);
+        $events->addHandler('event', $handlerB = $this->mockHandler(), 10);
+        $events->addHandler('event', $handlerC = $this->mockHandler(), 20);
 
-        $events->removeHandler('event', [$this, 'fakeHandlerA']);
+        $handlerA->method('handleEvent')->willReturnCallback(function () use (&$order) {
+            $order[] = 'A';
+        });
+        $handlerB->method('handleEvent')->willReturnCallback(function () use (&$order) {
+            $order[] = 'B';
+        });
+        $handlerC->method('handleEvent')->willReturnCallback(function () use (&$order) {
+            $order[] = 'C';
+        });
+
+        $events->removeHandler('event', $handlerA);
 
         $events->dispatch('event');
 
-        $this->assertSame(['C', 'B'], $this->ordered);
+        $this->assertSame(['C', 'B'], $order);
 
-        $this->ordered = [];
+        $order = [];
         $events->removeHandler('event');
         $events->dispatch('event');
-        $this->assertSame([], $this->ordered);
+
+        $this->assertSame([], $order);
     }
 
-    public function fakeHandlerA()
+    private function mockHandler()
     {
-        $this->ordered[] = 'A';
-    }
-
-    public function fakeHandlerB()
-    {
-        $this->ordered[] = 'B';
-    }
-
-    public function fakeHandlerC()
-    {
-        $this->ordered[] = 'C';
-    }
-
-    protected function setUp()
-    {
-        $this->ordered = [];
+        return $this->getMockbuilder('Lucid\Signal\HandlerInterface')->disableOriginalConstructor()->getMock();
     }
 }

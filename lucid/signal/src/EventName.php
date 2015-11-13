@@ -48,6 +48,14 @@ class EventName
             return $name;
         }
 
+        foreach (['getName', 'getOriginalName'] as $fn) {
+            $name = call_user_func([$this->event, $fn]);
+
+            if (null !== $name && $name !== $this) {
+                return (string)$name;
+            }
+        }
+
         return $this->name = $this->parseEventName();
     }
 

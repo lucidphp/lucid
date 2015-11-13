@@ -46,7 +46,14 @@ interface EventInterface
     /**
      * Get the event name
      *
-     * @return \Lucid\Signal\EventName
+     * @return EventName
      */
     public function getName();
+
+    /**
+     * Get the event name
+     *
+     * @return EventName
+     */
+    public function getOriginalName();
 }

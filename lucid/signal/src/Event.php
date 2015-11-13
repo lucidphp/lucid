@@ -21,10 +21,18 @@ namespace Lucid\Signal;
 class Event implements EventInterface
 {
     /** @var EventName */
+    private $originalName;
+
+    /** @var EventName */
     private $name;
 
     /** @var bool */
     private $isStopped = false;
+
+    public function __construct($name = null)
+    {
+        $this->originalName = $name ?: new EventName($this);
+    }
 
     /**
      * {@inheritdoc}
@@ -55,7 +63,7 @@ class Event implements EventInterface
      */
     public function setName($name)
     {
-        $this->name = $name;
+        $this->name = new EventName($this, $name);
     }
 
     /**
@@ -63,6 +71,14 @@ class Event implements EventInterface
      */
     public function getName()
     {
-        return $this->name;
+        return $this->name ?: $this->originalName;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOriginalName()
+    {
+        return $this->originalName;
     }
 }

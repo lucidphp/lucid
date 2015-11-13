@@ -20,12 +20,13 @@ namespace Lucid\Signal;
  */
 class ChainedEvent extends Event implements ChainedEventInterface
 {
+    /** @var EventDispatcherInterface */
     private $dispatcher;
 
     /**
      * {@inheritdoc}
      */
-    public function setDispatcher(EventDispatcherInterface $dispatcher)
+    final public function setDispatcher(EventDispatcherInterface $dispatcher)
     {
         $this->dispatcher = $dispatcher;
     }
@@ -33,7 +34,7 @@ class ChainedEvent extends Event implements ChainedEventInterface
     /**
      * {@inheritdoc}
      */
-    public function getDispatcher()
+    final public function getDispatcher()
     {
         return $this->dispatcher;
     }

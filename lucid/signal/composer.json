@@ -1,22 +1,30 @@
 {
-  "name": "lucid/event",
-  "description": "Event Dispatcher Library",
-  "require-dev": {
-    "phpunit/phpunit": "4.4.*",
-    "satooshi/php-coveralls": "dev-master"
-  },
+  "name": "lucid/signal",
   "license": "MIT",
+  "description": "Event Dispatcher Library",
+  "keywords": ["events", "eventing"],
   "authors": [
     {
       "name": "iwyg",
       "email": "mail@thomas-appel.com"
     }
   ],
+  "require-dev": {
+    "phpunit/phpunit": "5.2.*@dev",
+    "container-interop/container-interop": "~1.1.0"
+  },
   "autoload": {
     "psr-4": {
-      "Lucid\\Module\\Event\\":""
+      "Lucid\\Signal\\":"src/"
     }
   },
+  "autoload-dev": {
+    "psr-4": {
+      "Lucid\\Signal\\Tests\\":"tests/"
+    }
+  },
+  "suggest": {
+    "container-interop/container-interop": "For using the ContainerAwareEventDispatcher goodness."
+  },
   "minimum-stability": "dev",
-  "require": {}
 }
