@@ -30,11 +30,12 @@ class EventName
      * Construct.
      *
      * @param EventInterface $event
+     * @name string $name
      */
     public function __construct(EventInterface $event, $name = null)
     {
-        $this->name = $name;
         $this->event = $event;
+        $this->name  = $name;
     }
 
     /**
@@ -44,15 +45,13 @@ class EventName
      */
     public function getName()
     {
-        if (null !== ($name = $this->name)) {
-            return $name;
+        if (null !== $this->name) {
+            return $this->name;
         }
 
         foreach (['getName', 'getOriginalName'] as $fn) {
-            $name = call_user_func([$this->event, $fn]);
-
-            if (null !== $name && $name !== $this) {
-                return (string)$name;
+            if (null !== ($name = call_user_func([$this->event, $fn])) && $name !== $this) {
+                return $name;
             }
         }
 
@@ -64,7 +63,7 @@ class EventName
      */
     public function __toString()
     {
-        return $this->getName();
+        return (string)$this->getName();
     }
 
     /**

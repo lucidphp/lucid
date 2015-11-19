@@ -31,7 +31,7 @@ class Event implements EventInterface
 
     public function __construct($name = null)
     {
-        $this->originalName = $name ?: new EventName($this);
+        $this->originalName = new EventName($this, $name);
     }
 
     /**

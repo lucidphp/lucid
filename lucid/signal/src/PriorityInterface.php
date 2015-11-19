@@ -58,7 +58,8 @@ interface PriorityInterface
     public function remove($handler);
 
     /**
-     * Flushes handlers all hadlers by priority
+     * Flushes handlers all handlers by priority
+     * by returning an Iterator.
      *
      * @return \Iterator
      */

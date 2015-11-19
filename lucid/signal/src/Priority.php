@@ -11,6 +11,8 @@
 
 namespace Lucid\Signal;
 
+use RuntimeException;
+
 /**
  * @class Priority
  *
@@ -103,7 +105,7 @@ class Priority implements PriorityInterface
      * getHandlerString
      *
      * @param mixed $handler
-     * @throws \RuntimeException
+     * @throws RuntimeException
      *
      * @return string
      */
@@ -121,7 +123,7 @@ class Priority implements PriorityInterface
             return $this->getHandlerString($handler[0]) . '@' . $handler[1];
         }
 
-        throw new \RuntimeException('Can\'t convert handler to string.');
+        throw new RuntimeException('Can\'t convert handler to string.');
     }
 
     /**

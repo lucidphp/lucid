@@ -1,11 +1,13 @@
 # Event Dispatcher Library
 
 [![Author](http://img.shields.io/badge/author-iwyg-blue.svg?style=flat-square)](https://github.com/iwyg)
-[![Source Code](http://img.shields.io/badge/source-lucid/event-blue.svg?style=flat-square)](https://github.com/iwyg/event/tree/master)
+[![Source Code](http://img.shields.io/badge/source-lucid/signal-blue.svg?style=flat-square)](https://github.com/lucidphp/signal/tree/develop)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](https://github.com/iwyg/jitimage/blob/develop/LICENSE.md)  
 
 [![Build Status](https://img.shields.io/travis/iwyg/event/master.svg?style=flat-square)](https://travis-ci.org/iwyg/event)
+<!--
 [![Code Coverage](https://img.shields.io/coveralls/iwyg/event/master.svg?style=flat-square)](https://coveralls.io/r/iwyg/event)
+-->
 [![HHVM](https://img.shields.io/hhvm/lucid/event/master.svg?style=flat-square)](http://hhvm.h4cc.de/package/lucid/event)
 
 ## Installation

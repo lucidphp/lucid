@@ -11,6 +11,8 @@
 
 namespace Lucid\Signal;
 
+use RuntimeException;
+
 /**
  * @class EventDispatcher
  *
@@ -188,7 +190,7 @@ class EventDispatcher implements EventDispatcherInterface
      * resolveHandler
      *
      * @param mixed $handler
-     * @throws \RuntimeException
+     * @throws RuntimeException
      *
      * @return void
      */
@@ -198,7 +200,7 @@ class EventDispatcher implements EventDispatcherInterface
             return $handler;
         }
 
-        throw new \RuntimeException(sprintf('Handler is not resolveable.'));
+        throw new RuntimeException(sprintf('Handler is not resolveable.'));
     }
 
     /**

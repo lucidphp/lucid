@@ -21,24 +21,6 @@ namespace Lucid\Signal;
 interface EventDispatcherInterface
 {
     /**
-     * Default priority level.
-     * @var int
-     */
-    const PRIORITY_NORMAL = 0;
-
-    /**
-     * High priority level.
-     * @var int
-     */
-    const PRIORITY_HIGH = 1000;
-
-    /**
-     * Low priority level.
-     * @var int
-     */
-    const PRIORITY_LOW = -1000;
-
-    /**
      * Register a handler for one or more events.
      *
      * @param mixed $events event names.
@@ -47,7 +29,7 @@ interface EventDispatcherInterface
      *
      * @return void
      */
-    public function addHandler($events, $handler, $priority = self::PRIORITY_NORMAL);
+    public function addHandler($events, $handler, $priority = PriorityInterface::PRIORITY_NORMAL);
 
     /**
      * Remove one or all handers for given events
