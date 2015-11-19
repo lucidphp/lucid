@@ -22,31 +22,14 @@ namespace Lucid\Writer\Object;
  */
 class ImportResolver
 {
-    /**
-     * aliases
-     *
-     * @var array
-     */
-    private $aliases;
+    /** @var array */
+    private $aliases = [];
+
+    /** @var array */
+    private $imports = [];
 
     /**
-     * imports
-     *
-     * @var array
-     */
-    private $imports;
-
-    /**
-     * Constructor.
-     */
-    public function __construct()
-    {
-        $this->aliases = [];
-        $this->imports = [];
-    }
-
-    /**
-     * add
+     * Adds an import.
      *
      * @param string $import
      *
@@ -70,7 +53,7 @@ class ImportResolver
     }
 
     /**
-     * getAlias
+     * Returns an alias for an import.
      *
      * @param string $import
      *
@@ -92,11 +75,11 @@ class ImportResolver
     }
 
     /**
-     * Does the alias exitst?
+     * Checks if the alias exitsts?
      *
      * @param string $import
      *
-     * @return boolean
+     * @return bool
      */
     public function hasAlias($import)
     {
@@ -222,7 +205,6 @@ class ImportResolver
 
         return [$import, null];
     }
-
 
     /**
      * pad

@@ -20,8 +20,18 @@ namespace Lucid\Writer;
  */
 interface GeneratorInterface
 {
+    /** @var bool */
     const RV_STRING = false;
+
+    /** @var bool */
     const RV_WRITER = true;
 
+    /**
+     * generate
+     *
+     * @param bool $raw
+     *
+     * @return string|WriterInterface
+     */
     public function generate($raw = self::RV_STRING);
 }

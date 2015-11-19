@@ -20,15 +20,11 @@ namespace Lucid\Writer\Object;
  */
 trait ImportHelper
 {
-    /**
-     * importResolver
-     *
-     * @var ImportResolver
-     */
+    /** @var ImportResolver */
     private $importResolver;
 
     /**
-     * getImportResolver
+     * Returns the ImportResolver instance.
      *
      * @return ImportResolver
      */
@@ -42,10 +38,10 @@ trait ImportHelper
     }
 
     /**
-     * addToImportPool
+     * Adds an import to a given pool.
      *
-     * @param array $pool
-     * @param string $string
+     * @param array $pool the pool passed by reference.
+     * @param string $string the import name.
      *
      * @return void
      */

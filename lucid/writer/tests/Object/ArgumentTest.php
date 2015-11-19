@@ -13,10 +13,8 @@ namespace Lucid\Writer\Tests\Object;
 
 use Lucid\Writer\Object\Argument;
 
-
 /**
  * @class ArgumentTest
- * @see \PHPUnit_Framework_TestCase
  *
  * @package Lucid\Writer
  * @version $Id$
@@ -57,6 +55,26 @@ class ArgumentTest extends \PHPUnit_Framework_TestCase
     {
         $arg = new Argument('foo');
         $this->assertSame('$foo', (string)$arg);
+    }
+
+    /** @test */
+    public function itShouldHandleVariadicArguments()
+    {
+        $arg = new Argument('args');
+        $arg->isVariadic(true);
+
+        $this->assertSame('...$args', (string)$arg);
+    }
+
+    /** @test */
+    public function variadicArgsCantBeReferenced()
+    {
+        $arg = new Argument('args');
+
+        $arg->isReference(true);
+        $arg->isVariadic(true);
+
+        $this->assertSame('...$args', (string)$arg);
     }
 
     /** @test */

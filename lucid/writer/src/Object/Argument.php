@@ -27,41 +27,23 @@ class Argument implements GeneratorInterface
 {
     use Stringable;
 
-    /**
-     * name
-     *
-     * @var string
-     */
+    /** @var string */
     private $name;
 
-    /**
-     * type
-     *
-     * @var string
-     */
+    /** @var string */
     private $type;
 
-    /**
-     * default
-     *
-     * @var string
-     */
+    /** @var string */
     private $default;
 
-    /**
-     * isReference
-     *
-     * @var mixed
-     */
+    /** @var bool */
     private $isReference;
 
-    /**
-     * primitives
-     *
-     * @var array
-     */
+    /** @var bool */
+    private $isVariadic;
+
+    /** @var array */
     private static $primitives = [
-        'void',
         'bool',
         'boolean',
         'int',
@@ -71,7 +53,12 @@ class Argument implements GeneratorInterface
         'string',
         'object',
         'mixed',
-        'null'
+    ];
+
+    private static $silent = [
+        'null',
+        'void',
+        'variadic'
     ];
 
     /**
@@ -83,9 +70,9 @@ class Argument implements GeneratorInterface
      */
     public function __construct($name, $type = null, $default = null, $isRef = false)
     {
-        $this->name = $name;
-        $this->type = $type;
-        $this->default = $default;
+        $this->name        = $name;
+        $this->type        = $type;
+        $this->default     = $default;
         $this->isReference = $isRef;
     }
 
@@ -120,7 +107,7 @@ class Argument implements GeneratorInterface
     }
 
     /**
-     * Set or unset the default value
+     * Sets or unsets the default value.
      *
      * @return void
      */
@@ -130,9 +117,9 @@ class Argument implements GeneratorInterface
     }
 
     /**
-     * isReference
+     * Sets the `isReference` property to true or false.
      *
-     * @param mixed $ref
+     * @param bool $ref
      *
      * @return void
      */
@@ -142,14 +129,26 @@ class Argument implements GeneratorInterface
     }
 
     /**
+     * Sets the `isVariadic` property to true or false.
+     *
+     * @param bool $variadic
+     *
+     * @return void
+     */
+    public function isVariadic($variadic)
+    {
+        $this->isVariadic = (bool)$variadic;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function generate($raw = false)
     {
         $writer = new Writer;
-        $prefix = $this->isReference ? '&' : '';
+        $prefix = $this->isVariadic ? '...' : ($this->isReference ? '&' : '');
 
-        $type = null === $this->type || in_array($this->type, static::$primitives) ? '' : $this->type . ' ';
+        $type = null === $this->type || in_array($this->type, array_merge(self::$silent, self::$primitives)) ? '' : $this->type . ' ';
 
         if (null !== $this->default) {
             $line = sprintf('%s%s$%s = %s', $type, $prefix, $this->name, $this->default);

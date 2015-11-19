@@ -11,8 +11,8 @@
 
 namespace Lucid\Writer\Object;
 
+use LogicException;
 use Lucid\Writer\Writer;
-
 
 /**
  * @class InterfaceMethod
@@ -53,22 +53,22 @@ class InterfaceMethod extends Method
     /**
      * {@inheritdoc}
      *
-     * @throws \LogicException every time it is called.
+     * @throws LogicException every time it is called.
      */
     public function setAbstract($abstract)
     {
         if ((bool)$abstract) {
-            throw new \LogicException('Cannot set interface method abstract.');
+            throw new LogicException('Cannot set interface method abstract.');
         }
     }
 
     /**
      * {@inheritdoc}
      *
-     * @throws \LogicException every time it is called.
+     * @throws LogicException every time it is called.
      */
     public function setBody($body)
     {
-        throw new \LogicException('Cannot set a method body on an interface method.');
+        throw new LogicException('Cannot set a method body on an interface method.');
     }
 }

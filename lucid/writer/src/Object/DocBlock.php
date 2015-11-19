@@ -11,8 +11,9 @@
 
 namespace Lucid\Writer\Object;
 
-use Lucid\Writer\Writer;
 use Lucid\Writer\Stringable;
+use Lucid\Writer\Writer;
+use Lucid\Writer\WriterInterface;
 use Lucid\Writer\GeneratorInterface;
 
 /**
@@ -27,42 +28,24 @@ class DocBlock implements GeneratorInterface
 {
     use Stringable;
 
+    /** @var int */
     const DESC_SHORT = 234;
 
+    /** @var int */
     const DESC_LONG = 235;
 
-    /**
-     * description
-     *
-     * @var array
-     */
-    private $description;
+    /** @var array */
+    private $description = [];
 
-    /**
-     * annotations
-     *
-     * @var array
-     */
-    private $annotations;
+    /** @var array */
+    private $annotations = [];
 
-    /**
-     * returnAnnotation
-     *
-     * @var string|null
-     */
+    /** @var string|null */
     private $returnAnnotation;
 
-    /**
-     * Constructor.
-     */
-    public function __construct()
-    {
-        $this->description = [];
-        $this->annotations = [];
-    }
 
     /**
-     * setDescription
+     * Sets the short description.
      *
      * @param string $description
      *
@@ -74,9 +57,9 @@ class DocBlock implements GeneratorInterface
     }
 
     /**
-     * hasDescription
+     * Check if a short description is set.
      *
-     * @return boolean
+     * @return bool
      */
     public function hasDescription()
     {
@@ -84,7 +67,7 @@ class DocBlock implements GeneratorInterface
     }
 
     /**
-     * hasLongDescription
+     * Check if the long description is set.
      *
      * @return boolean
      */
@@ -94,7 +77,7 @@ class DocBlock implements GeneratorInterface
     }
 
     /**
-     * setLongDescription
+     * Sets the long description.
      *
      * @param string $description
      *
@@ -106,7 +89,7 @@ class DocBlock implements GeneratorInterface
     }
 
     /**
-     * getDescription
+     * Gets the short description.
      *
      * @return string|null
      */
@@ -116,7 +99,7 @@ class DocBlock implements GeneratorInterface
     }
 
     /**
-     * getLongDescription
+     * Gets the long description.
      *
      * @return string|null
      */
@@ -126,7 +109,7 @@ class DocBlock implements GeneratorInterface
     }
 
     /**
-     * setAnnotations
+     * Sets the annotations.
      *
      * @param array $annotations
      *
@@ -147,7 +130,7 @@ class DocBlock implements GeneratorInterface
     }
 
     /**
-     * addParam
+     * Adds a param annotation.
      *
      * @param string $type
      * @param string $var
@@ -161,7 +144,7 @@ class DocBlock implements GeneratorInterface
     }
 
     /**
-     * addAnnotation
+     * Adds an annotation.
      *
      * @param string $name
      * @param string $description
@@ -174,7 +157,7 @@ class DocBlock implements GeneratorInterface
     }
 
     /**
-     * unshiftAnnotation
+     * Adds an annotation to the top.
      *
      * @param string $name
      * @param string $description
@@ -189,9 +172,9 @@ class DocBlock implements GeneratorInterface
     }
 
     /**
-     * hasAnnotations
+     * Checks if annotations are set.
      *
-     * @return boolean
+     * @return bool
      */
     public function hasAnnotations()
     {
@@ -199,7 +182,7 @@ class DocBlock implements GeneratorInterface
     }
 
     /**
-     * setReturn
+     * Sets the return annotation.
      *
      * @param string $type
      * @param string $description
@@ -226,9 +209,9 @@ class DocBlock implements GeneratorInterface
     }
 
     /**
-     * isEmpty
+     * Check if the dock block is empty.
      *
-     * @return boolean
+     * @return bool
      */
     public function isEmpty()
     {
@@ -237,37 +220,60 @@ class DocBlock implements GeneratorInterface
     }
 
     /**
-     * openBlock
+     * Returns a copy of this instance.
      *
-     * @param Writer $writer
-     *
-     * @return void
+     * @return DocBlock copy of this instance.
      */
-    protected function openBlock(Writer $writer)
+    public function copy()
+    {
+        $newDoc = new self;
+        if ($this->hasDescription()) {
+            $newDoc->setDescription($this->description[self::DESC_SHORT]);
+        }
+        if ($this->hasLongDescription()) {
+            $newDoc->setLongDescription($this->description[self::DESC_LONG]);
+        }
+
+        foreach ($this->annotations as $annotation) {
+            list ($a, $b) = array_pad((array)$annotation, 2, null);
+            $newDoc->addAnnotation($a, $b);
+        }
+
+        return $newDoc;
+    }
+
+    /**
+     * Writes the opening dockblock line.
+     *
+     * @param WriterInterface $writer
+     *
+     * @return WriterInterface
+     */
+    protected function openBlock(WriterInterface $writer)
     {
         return $writer->writeln('/**');
     }
 
     /**
-     * closeBlock
+     * Writes the closing dockblock line.
      *
-     * @param Writer $writer
+     * @param WriterInterface $writer
      *
-     * @return void
+     * @return WriterInterface
      */
-    protected function closeBlock(Writer $writer)
+    protected function closeBlock(WriterInterface $writer)
     {
         return $writer->writeln(' */');
     }
 
     /**
-     * writeBlock
+     * Writes descriptions and annotations to the Writer instance.
      *
-     * @param Writer $writer
+     * @param WriterInterface $writer
      *
      * @return void
      */
-    protected function writeBlock(Writer $writer)
+    protected function writeBlock(WriterInterface $writer)
     {
         $newline = false;
         $lnbuff = [];
@@ -280,7 +286,6 @@ class DocBlock implements GeneratorInterface
         }
 
         if ($this->hasLongDescription()) {
-
             if ($newline) {
                 $lnbuff[] = '';
             }
@@ -313,7 +318,6 @@ class DocBlock implements GeneratorInterface
         }
 
         if (null !== $this->returnAnnotation) {
-
             if ($newline) {
                 $lnbuff[] = '';
             }
@@ -328,33 +332,15 @@ class DocBlock implements GeneratorInterface
         $this->blockLines($writer, $lnbuff);
     }
 
-    public function copy()
-    {
-        $newDoc = new self;
-        if ($this->hasDescription()) {
-            $newDoc->setDescription($this->description[self::DESC_SHORT]);
-        }
-        if ($this->hasLongDescription()) {
-            $newDoc->setLongDescription($this->description[self::DESC_LONG]);
-        }
-
-        foreach ($this->annotations as $annotation) {
-            list ($a, $b) = array_pad((array)$annotation, 2, null);
-            $newDoc->addAnnotation($a, $b);
-        }
-
-        return $newDoc;
-    }
-
     /**
      * blockLine
      *
-     * @param Writer $writer
+     * @param WriterInterface $writer
      * @param array $lines
      *
      * @return void
      */
-    protected function blockLines(Writer $writer, array $lines)
+    protected function blockLines(WriterInterface $writer, array $lines)
     {
         foreach ($lines as $line) {
             $writer->writeln(' * ' . $line);

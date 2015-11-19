@@ -65,7 +65,6 @@ trait FormatterHelper
         $array = [];
 
         foreach ($params as $param => $value) {
-
             if (is_array($value)) {
                 $value = $this->doExctractParams($value, $indent + 4);
             } elseif (is_string($value) && 0 === strpos($value, '$this')) {

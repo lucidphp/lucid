@@ -11,7 +11,9 @@
 
 namespace Lucid\Writer\Object;
 
-use Lucid\Writer\Writer;
+use BadMethodCallException;
+use InvalidArgumentException;
+use Lucid\Writer\WriterInterface;
 
 /**
  * @class InterfaceWriter
@@ -23,19 +25,11 @@ use Lucid\Writer\Writer;
  */
 class InterfaceWriter extends AbstractWriter
 {
-    /**
-     * constants
-     *
-     * @var array
-     */
-    protected $constants;
-
-    /**
-     * parent
-     *
-     * @var array
-     */
+    /** @var string */
     protected $parent;
+
+    /** @var array */
+    protected $constants;
 
     /**
      * Constructor.
@@ -54,11 +48,21 @@ class InterfaceWriter extends AbstractWriter
     /**
      * {@inheritdoc}
      */
-    protected function getTypeConstant()
+    public function generate($raw = self::RV_STRING)
     {
-        return T_INTERFACE;
+        $this->prepareGenerate();
+
+        return parent::generate($raw);
     }
 
+
+    /**
+     * Sets the interface constants.
+     *
+     * @param array $constants
+     *
+     * @return void
+     */
     public function setConstants(array $constants)
     {
         $this->constants = [];
@@ -69,7 +73,7 @@ class InterfaceWriter extends AbstractWriter
     }
 
     /**
-     * addConstant
+     * Adds an interface constant.
      *
      * @param Constant $const
      *
@@ -81,16 +85,15 @@ class InterfaceWriter extends AbstractWriter
     }
 
     /**
-     * addMethod
+     * @throws InvalidArgumentException if no InterfaceMethod is passed as
+     * argument.
      *
-     * @param MethodInterface $method
-     *
-     * @return void
+     * {@inheritdoc}
      */
     public function addMethod(MethodInterface $method)
     {
         if (!$method instanceof InterfaceMethod) {
-            throw \InvalidArgumentException(
+            throw InvalidArgumentException(
                 sprintf('Method %s must be instance of "InterfaceMethod".', $method->getName())
             );
         }
@@ -99,9 +102,10 @@ class InterfaceWriter extends AbstractWriter
     }
 
     /**
-     * Set the parent Interface.
+     * Sets the parent Interface.
      *
      * @param string $parent
+     * @throws BadMethodCallException if a parent is aleready set.
      *
      * @return void
      */
@@ -111,15 +115,22 @@ class InterfaceWriter extends AbstractWriter
             return;
         }
 
-        if (null === $this->parent) {
-            $this->getImportResolver()->add($parent);
-            $this->parent = $parent;
-
-            return;
+        if (null !== $this->parent) {
+            throw new BadMethodCallException('Cannot set parent Parent. already set.');
         }
 
-        throw new \BadMethodCallException('Cannot set parent Parent. already set.');
+        $this->getImportResolver()->add($parent);
+        $this->parent = $parent;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getTypeConstant()
+    {
+        return T_INTERFACE;
+    }
+
 
     /**
      * prepareGenerate
@@ -152,7 +163,7 @@ class InterfaceWriter extends AbstractWriter
      *
      * @return Writer
      */
-    protected function writeObjectBody(Writer $writer)
+    protected function writeObjectBody(WriterInterface $writer)
     {
         foreach ($this->constants as $constant) {
             $writer->writeln($constant->generate());
@@ -206,20 +217,5 @@ class InterfaceWriter extends AbstractWriter
     protected function getObjectDeclarationExtension()
     {
         return $this->getExtends();
-    }
-
-    /**
-     * generate
-     *
-     * @param mixed $raw
-     *
-     * @access public
-     * @return string|Writer
-     */
-    public function generate($raw = self::RV_STRING)
-    {
-        $this->prepareGenerate();
-
-        return parent::generate($raw);
     }
 }

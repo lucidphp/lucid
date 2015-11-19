@@ -12,19 +12,24 @@
 namespace Lucid\Writer;
 
 /**
- * @class Stringable
+ * @trait Stringable
  * @package Lucid\Writer
  * @version $Id$
  */
 trait Stringable
 {
+    /**
+     * __toString
+     *
+     * @return string
+     */
     public function __toString()
     {
         if ($this instanceof GeneratorInterface) {
             return $this->generate(GeneratorInterface::RV_STRING);
         }
 
-        if ($this instanceof Writer) {
+        if ($this instanceof WriterInterface) {
             return $this->dump();
         }
     }

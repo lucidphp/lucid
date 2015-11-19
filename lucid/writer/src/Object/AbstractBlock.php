@@ -9,6 +9,7 @@
  * that was distributed with this package.
  */
 
+namespace Lucid\Writer\Object;
 
 use Lucid\Writer\Writer;
 use Lucid\Writer\Stringable;

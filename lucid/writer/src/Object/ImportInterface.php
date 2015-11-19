@@ -20,5 +20,12 @@ namespace Lucid\Writer\Object;
  */
 interface ImportInterface
 {
+    /**
+     * Sets the ImportResolver instance.
+     *
+     * @param ImportResolver $resolver
+     *
+     * @return void
+     */
     public function setResolver(ImportResolver $resolver);
 }

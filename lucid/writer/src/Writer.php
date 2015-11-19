@@ -11,6 +11,10 @@
 
 namespace Lucid\Writer;
 
+use Exception;
+use OutOfBoundsException;
+use InvalidArgumentException;
+
 /**
  * This is the base writer that concats lines of strings to a visual block of
  * text.
@@ -21,58 +25,30 @@ namespace Lucid\Writer;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-class Writer
+class Writer implements WriterInterface
 {
     use Stringable;
 
-    /**
-     * ingnoreNull
-     *
-     * @var boolean
-     */
-    protected $ingnoreNull;
+    /** @var bool */
+    private $ingnoreNull;
 
-    /**
-     * indent
-     *
-     * @var int
-     */
-    protected $indent;
+    /** @var bool */
+    private $useTabs;
 
-    /**
-     * indentLevel
-     *
-     * @var int
-     */
-    protected $indentLevel;
+    /** @var bool */
+    private $noTrailingSapce;
 
-    /**
-     * base Indentation
-     *
-     * @var int
-     */
-    protected $outputIndentation;
+    /** @var int */
+    private $indent;
 
-    /**
-     * Line buffer
-     *
-     * @var array
-     */
-    protected $lnbuff;
+    /** @var int */
+    private $indentLevel;
 
-    /**
-     * useTabs
-     *
-     * @var boolean
-     */
-    protected $useTabs;
+    /** @var int */
+    private $outputIndentation;
 
-    /**
-     * noTrailingSapce
-     *
-     * @var boolean
-     */
-    protected $noTrailingSapce;
+    /** @var array */
+    private $lnbuff;
 
     /**
      * Constructor.
@@ -82,14 +58,14 @@ class Writer
      */
     public function __construct($indentLevel = 4, $ignoreNull = false)
     {
-        $this->lnbuff = [];
-        $this->indent = 0;
-        $this->indentLevel = $indentLevel;
+        $this->lnbuff            = [];
+        $this->indent            = 0;
+        $this->indentLevel       = $indentLevel;
         $this->outputIndentation = 0;
-        $this->ignoreNull($ignoreNull);
+        $this->useTabs           = false;
+        $this->noTrailingSpace   = true;
 
-        $this->useTabs = false;
-        $this->noTrailingSpace = true;
+        $this->ignoreNull($ignoreNull);
     }
 
     /**
@@ -153,12 +129,7 @@ class Writer
     }
 
     /**
-     * Adds a line to the line stack.
-     *
-     * @param string $str
-     *
-     * @api
-     * @return Writer
+     * {@inheritdoc}
      */
     public function writeln($str = null)
     {
@@ -172,12 +143,7 @@ class Writer
     }
 
     /**
-     * Appends a string to the last line.
-     *
-     * @param string $str
-     *
-     * @api
-     * @return Writer
+     * {@inheritdoc}
      */
     public function appendln($str)
     {
@@ -191,10 +157,7 @@ class Writer
     }
 
     /**
-     * Removes the last line.
-     *
-     * @api
-     * @return writer
+     * {@inheritdoc}
      */
     public function popln()
     {
@@ -204,18 +167,12 @@ class Writer
     }
 
     /**
-     * Replace a line at a given index.
-     *
-     * @param string $line
-     * @param int $index
-     *
-     * @api
-     * @return Writer
+     * {@inheritdoc}
      */
     public function replaceln($str, $index = 0)
     {
         if ($index < 0 || ($index + 1) > count($this->lnbuff)) {
-            throw new \OutOfBoundsException(sprintf('replaceln: undefined index "%s".', $index));
+            throw new OutOfBoundsException(sprintf('replaceln: undefined index "%s".', $index));
         }
 
         $this->addStr($str, $index);
@@ -224,17 +181,12 @@ class Writer
     }
 
     /**
-     * Remove a line by a given index.
-     *
-     * @param int $index
-     *
-     * @api
-     * @return Writer
+     * {@inheritdoc}
      */
     public function removeln($index = 0)
     {
         if ($index < 0 || ($index + 1) > count($this->lnbuff)) {
-            throw new \OutOfBoundsException(sprintf('removeln: undefined index "%s".', $index));
+            throw new OutOfBoundsException(sprintf('removeln: undefined index "%s".', $index));
         }
 
         array_splice($this->lnbuff, $index, 1);
@@ -243,10 +195,7 @@ class Writer
     }
 
     /**
-     * Adds an indentation to the following line.
-     *
-     * @api
-     * @return Writer
+     * {@inheritdoc}
      */
     public function indent()
     {
@@ -256,10 +205,7 @@ class Writer
     }
 
     /**
-     * Removes the previous indentation.
-     *
-     * @api
-     * @return Writer
+     * {@inheritdoc}
      */
     public function outdent()
     {
@@ -270,10 +216,7 @@ class Writer
     }
 
     /**
-     * Inserts a blanc line to the line stack.
-     *
-     * @api
-     * @return Writer
+     * {@inheritdoc}
      */
     public function newline()
     {
@@ -283,10 +226,7 @@ class Writer
     }
 
     /**
-     * Concatenates the line stack into a single string.
-     *
-     * @api
-     * @return string
+     * {@inheritdoc}
      */
     public function dump()
     {
@@ -303,16 +243,15 @@ class Writer
      *
      * @return void
      */
-    protected function addStr($str, $index = null)
+    private function addStr($str, $index = null)
     {
         try {
             $str = (string)$str;
-        } catch (\Exception $e) {
-            throw new \InvalidArgumentException('Input value must be stringable.');
+        } catch (Exception $e) {
+            throw new InvalidArgumentException('Input value must be stringable.');
         }
 
         foreach (explode("\n", (string)$str) as $i => $line) {
-
             if (0 !== strlen($line)) {
                 $this->pushStr($line, $index ? $index + $i : null);
                 continue;
@@ -333,7 +272,7 @@ class Writer
      *
      * @return void
      */
-    protected function pushStr($str, $index = null)
+    private function pushStr($str, $index = null)
     {
         $line = $this->padString($str, $this->indent);
 
@@ -357,7 +296,7 @@ class Writer
      *
      * @return string
      */
-    protected function padString($str, $indent = 0)
+    private function padString($str, $indent = 0)
     {
         if ($indent === 0 || null === $str) {
             return $str;
@@ -373,7 +312,7 @@ class Writer
      *
      * @return string space or tab chars
      */
-    protected function getIndent($indent)
+    private function getIndent($indent)
     {
         if ($this->useTabs) {
             $level = $indent / $this->indentLevel;

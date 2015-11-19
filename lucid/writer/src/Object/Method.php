@@ -27,47 +27,42 @@ class Method extends Annotateable implements MethodInterface
 {
     use Stringable;
 
-    /**
-     * visibility
-     *
-     * @var string
-     */
+    /** @var string */
     private $visibility;
 
-    /**
-     * type
-     *
-     * @var string
-     */
+    /** @var string */
     private $type;
 
-    /**
-     * prefix
-     *
-     * @var string
-     */
+    /** @var string */
     private $prefix;
 
-    /**
-     * name
-     *
-     * @var string
-     */
+    /** @var string */
     private $name;
 
-    /**
-     * body
-     *
-     * @var mixed
-     */
+    /** @var string */
     private $body;
 
-    /**
-     * abstract
-     *
-     * @var boolean
-     */
+    /** @var bool */
     private $abstract;
+
+    /** @var array */
+    private static $magick = [
+        '__clone',
+        '__call',
+        '__callstatic',
+        '__construct',
+        '__destruct',
+        '__invoke',
+        '__tostring',
+        '__get',
+        '__set',
+        '__sleep',
+        '__wakeup',
+        '__debuginfo',
+        '__unset',
+        '__isset',
+        '__set_state',
+    ];
 
     /**
      * Constructor.
@@ -79,24 +74,44 @@ class Method extends Annotateable implements MethodInterface
      */
     public function __construct($name, $visibility = self::IS_PUBLIC, $type = self::T_VOID, $static = false)
     {
-        $this->name = $name;
-        $this->type = $type;
+        $this->name       = $name;
+        $this->type       = $type;
         $this->visibility = $visibility;
-        $this->arguments = [];
+        $this->arguments  = [];
+        $this->abstract   = false;
         $this->setStatic($static);
-        $this->abstract = false;
 
         parent::__construct();
     }
 
     /**
-     * getName
+     * Get tht method name.
      *
      * @return string
      */
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * Check if this method is magick.
+     *
+     * @return bool
+     */
+    public function isMagick()
+    {
+        return in_array(strtolower($this->name), self::$magick);
+    }
+
+    /**
+     * Check if this method is a Constructor/Destructor.
+     *
+     * @return bool
+     */
+    public function isConstructor()
+    {
+        return in_array(strtolower($this->name), ['__constrct', '__destruct']);
     }
 
     /**
@@ -236,10 +251,16 @@ class Method extends Annotateable implements MethodInterface
     {
         $abs = $abstract ? 'abstract ' : '';
 
+        $str = '%s%s%s function %s(%s)';
+
+        if ($this->isPhp7Strict()) {
+            $str .= sprintf(' : %s', $this->type);
+        }
+
         $this->getDoc($writer, false)
             ->writeln(
                 sprintf(
-                    '%s%s%s function %s(%s)',
+                    $str,
                     $abs,
                     $this->visibility,
                     $this->prefix,
@@ -247,6 +268,11 @@ class Method extends Annotateable implements MethodInterface
                     $this->getArguments()
                 )
             );
+    }
+
+    protected function isPhp7Strict()
+    {
+        return false;
     }
 
     /**

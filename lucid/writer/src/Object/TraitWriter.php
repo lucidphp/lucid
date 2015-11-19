@@ -11,7 +11,8 @@
 
 namespace Lucid\Writer\Object;
 
-use Lucid\Writer\Writer;
+use InvalidArgumentException;
+use Lucid\Writer\WriterInterface;
 
 /**
  * @class TraitWriter
@@ -35,7 +36,7 @@ class TraitWriter extends AbstractWriter
     {
         parent::__construct($name, $namespace, T_TRAIT);
 
-        $this->traits = [];
+        $this->traits     = [];
         $this->properties = [];
     }
 
@@ -49,7 +50,7 @@ class TraitWriter extends AbstractWriter
     public function addMethod(MethodInterface $method)
     {
         if ($method instanceof InterfaceMethod) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 sprintf('Trait method %s must not be instance of "InterfaceMethod".', $method->getName())
             );
         }
@@ -70,7 +71,7 @@ class TraitWriter extends AbstractWriter
     /**
      * {@inheritdoc}
      */
-    protected function writeObjectBody(Writer $writer)
+    protected function writeObjectBody(WriterInterface $writer)
     {
         $this->writeTraits($writer, $resolver = $this->getImportResolver());
         $this->writeProperties($writer, $resolver);

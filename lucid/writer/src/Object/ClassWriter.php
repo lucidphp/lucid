@@ -11,11 +11,11 @@
 
 namespace Lucid\Writer\Object;
 
-use Lucid\Writer\Writer;
+use InvalidArgumentException;
+use Lucid\Writer\WriterInterface;
 
 /**
  * @class ClassWriter
- * @see InterfaceWriter
  *
  * @package Lucid\Writer
  * @version $Id$
@@ -25,7 +25,10 @@ class ClassWriter extends InterfaceWriter
 {
     use TraitAwareWriterHelper;
 
+    /** @var bool */
     private $abstract;
+
+    /** @var array */
     private $interfaces;
 
     /**
@@ -37,32 +40,30 @@ class ClassWriter extends InterfaceWriter
      */
     public function __construct($name, $namespace = null, $parent = null)
     {
-        //AbstractWriter::__construct($name, $namespace, T_CLASS);
-
-        //$this->constants = [];
-
-        $this->traits = [];
+        $this->traits     = [];
         $this->interfaces = [];
         $this->properties = [];
-        $this->abstract = false;
+        $this->abstract   = false;
 
         parent::__construct($name, $namespace, $parent);
     }
 
+    /**
+     * Marks the class abstract.
+     *
+     * @param bool $abstract
+     *
+     * @return void
+     */
     public function setAbstract($abstract)
     {
         $this->abstract = (bool)$abstract;
     }
 
-    protected function getTypeConstant()
-    {
-        return T_CLASS;
-    }
-
     /**
-     * addInterface
+     * Adds an interface to the class definition.
      *
-     * @param mixed $interface
+     * @param string $interface
      *
      * @return void
      */
@@ -72,16 +73,12 @@ class ClassWriter extends InterfaceWriter
     }
 
     /**
-     * addMethod
-     *
-     * @param MethodInterface $method
-     *
-     * @return void
+     * {@inheritdoc}
      */
     public function addMethod(MethodInterface $method)
     {
         if ($method instanceof InterfaceMethod) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 sprintf('Class method %s must not be instance of "InterfaceMethod".', $method->getName())
             );
         }
@@ -90,9 +87,7 @@ class ClassWriter extends InterfaceWriter
     }
 
     /**
-     * hasItemsBeforeMethods
-     *
-     * @return boolean
+     * {@inheritdoc}
      */
     protected function hasItemsBeforeMethods()
     {
@@ -100,9 +95,7 @@ class ClassWriter extends InterfaceWriter
     }
 
     /**
-     * getObjectDeclarationExtension
-     *
-     * @return null|string
+     * {@inheritdoc}
      */
     protected function getObjectDeclarationExtension()
     {
@@ -124,7 +117,7 @@ class ClassWriter extends InterfaceWriter
     /**
      * {@inheritdoc}
      */
-    protected function writeObjectBody(Writer $writer)
+    protected function writeObjectBody(WriterInterface $writer)
     {
         $this->writeTraits($writer, $resolver = $this->getImportResolver());
         $this->writeProperties($writer, $resolver);
@@ -138,6 +131,14 @@ class ClassWriter extends InterfaceWriter
     protected function getImports()
     {
         return array_merge($this->uses, $this->interfaces, $this->traits, $this->interfaces);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getTypeConstant()
+    {
+        return T_CLASS;
     }
 
     /**

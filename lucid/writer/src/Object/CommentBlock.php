@@ -23,6 +23,9 @@ use Lucid\Writer\Writer;
  */
 class CommentBlock extends DocBlock
 {
+    /**
+     * {@inheritdoc}
+     */
     protected function openBlock(Writer $writer)
     {
         return $writer->writeln('/*');
