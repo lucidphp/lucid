@@ -1,0 +1,44 @@
+#!/bin/sh
+
+set -e
+
+# clean up subsplit files
+cleanUp() {
+	rm -rf ./.subsplit
+}
+
+# abort if error and clean up subsplit files
+abortIf() {
+	if [ $1 != 0 ]; then
+		cleanUp
+		echo $2
+		exit $1
+	fi
+	return 0
+}
+
+GIT=`which git`
+SUBSPLIT=`$GIT subsplit init git@github.com:lucidphp/lucid.git`
+# abort if subsplit init failed
+abortIf $? $SUBSPLIT
+
+BRANCH=`$GIT rev-parse --abbrev-ref HEAD`
+echo "current branch is $BRANCH"
+
+DIRS=`ls -d lucid/*/`
+
+for SUBREPO in $DIRS; do
+	IFS='/' read -r -a PACKAGE <<< "$SUBREPO"
+
+	if [ '' == '${PACKAGE[1]}' ]; then
+	   echo "empty"
+	   continue
+	fi
+	echo "publish ${PACKAGE[1]}"
+
+	RET=`$GIT subsplit publish --no-tags --heads="$BRANCH" $SUBREPO:git@github.com:lucidphp/${PACKAGE[1]}.git`
+	abortIf $? $RET
+done
+
+cleanUp
+exit 0
