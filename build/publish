@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
 set -e
 
@@ -9,7 +9,8 @@ cleanUp() {
 
 # abort if error and clean up subsplit files
 abortIf() {
-	if [ $1 != 0 ]; then
+	if [[ ! "$1" = 0 ]]; then
+        echo "error"
 		cleanUp
 		echo $2
 		exit $1
@@ -27,18 +28,15 @@ echo "current branch is $BRANCH"
 
 DIRS=`ls -d lucid/*/`
 
-for SUBREPO in $DIRS; do
-	IFS='/' read -r -a PACKAGE <<< "$SUBREPO"
+for d in `ls -d lucid/* | xargs`; do
 
-	if [ '' == '${PACKAGE[1]}' ]; then
-	   echo "empty"
-	   continue
-	fi
-	echo "publish ${PACKAGE[1]}"
+    if [[ ! `$GIT ls-files $d/composer.json --error-unmatch >&?; echo $?` = 0 ]]; then
+        continue
+    fi
 
-	RET=`$GIT subsplit publish --no-tags --heads="$BRANCH" $SUBREPO:git@github.com:lucidphp/${PACKAGE[1]}.git`
-	abortIf $? $RET
+    name=`basename $d`
+	RET=`$GIT subsplit publish --no-tags --heads="$BRANCH" "$d":git@github.com:lucidphp/"$name".git`
+    abortIf $? $RET
 done
-
 cleanUp
 exit 0
