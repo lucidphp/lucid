@@ -23,25 +23,32 @@ use Serializable;
 interface ResourceInterface extends Serializable
 {
     /**
-     * getResource
+     * Gets the resource path.
      *
      * @return string
      */
     public function getResource();
 
     /**
-     * isLocal
+     * Check if the resource is local.
      *
      * @return bool
      */
     public function isLocal();
 
     /**
-     * isValid
+     * Checks if the resource is still valid.
      *
-     * @param mixed $time
+     * @param int $time timestamp to test against.
      *
      * @return bool
      */
     public function isValid($time);
+
+    /**
+     * Returns the resource path as string.
+     *
+     * @return string
+     */
+    public function __toString();
 }

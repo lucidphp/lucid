@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This File is part of the Lucid\DI\Resolver package
+ * This File is part of the Lucid\DI package
  *
  * (c) iwyg <mail@thomas-appel.com>
  *
@@ -12,28 +12,25 @@
 namespace Lucid\DI\Resolver;
 
 use ReflectionClass;
-use Lucid\DI\ServiceInterface;
-use Lucid\DI\FactoryInterface;
+use Lucid\DI\ContainerInterface;
 use Lucid\Config\ParameterInterface;
 use Lucid\DI\ContainerBuilderInterface;
 use Lucid\DI\Exception\ContainerException;
-use Lucid\DI\Reference\CallerReferenceInterface;
-use Lucid\DI\Reference\ServiceReferenceInterface;
+use Lucid\DI\Definition\ServiceInterface;
+use Lucid\DI\Definition\FactoryInterface;
+use Lucid\DI\Reference\CallerInterface as CallerReferenceInterface;
+use Lucid\DI\Reference\ServiceInterface as ServiceReferenceInterface;
 
 /**
  * @class ReflectionResolver
  *
- * @package Lucid\DI\Resolver
+ * @package Lucid\DI
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
 class ReflectionResolver implements ResolverInterface
 {
-    /**
-     * resolving
-     *
-     * @var array
-     */
+    /** @var array */
     private $resolving = [];
 
     /**
@@ -41,17 +38,23 @@ class ReflectionResolver implements ResolverInterface
      */
     public function resolve($id, ContainerBuilderInterface $container, ParameterInterface $params = null)
     {
-        if (isset($this->resolving[$id])) {
-            throw ContainerException::circularReference($id);
+        $cid = spl_object_hash($container);
+
+        if (isset($this->resolving[$cid][$id])) {
+            throw ResolverException::circularReference($id);
         }
 
         $service = $container->getService($id);
 
         if ($service->isBlueprint() || $service->isInjected()) {
-            throw ContainerException::notInstantiable($id);
+            throw ResolverException::notInstantiable($id);
         }
 
-        $this->resolving[$id] = true;
+        $this->resolving[$cid][$id] = true;
+
+        if ($this->isBoundService($service, $this->getResolvingIds($cid))) {
+            throw ResolverException::boundService($id);
+        }
 
         if ($service instanceof FactoryInterface) {
             $instance = $this->callFactory($id, $service, $container);
@@ -65,7 +68,7 @@ class ReflectionResolver implements ResolverInterface
 
         $this->postResolveService($service, $instance);
 
-        unset($this->resolving[$id]);
+        unset($this->resolving[$cid][$id]);
 
         return $instance;
     }
@@ -73,11 +76,37 @@ class ReflectionResolver implements ResolverInterface
     /**
      * Get a list of all currently resolving service ids.
      *
-     * @return array[string]
+     * @deprecated
+     *
+     * @return string[]
      */
-    public function getResolvingIds()
+    private function getResolvingIds($cid)
     {
-        return array_keys($this->resolving);
+        if (!isset($this->resolving[$cid])) {
+            return [];
+        }
+
+        return array_keys($this->resolving[$cid]);
+    }
+
+
+    /**
+     * Check if the service binding is invalid for the current resolve cicle.
+     *
+     * @param ServiceInterface $service
+     *
+     * @return boolean returns true if this service has bindings and is directly requested,
+     * or the current resolve cicle doesn't allow to access this service. Otherwise, false.
+     *
+     * @return bool
+     */
+    private function isBoundService(ServiceInterface $service, array $ids)
+    {
+        return $service->isBound() &&
+        (
+            empty($ids) ||
+            0 === count($d = array_intersect($service->getBindings(), $ids))
+        );
     }
 
     /**
@@ -96,7 +125,7 @@ class ReflectionResolver implements ResolverInterface
         }
 
         foreach ($service->getCallers() as $caller) {
-            $this->callCaller($caller);
+            $this->callCaller($instance, $caller);
         }
     }
 
@@ -133,7 +162,7 @@ class ReflectionResolver implements ResolverInterface
      *
      * @return array
      */
-    private function resolveArguments(array $arguments, ParameterInterface $params = null)
+    private function resolveArguments($instance, array $arguments, ParameterInterface $params = null)
     {
         $args = [];
 
@@ -155,20 +184,18 @@ class ReflectionResolver implements ResolverInterface
     }
 
     /**
-     * callCaller
-     *
-     * @param CallerReferenceInterface $caller
+     * Executes caller method calls.
      *
      * @return mixed|null
      */
-    private function callCaller(CallerReferenceInterface $caller, ParameterInterface $params = null)
+    private function callCaller($instance, CallerReferenceInterface $caller, ParameterInterface $params = null)
     {
         if (!$this->hasService($id = $caller->getService()->getId())) {
             throw new ContainerException(sprintf('Caller service %d does not exist.', $id));
         }
 
         return call_user_func_array(
-            [$this->get($id), $caller->getMethod()],
+            [$instance, $caller->getMethod()],
             $this->resolveArguments($caller->getArguments(), $params)
         );
     }

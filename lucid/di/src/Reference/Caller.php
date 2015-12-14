@@ -20,8 +20,13 @@ namespace Lucid\DI\Reference;
  */
 class Caller implements CallerInterface
 {
-    private $method;
+    /** @var ServerInterface */
     private $service;
+
+    /** @var string */
+    private $method;
+
+    /** @var array */
     private $arguments;
 
     /**
@@ -31,7 +36,7 @@ class Caller implements CallerInterface
      * @param string $method
      * @param array $arguments
      */
-    public function __construct(ServiceReferenceInterface $service, $method, array $arguments = [])
+    public function __construct(ServiceInterface $service, $method, array $arguments = [])
     {
         $this->service   = $service;
         $this->method    = (string)$method;

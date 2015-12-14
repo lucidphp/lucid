@@ -1,0 +1,30 @@
+{
+  "name": "lucid/http-core",
+  "description":"Lucid Http Core Package", 
+  "keywords": ["http", "psr-7"],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "iwyg",
+      "email": "mail@thomas-appel.com"
+    }
+  ],
+  "require": {
+    "php":">=5.6.0",
+    "psr/http-message":"1.0.*@dev"
+  },
+  "require-dev": {
+    "phpunit/phpunit":"5.2.*@dev"
+  },
+  "autoload": {
+    "psr-4": {
+      "Lucid\\Http\\Core\\":"src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Lucid\\Http\\Core\\Tests\\":"tests/"
+    }
+  },
+  "minimum-stability": "dev"
+}

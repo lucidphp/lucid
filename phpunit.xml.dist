@@ -34,8 +34,14 @@
     <testsuite name="Http">
       <directory>lucid/http/tests</directory>
     </testsuite>
+    <testsuite name="Infuse">
+      <directory>lucid/http-infuse/tests</directory>
+    </testsuite>
     <testsuite name="Mux">
       <directory>lucid/mux/tests</directory>
+    </testsuite>
+    <testsuite name="MuxCache">
+      <directory>lucid/mux-cache/tests</directory>
     </testsuite>
     <testsuite name="Template">
       <directory>lucid/template/tests</directory>

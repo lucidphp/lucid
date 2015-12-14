@@ -11,6 +11,8 @@
 
 namespace Lucid\Resource\Cache;
 
+use Lucid\Resource\ResourceInterface;
+
 /**
  * @class ResourceCacheInterface
  *
@@ -20,9 +22,26 @@ namespace Lucid\Resource\Cache;
  */
 interface ResourceCacheInterface
 {
+    /**
+     * setResource
+     *
+     * @param ResourceInterface $resource
+     *
+     * @return void
+     */
     public function setResource(ResourceInterface $resource);
 
+    /**
+     * getResource
+     *
+     * @return ResourceInterface
+     */
     public function getResource();
 
+    /**
+     * isValid
+     *
+     * @return bool
+     */
     public function isValid();
 }

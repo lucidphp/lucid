@@ -24,10 +24,17 @@ use Interop\Container\ContainerInterface as InteropContainer;
  */
 interface ContainerInterface extends InteropContainer
 {
-    const NULL_ON_MISSING = 0;
-    const EXCEPTION_ON_MISSING = 1;
-    const EXCEPTION_ON_DUPLICATE = 0;
-    const FORCE_REPLACE_ON_DUPLICATE = 1;
+    /** @var int */
+    const NULL_ON_MISSING            = 0;
+
+    /** @var int */
+    const EXCEPTION_ON_MISSING       = 1;
+
+    /** @var int */
+    const EXCEPTION_ON_DUPLICATE     = 10;
+
+    /** @var int */
+    const FORCE_REPLACE_ON_DUPLICATE = 20;
 
     /**
      * Sests an object instance
@@ -41,7 +48,7 @@ interface ContainerInterface extends InteropContainer
     public function set($id, $implementation, $forceReplace = self::EXCEPTION_ON_DUPLICATE);
 
     /**
-     * replace
+     * Replaces a service instance.
      *
      * @param string $id
      * @param object $implementation
@@ -50,4 +57,23 @@ interface ContainerInterface extends InteropContainer
      * @return void
      */
     public function replace($id, $implementation, $behaves = self::EXCEPTION_ON_MISSING);
+
+    /**
+     * Associates an alias with a service id.
+     *
+     * @param string $id
+     * @param string $alias
+     *
+     * @return void
+     */
+    public function setAlias($id, $alias);
+
+    /**
+     * Returns the service id associated with an alias.
+     *
+     * @param string $alias
+     *
+     * @return string
+     */
+    public function getId($alias);
 }

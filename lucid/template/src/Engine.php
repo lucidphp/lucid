@@ -334,9 +334,8 @@ class Engine extends AbstractPhpEngine implements ViewAwareInterface
      *
      * @return void
      */
-    public function func()
+    public function func(...$args)
     {
-        $args = func_get_args();
         $fns  = explode('|', array_shift($args));
         $res  = null;
 

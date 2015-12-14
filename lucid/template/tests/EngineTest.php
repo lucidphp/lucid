@@ -14,6 +14,7 @@ namespace Lucid\Template\Tests;
 use Lucid\Template\Engine;
 use Lucid\Template\Data\Data;
 use Lucid\Template\Loader\FilesystemLoader;
+use Lucid\Template\Resource\StringResource;
 
 /**
  * @class EngineTest
@@ -201,22 +202,28 @@ class EngineTest extends \PHPUnit_Framework_TestCase
         $engine = $this->newEngine();
 
         $engine->setManager($view = $this->getMock('Lucid\Template\ViewManagerInterface'));
-        $this->assertSame($view, $engine->getManager());
+        $this->assertTrue($view === $engine->getManager());
     }
 
     /** @test */
     public function itShouldRenderStrings()
     {
-        $id = $this->getMock('Lucid\Template\IdentityInterface');
-        $id->method('__toString')->willreturn('my string');
-        $id->method('getType')->willreturn('string');
-        $idp = $this->getMock('Lucid\Template\IdentityParserInterface');
-        $idp->method('identify')->with('my string')->willReturn($id);
+        $id = $this->getMockbuilder('Lucid\Template\IdentityInterface')->disableOriginalConstructor()->getMock();
+        $id->method('__toString')->willReturnCallback(function () {
+            return 'my string';
+        });
+        $id->method('getType')->willReturn('string');
+
+        $idp = $this->getMockbuilder('Lucid\Template\IdentityParserInterface')->disableOriginalConstructor()->getMock();
+
+        $idp->method('identify')->willReturnCallback(function (...$args) use ($id) {
+            return $id;
+        });
 
         $engine = new Engine($loader = $this->mockLoader(), $idp);
         $engine->addType('string');
 
-        $loader->method('load')->willReturn(new \Lucid\Template\Resource\StringResource('my string'));
+        $loader->method('load')->willReturn(new StringResource('my string'));
 
         $engine->render('my string');
     }

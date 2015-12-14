@@ -24,6 +24,16 @@ class UriTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function itShouldHandleHostDescription()
     {
+        $uri = new Uri(
+            'https://iwyg:passwd@myassisonfire.com/hastenicht?nope=bat#this_is_a_fragment',
+            'http',
+            'overridehost',
+            436,
+            null,
+            'override_fragment'
+        );
+
+        var_dump($uri->getAuthority());
         //$url = new Uri('foo/bar');
 
         //$this->assertEquals('localhost', $url->getHost());
@@ -32,6 +42,28 @@ class UriTest extends \PHPUnit_Framework_TestCase
         //$url->withHost('myserver');
 
         //$this->assertEquals('myserver', $url->getHost());
+    }
+
+    /** @test */
+    public function itIsExpectedThat()
+    {
+        $url = new Uri('me:pw@localhost');
+        $url = new Uri('foo/bar');
+        $this->assertEquals('localhost', $url->getHost());
+
+        $url = $url->withHost('myserver');
+        $this->assertEquals('myserver', $url->getHost());
+    }
+
+    /** @test */
+    public function itSouldGetAuthority()
+    {
+        $uri = new Uri('http://me:pw@example.com/path/to/resource');
+
+        $this->assertSame('me@example.com', $uri->getAuthority());
+
+        $uri = new Uri('example.com');
+        $uri = $uri->withUserInfo('me@example.com');
     }
 
     /** @test */

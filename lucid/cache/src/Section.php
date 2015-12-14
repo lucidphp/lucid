@@ -23,19 +23,11 @@ use Closure;
  */
 class Section implements CacheInterface, SectionableInterface
 {
-    /**
-     * cache
-     *
-     * @var mixed
-     */
-    protected $cache;
+    /** @var CacheInterface */
+    private $cache;
 
-    /**
-     * section
-     *
-     * @var string
-     */
-    protected $section;
+    /** @var string */
+    private $section;
 
     /**
      * Constructor.

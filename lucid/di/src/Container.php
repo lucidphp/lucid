@@ -11,7 +11,7 @@
 
 namespace Lucid\DI;
 
-use Lucid\Common\Helper\Str;
+use InvalidArgumentException;
 use Lucid\Config\Parameters;
 use Lucid\Config\ParameterInterface;
 use Lucid\DI\Exception\NotFoundException;
@@ -26,12 +26,26 @@ use Lucid\DI\Exception\ContainerException;
  */
 class Container implements ContainerInterface
 {
-    public $aliases;
+    /** @var int */
+    const FACTORY_NOT_FOUND = -1;
+
+    /** @var ProviderInterface */
+    protected $provider;
+
+    /** @var ParameterInterface */
     protected $parameters;
+
+    /** @var array */
     protected $instances;
+
+    /** @var array */
     protected $synced;
-    protected $cmap;
+
+    /** @var array */
     protected $icmap;
+
+    /** @var array */
+    protected $aliases;
 
     /**
      * Constructor.
@@ -39,19 +53,19 @@ class Container implements ContainerInterface
      * @param ParameterInterface $parameters
      * @param array $aliases alias map
      * @param array $cmap constructor map
-     * @param array $icmap
-     * @param array $synced synced map
+     * @param array $icmap map of internal services
+     * @param array $synced synced map of synchroniued services
      */
     public function __construct(
+        ProviderInterface $provider = null,
         ParameterInterface $params = null,
         array $aliases = [],
-        array $cmap = [],
         array $icmap = [],
         array $synced = []
     ) {
+        $this->provider   = $provider;
         $this->parameters = $params ?: new Parameters;
         $this->aliases    = $aliases;
-        $this->cmap       = $cmap;
         $this->icmap      = $icmap;
         $this->synced     = $synced;
         $this->instances  = [];
@@ -63,10 +77,12 @@ class Container implements ContainerInterface
     public function set($id, $object, $forceReplace = self::EXCEPTION_ON_DUPLICATE)
     {
         if (self::EXCEPTION_ON_DUPLICATE === $forceReplace && $this->has($id)) {
-            throw new ContainerException;
+            throw new ContainerException(
+                sprintf('Service "%s" is alread set. Use "%s::replace()", or pass "$forceReplace".', $id, get_class($this))
+            );
         }
 
-        $this->instances[$id] = $object;
+        $this->doSet($id, $object);
     }
 
     /**
@@ -75,66 +91,14 @@ class Container implements ContainerInterface
     public function replace($id, $object, $behaves = self::EXCEPTION_ON_MISSING)
     {
         if (self::EXCEPTION_ON_MISSING === $behaves && !$this->has($id)) {
-            throw new ContainerException;
+            throw new ContainerException(sprintf('Service "%s" cannot be replaced, as it doesn\'t exist.', $id));
         }
 
-        $this->instances[$id] = $object;
+        $this->doSet($id, $object);
     }
 
     /**
      * {@inheritdoc}
-     */
-    public function get($id)
-    {
-        if (!$this->has($id)) {
-            throw new NotFoundException(sprintf('service %s could not be found on this container.', $id));
-        }
-
-        $id = $this->getAlias($id);
-
-        if (isset($this->instances[$id])) {
-            return $this->instances[$id];
-        }
-
-        return call_user_func([$this, $this->getFactoryName($id)], $id);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function has($id)
-    {
-        $id = $this->getAlias($id);
-
-        return array_key_exists($id, $this->instances) || $this->hasMethod($id);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function syncronize($id, $caller)
-    {
-    }
-
-    /**
-     * getAlias
-     *
-     * @param string $alias
-     *
-     * @return string
-     */
-    public function getAlias($alias)
-    {
-        return isset($this->aliases[$alias]) ? $this->aliases[$alias] : $alias;
-    }
-
-    /**
-     * setAlias
-     *
-     * @param mixed $id
-     * @param mixed $alias
-     *
-     * @return void
      */
     public function setAlias($id, $alias)
     {
@@ -146,75 +110,48 @@ class Container implements ContainerInterface
     }
 
     /**
-     * hasMethod
-     *
-     * @param string $id
-     *
-     * @return boolean
+     * {@inheritdoc}
      */
-    protected function hasMethod($id)
+    public function getId($alias)
     {
-        if (isset($this->cmap[$id])) {
-            return true;
+        return isset($this->aliases[$alias]) ? $this->aliases[$alias] : $alias;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function get($id)
+    {
+        if (!$this->has($id)) {
+            throw new NotFoundException(sprintf('Service "%s" could not be found on this container.', $id));
         }
 
-        if (method_exists($this, $method = static::factoryName($id))) {
-            $this->cmap[$id] = $method;
+        $id = $this->getId($id);
 
-            return true;
+        if (isset($this->instances[$id])) {
+            return $this->instances[$id];
         }
 
-        return false;
+        return $this->provider->provide($id);
     }
 
     /**
-     * getFactoryName
-     *
-     * @param string $id
-     *
-     * @return string
+     * {@inheritdoc}
      */
-    protected function getFactoryName($id)
+    public function has($id)
     {
-        return isset($this->cmap[$id]) ? $this->cmap[$id] : static::factoryName($id);
+        $id = $this->getId($id);
+
+        return array_key_exists($id, $this->instances) || (null !== $this->provider && $this->provider->provides($id));
     }
 
     /**
-     * callConstructor
-     *
-     * @param string $id
-     *
-     * @return object
-     */
-    protected function callConstructor($id, array $map)
-    {
-        return call_user_func([$this, $map[$this->getIdFromAlias($id)]]);
-    }
-
-    /**
-     * @return string
-     */
-    public static function factoryName($id)
-    {
-        return 'getService'.self::camalizeId($id);
-    }
-
-    /**
-     * @return string
-     */
-    public static function camalizeId($id)
-    {
-        return Str::camelCaseAll(
-            $id,
-            ['_' => ' ', '-' => 'Sl ', ':' => 'Cl ', '.' => 'Dt ', '\\' => 'Ns ']
-        );
-    }
-
-    /**
-     * __set
+     * Don't set anything.
      *
      * @param string $param
      * @param mixed $value
+     *
+     * @throws ContainerException
      *
      * @return void
      */
@@ -239,6 +176,28 @@ class Container implements ContainerInterface
         throw new ContainerException('Property is undefined or READ ONLY property.');
     }
 
+    /**
+     * doSet
+     *
+     * @param string $id
+     * @param object $object
+     *
+     * @return void
+     */
+    private function doSet($id, $object)
+    {
+        if (!is_object($object)) {
+            throw new InvalidArgumentException(sprintf('Serice must be of type object, instead saw "%s".', gettype($object)));
+        }
+
+        $this->instances[$id] = $object;
+    }
+
+    /**
+     * getReadablyProps
+     *
+     * @return array
+     */
     private static function getReadablyProps()
     {
         return ['parameters', 'aliases'];

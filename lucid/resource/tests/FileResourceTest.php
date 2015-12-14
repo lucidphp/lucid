@@ -64,7 +64,19 @@ class FileResourceTest extends \PHPUnit_Framework_TestCase
     public function itShouldNotBeAValidResource()
     {
         $resource = new FileResource(__FILE__);
+        $time = filemtime(__FILE__) - 1;
 
-        $this->assertFalse($resource->isValid(filemtime(__FILE__) - 1));
+        $this->assertFalse($resource->isValid($time));
+    }
+
+    /** @test */
+    public function itShouldBeSerializable()
+    {
+        $resource = new FileResource(__FILE__);
+
+        $data = serialize($resource);
+        $ret = unserialize($data);
+
+        $this->assertSame(get_class($resource), get_class($ret));
     }
 }

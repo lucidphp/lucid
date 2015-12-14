@@ -51,7 +51,7 @@ trait PathHelperTrait
      */
     public function isAbsolutePath($path)
     {
-        return strspn($file, '/\\', 0, 1) || null !== parse_url($file, PHP_URL_SCHEME);
+        return strspn($path, '/\\', 0, 1) || null !== parse_url($path, PHP_URL_SCHEME);
     }
 
     /**

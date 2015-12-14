@@ -42,8 +42,8 @@ class SectionTest extends \PHPUnit_Framework_TestCase
     public function itShouldSetValue()
     {
         $section = $this->newSection();
-        $this->cache->shouldReceive('get')->with('section:section:key')->andReturn('rnd');
-        $this->cache->shouldReceive('set')->with('rnd:section:key', 'data', '', false)->andReturn(true);
+        $this->cache->method('get')->with('section:section:key')->willReturn('rnd');
+        $this->cache->method('set')->with('rnd:section:key', 'data', '', false)->willReturn(true);
 
         $this->assertTrue($section->set('key', 'data'));
     }
@@ -52,8 +52,8 @@ class SectionTest extends \PHPUnit_Framework_TestCase
     public function itShouldIncrement()
     {
         $section = $this->newSection();
-        $this->cache->shouldReceive('get')->with('section:section:key')->andReturn('rnd');
-        $this->cache->shouldReceive('increment')->with('rnd:section:key', 1)->andReturn(1);
+        $this->cache->method('get')->with('section:section:key')->willReturn('rnd');
+        $this->cache->method('increment')->with('rnd:section:key', 1)->willReturn(1);
 
         $this->assertSame(1, $section->increment('key'));
     }
@@ -62,8 +62,8 @@ class SectionTest extends \PHPUnit_Framework_TestCase
     public function itShouldDecrement()
     {
         $section = $this->newSection();
-        $this->cache->shouldReceive('get')->with('section:section:key')->andReturn('rnd');
-        $this->cache->shouldReceive('decrement')->with('rnd:section:key', 1)->andReturn(1);
+        $this->cache->method('get')->with('section:section:key')->willReturn('rnd');
+        $this->cache->method('decrement')->with('rnd:section:key', 1)->willReturn(1);
 
         $this->assertSame(1, $section->decrement('key'));
     }
@@ -75,10 +75,10 @@ class SectionTest extends \PHPUnit_Framework_TestCase
     public function itShouldSeal($compress)
     {
         $section = $this->newSection();
-        $this->cache->shouldReceive('get')->with('section:section:key')->andReturn('rnd');
-        $this->cache->shouldReceive('seal')->with('rnd:section:key', 'data', $compress)->andReturn(true);
+        $this->cache->method('get')->with('section:section:key')->willReturn('rnd');
+        $this->cache->method('seal')->with('rnd:section:key', 'data', $compress)->willReturn(true);
 
-        $this->assertTrue($section->seal('key', 'data', $compress));
+        $this->assertTrue($section->persist('key', 'data', $compress));
     }
 
     /**
@@ -92,10 +92,10 @@ class SectionTest extends \PHPUnit_Framework_TestCase
         };
 
         $section = $this->newSection();
-        $this->cache->shouldReceive('get')->with('section:section:key')->andReturn('rnd');
-        $this->cache->shouldReceive('seal')->with('rnd:section:key', 'data', $compress)->andReturn(true);
+        $this->cache->method('get')->with('section:section:key')->willReturn('rnd');
+        $this->cache->method('seal')->with('rnd:section:key', 'data', $compress)->willReturn(true);
 
-        $this->assertTrue($section->sealDefault('key', $callback, $compress));
+        $this->assertTrue($section->persistUsing('key', $callback, $compress));
     }
 
     public function cmpProvider()
@@ -115,11 +115,13 @@ class SectionTest extends \PHPUnit_Framework_TestCase
 
     protected function mockStorage()
     {
-        return $this->getMockbuilder('Lucid\Cache\CacheInterface')->disableOriginalConstructor()->getMock();
+        return $this->getMockbuilder('\Lucid\Cache\CacheInterface')
+            ->disableOriginalConstructor()
+            ->getMock();
     }
 
-    protected function setUp()
-    {
-        $this->markTestIncomplete('replace mockery first');
-    }
+    //protected function setUp()
+    //{
+        //$this->markTestIncomplete('replace mockery first');
+    //}
 }

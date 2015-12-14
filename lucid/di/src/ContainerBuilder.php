@@ -11,14 +11,12 @@
 
 namespace Lucid\DI;
 
-use ReflectionClass;
-use Lucid\Config\ResolvableInterface;
 use Lucid\DI\Resolver\ResolverInterface;
 use Lucid\DI\Resolver\ReflectionResolver;
+use Lucid\DI\Exception\ResolverException;
+use Lucid\DI\Exception\NotFoundException;
 use Lucid\DI\Exception\ContainerException;
 use Interop\Container\Exception\ContainerException as InteropContainerException;
-use Lucid\DI\Reference\CallerReferenceInterface;
-use Lucid\DI\Reference\ServiceReferenceInterface;
 
 /**
  * @class ContainerBuilder
@@ -29,25 +27,13 @@ use Lucid\DI\Reference\ServiceReferenceInterface;
  */
 class ContainerBuilder extends Container implements ContainerBuilderInterface
 {
-    /**
-     * factories
-     *
-     * @var callable[]
-     */
+    /** @var callable[] */
     private $factories = [];
 
-    /**
-     * definitions
-     *
-     * @var ServiceInteface[]
-     */
+    /** @var ServiceInteface[] */
     private $definitions = [];
 
-    /**
-     * resolver
-     *
-     * @var ResolverInterface
-     */
+    /** @var Lucid\DI\Resolver\ResolverInterface */
     private $resolver;
 
     /**
@@ -68,8 +54,8 @@ class ContainerBuilder extends Container implements ContainerBuilderInterface
         array $icmap = [],
         array $synced = []
     ) {
-        parent::__construct($params, $aliases, $cmap, $icmap, $synced);
-        $this->resolver = $resolver;
+        parent::__construct(null, $params, $aliases, $cmap, $icmap, $synced);
+        $this->resolver = $resolver ?: new ReflectionResolver;
     }
 
     /**
@@ -135,28 +121,23 @@ class ContainerBuilder extends Container implements ContainerBuilderInterface
      */
     public function get($id)
     {
-        $resolver = $this->resolver;
-
-        if ($exists = $this->hasService($id = $this->getAlias($id))) {
-            if (null !== $resolver && $this->isBoundService($service = $this->getService($id))) {
-                throw ContainerException::undefinedService($id);
-            }
-        }
-
         try {
             return parent::get($id);
         } catch (InteropContainerException $e) {
         }
 
-        if (!$exists) {
+        if (null === $this->resolver || false === $this->hasService($id = $this->getId($id))) {
             throw NotFoundException::serviceUndefined($id);
         }
 
-        if (null === $resolver) {
-            throw ContainerException::notResolveable($id);
+        try {
+            $instance = $this->resolver->resolve($id, $this, $this->parameters);
+        } catch (ResolverException $e) {
+            throw new ContainerException($e->getMessage(), $e);
         }
 
-        $instance = $resolver->resolve($id, $service = $this->getService($id), $this->parameters);
+        /** @var ServiceInteface */
+        $service = $this->getService($id);
 
         if (Scope::SINGLETON === $service->getScope()) {
             $this->instances[$id] = $instance;
@@ -170,24 +151,5 @@ class ContainerBuilder extends Container implements ContainerBuilderInterface
      */
     public function build(ContainerReflectorInterface $reflector, ContainerTargetInterface $target)
     {
-
-    }
-
-    /**
-     * isBoundService
-     *
-     * @param ServiceInterface $service
-     *
-     * @return bool
-     */
-    private function isBoundService(ServiceInterface $service)
-    {
-        $ids = $this->resolver->getResolvingIds();
-
-        return $service->isBound() &&
-        (
-            empty($ids) ||
-            0 === count($d = array_intersect($service->getBindings(), $ids))
-        );
     }
 }

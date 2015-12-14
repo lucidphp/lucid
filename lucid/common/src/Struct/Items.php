@@ -12,37 +12,31 @@
 
 namespace Lucid\Common\Struct;
 
+use Countable;
+use ArrayAccess;
+use Serializable;
+use ArrayIterator;
+use IteratorAggregate;
+use InvalidArgumentException;
+
 /**
  * @class Items
- * @see ListInterface
- * @see \ArrayAccess
- * @see \Countable
- * @see \Serializable
- * @see \IteratorAggregate
- * @see ArrayableInterface
  *
  * @package Lucid\Common
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-class Items implements ListInterface, \ArrayAccess, \Countable, \Serializable, \IteratorAggregate
+class Items implements ListInterface, ArrayAccess, Countable, Serializable, IteratorAggregate
 {
-    /**
-     * data
-     *
-     * @var array
-     */
-    protected $data;
+    /** @var array */
+    private $data;
 
     /**
-     * @param array $data
-     *
-     * @access public
-     * @return mixed
+     * @param mixed $args
      */
-    public function __construct()
+    public function __construct(...$args)
     {
-        $this->data = func_get_args();
+        $this->data = $args;
     }
 
     /**
@@ -109,7 +103,7 @@ class Items implements ListInterface, \ArrayAccess, \Countable, \Serializable, \
     public function remove($value)
     {
         if (false === ($index = array_search($value, $this->data, true))) {
-            throw new \InvalidArgumentException('index out of bounds');
+            throw new InvalidArgumentException('index out of bounds');
         }
 
         $this->pop($index);
@@ -248,11 +242,11 @@ class Items implements ListInterface, \ArrayAccess, \Countable, \Serializable, \
      * getIterator
      *
      * @access public
-     * @return \ArrayIterator
+     * @return ArrayIterator
      */
     public function getIterator()
     {
-        return new \ArrayIterator($this->data);
+        return new ArrayIterator($this->data);
     }
 
     /**

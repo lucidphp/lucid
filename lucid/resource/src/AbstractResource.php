@@ -32,9 +32,17 @@ abstract class AbstractResource implements ResourceInterface
      */
     public function serialize()
     {
-        serialize([
+        return serialize([
             'resource' => $this->getResource()
         ]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __toString()
+    {
+        return $this->getResource();
     }
 
     /**
@@ -60,10 +68,8 @@ abstract class AbstractResource implements ResourceInterface
      */
     public function isValid($now)
     {
-        $file = $this->getResource();
-
         try {
-            return filemtime($file) <= $now;
+            return filemtime($this) <= $now;
         } catch (\Exception $e) {
         }
 

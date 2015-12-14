@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This File is part of the Lucid\Mux package
+ * This File is part of the Lucid\Mux\Cache package
  *
  * (c) iwyg <mail@thomas-appel.com>
  *
@@ -13,35 +13,46 @@ namespace Lucid\Mux\Cache;
 
 use Lucid\Mux\RouteCollectionInterface;
 use Lucid\Mux\Routes as RouteCollection;
+use LogicException;
 
 /**
  * @class Routes
  *
- * @package Lucid\Mux
+ * @package Lucid\Mux\Cache
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
 class Routes extends RouteCollection implements CachedCollectionInterface
 {
+    /** @var array */
     private $mMap;
+
+    /** @var array */
     private $spMap;
+
+    /** @var array */
     private $scMap;
 
     /**
      * Constructor.
+     *
+     * @var RouteCollectionInterface $routes
      */
     public function __construct(RouteCollectionInterface $routes)
     {
-        $this->mMap = [];
-        $this->spMap = [];
-        $this->scMap = [];
-        $this->createMaps($routes);
+        $this->mMap   = [];
+        $this->spMap  = [];
+        $this->scMap  = [];
         $this->routes = $routes->all();
+        $this->createMaps($routes);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function add($routeName, RouteInterface $route)
     {
-        throw new \LogicException('Cant\'t add routes to a cached collection.');
+        throw new LogicException('Cant\'t add routes to a cached collection.');
     }
 
     /**
@@ -49,7 +60,7 @@ class Routes extends RouteCollection implements CachedCollectionInterface
      */
     public function remove($routeName)
     {
-        throw new \LogicException('Cant\'t remove routes to a cached collection.');
+        throw new LogicException('Cant\'t remove routes to a cached collection.');
     }
 
     /**
@@ -79,8 +90,7 @@ class Routes extends RouteCollection implements CachedCollectionInterface
     /**
      * serialize
      *
-     *
-     * @return void
+     * @return string
      */
     public function serialize()
     {

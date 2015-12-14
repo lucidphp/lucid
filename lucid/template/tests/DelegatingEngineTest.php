@@ -45,7 +45,7 @@ class DelegatingEngineTest extends \PHPUnit_Framework_TestCase
         $engine = new DelegatingEngine($engines);
 
         $this->assertTrue($engine->supports('template'));
-        $this->assertSame($b, $engine->resolveEngine('template'));
+        $this->assertTrue($b === $engine->resolveEngine('template'));
     }
 
     /** @test */

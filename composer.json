@@ -1,13 +1,17 @@
 {
   "name": "lucid/lucid",
+  "description":"Lucid Main Repository", 
+  "keywords": ["php", "components"],
   "require": {
-    "php":">=5.6.0"
+    "php":">=5.6.0",
+    "psr/http-message": "1.0.*@dev",
+    "psr/log": "1.0.*@dev",
+    "container-interop/container-interop": "~1.1.0",
+    "phpseclib/phpseclib": "~2.0.0"
   },
   "require-dev": {
     "phpunit/phpunit": "5.2.*@dev",
-    "psr/http-message": "1.0.*@dev",
-    "container-interop/container-interop": "dev-master",
-    "phpseclib/phpseclib": "0.3.*@dev"
+    "sebastian/peek-and-poke": "1.0.*"
   },
   "license": "MIT",
   "authors": [
@@ -22,9 +26,12 @@
       "Lucid\\Common\\":"lucid/common/src/",
       "Lucid\\Config\\":"lucid/config/src/",
       "Lucid\\DI\\":"lucid/di/src/",
+      "Lucid\\DI\\Loader\\":"lucid/di-loader/src/",
       "Lucid\\Filesystem\\":"lucid/filesystem/src/",
       "Lucid\\Hash\\":"lucid/hash/src/",
       "Lucid\\Http\\":"lucid/http/src/",
+      "Lucid\\Http\\Core\\":"lucid/http-core/src/",
+      "Lucid\\Http\\Infuse\\":"lucid/http-infuse/src/",
       "Lucid\\Mux\\":"lucid/mux/src/",
       "Lucid\\Mux\\Cache\\":"lucid/mux-cache/src/",
       "Lucid\\Resource\\":"lucid/resource/src/",
@@ -40,9 +47,12 @@
       "Lucid\\Common\\Tests\\":"lucid/common/tests/",
       "Lucid\\Config\\Tests\\":"lucid/config/tests/",
       "Lucid\\DI\\Tests\\":"lucid/di/tests/",
+      "Lucid\\DI\\Loader\\Tests\\":"lucid/di-loader/tests/",
       "Lucid\\Filesystem\\Tests\\":"lucid/filesystem/tests/",
       "Lucid\\Hash\\Tests\\":"lucid/hash/tests/",
       "Lucid\\Http\\Tests\\":"lucid/http/tests/",
+      "Lucid\\Http\\Core\\Tests\\":"lucid/http-core/tests/",
+      "Lucid\\Http\\Infuse\\Tests\\":"lucid/http-infuse/tests/",
       "Lucid\\Mux\\Tests\\":"lucid/mux/tests/",
       "Lucid\\Mux\\Cache\\Tests\\":"lucid/mux-cache/tests/",
       "Lucid\\Resource\\Tests\\":"lucid/resource/tests/",
@@ -52,18 +62,22 @@
       "Lucid\\Xml\\Tests\\":"lucid/xml/tests/"
     }
   },
-  "provides": {
-    "lucid/common": "dev-master",
-    "lucid/config": "dev-master",
-    "lucid/di": "dev-master",
-    "lucid/filesystem": "dev-master",
-    "lucid/mux": "dev-master",
-    "lucid/mux-cache": "dev-master",
-    "lucid/resource": "dev-master",
-    "lucid/signal": "dev-master",
-    "lucid/template": "dev-master",
-    "lucid/writer": "dev-master",
-    "lucid/xml": "dev-master"
+  "extra": {
+    "provides": {
+      "lucid/common": "dev-master",
+      "lucid/config": "dev-master",
+      "lucid/di": "dev-master",
+      "lucid/filesystem": "dev-master",
+      "lucid/http": "dev-master",
+      "lucid/http-infuse": "dev-master",
+      "lucid/mux": "dev-master",
+      "lucid/mux-cache": "dev-master",
+      "lucid/resource": "dev-master",
+      "lucid/signal": "dev-master",
+      "lucid/template": "dev-master",
+      "lucid/writer": "dev-master",
+      "lucid/xml": "dev-master"
+    }
   },
   "minimum-stability": "dev"
 }

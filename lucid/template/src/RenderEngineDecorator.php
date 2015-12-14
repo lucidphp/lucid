@@ -62,9 +62,9 @@ class RenderEngineDecorator implements PhpRenderInterface
     /**
      * {@inheritdoc}
      */
-    public function func()
+    public function func(...$args)
     {
-        return call_user_func_array([$this->engine, 'func'], func_get_args());
+        return call_user_func_array([$this->engine, 'func'], $args);
     }
 
     /**

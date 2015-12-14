@@ -22,54 +22,26 @@ use Psr\Http\Message\RequestInterface;
  */
 class Context implements ContextInterface
 {
-    /**
-     * base
-     *
-     * @var string
-     */
+    /** @var string */
     private $base;
 
-    /**
-     * path
-     *
-     * @var string
-     */
+    /** @var string */
     private $path;
 
-    /**
-     * method
-     *
-     * @var string
-     */
+    /** @var string */
     private $method;
 
-    /**
-     * host
-     *
-     * @var string
-     */
+    /** @var string */
     private $host;
 
-    /**
-     * port
-     *
-     * @var int
-     */
-    private $port;
-
-    /**
-     * scheme
-     *
-     * @var string
-     */
+    /** @var string */
     private $scheme;
 
-    /**
-     * query
-     *
-     * @var string
-     */
+    /** @var string */
     private $query;
+
+    /** @var int */
+    private $port;
 
     /**
      * Constructor.
@@ -101,9 +73,7 @@ class Context implements ContextInterface
     }
 
     /**
-     * getBaseUrl
-     *
-     * @return string
+     * {@inheritdoc}
      */
     public function getBaseUrl()
     {

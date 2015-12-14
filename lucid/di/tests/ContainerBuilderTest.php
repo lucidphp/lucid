@@ -26,17 +26,21 @@ use Lucid\DI\Tests\Stubs\StaticFactory;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-class ContainerBuilderTest extends ContainerTest
+class ContainerBuilderTest extends AbstractContainerTest
 {
     /** @test */
     public function itShouldResolveASimpleServices()
     {
         $container = $this->newContainer();
-        $container->register('my_service', new Service($class = __NAMESPACE__.'\Stubs\SimpleService'));
+        $container->register('my_service', $def = $this->mockService());
+
+        $def->method('getClass')->willReturn('stdClass');
+        $def->method('isBound')->willReturn(false);
+        $def->method('getScope')->willReturn(Scope::SINGLETON);
 
         $instance = $container->get('my_service');
 
-        $this->assertInstanceof($class, $instance);
+        $this->assertInstanceof('stdClass', $instance);
         $this->assertSame($instance, $container->get('my_service'));
     }
 
@@ -220,6 +224,17 @@ class ContainerBuilderTest extends ContainerTest
         $mock->method('getScope')->willReturn($args[3]);
 
         return $mock;
+    }
+
+    protected function mockService(array $args = [], array $setters = [], array $callers = [])
+    {
+        /** @var mixed */
+        $def = $this->getMockbuilder('Lucid\DI\ServiceInterface')->disableOriginalConstructor()->getMock();
+        $def->method('getArguments')->willReturn($args);
+        $def->method('getSetters')->willReturn($setters);
+        $def->method('getCallers')->willReturn($callers);
+
+        return $def;
     }
 
     protected function tearDown()

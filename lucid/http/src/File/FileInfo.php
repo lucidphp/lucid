@@ -47,11 +47,11 @@ class FileInfo
      */
     public function __construct($name, $size, $type, $tmpName, $error = null)
     {
-        $this->name = $name;
+        $this->name    = $name;
         $this->tmpName = $tmpName;
-        $this->size = $size;
-        $this->type = $type;
-        $this->error = $error;
+        $this->size    = $size;
+        $this->type    = $type;
+        $this->error   = $error;
     }
 
     /**

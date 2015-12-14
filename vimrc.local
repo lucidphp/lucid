@@ -1,0 +1,14 @@
+
+""" PHPUnit: {{{
+let g:phpunit_namespace_prefix='Tests'
+"""}}}
+
+""" Neomake: {{{
+let g:neomake_php_enabled_makers = ['phpcs', 'php']
+
+if !exists('g:neomake_php_phpcs_maker')
+	let g:neomake_php_phpcs_maker = {}
+endif
+
+let g:neomake_php_phpcs_maker.args = ['--report=csv', '--standard=PSR2']
+"""}}}

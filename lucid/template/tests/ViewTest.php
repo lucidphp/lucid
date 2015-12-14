@@ -127,8 +127,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
         $view = $this->newView($engine = $this->mockEngine());
         $engine->method('supports')->with('template')->willReturn(true);
 
-        $engine->expects($this->once())->method('render')->will($this->returnCallback(function () {
-            $args = func_get_args();
+        $engine->expects($this->once())->method('render')->will($this->returnCallback(function (...$args) {
             if ('template' !== $args[0]) {
                 $this->fail();
             }

@@ -22,24 +22,14 @@ use RuntimeException;
  */
 class Priority implements PriorityInterface
 {
+    /** @var array */
+    private $lut = [];
+
+    /** @var array */
+    private $handlers = [];
+
     /** @var bool */
-    private $sorted;
-
-    /** @var array */
-    private $handlers;
-
-    /** @var array */
-    private $lut;
-
-    /**
-     * Constructor.
-     */
-    public function __construct()
-    {
-        $this->handlers = [];
-        $this->lut      = [];
-        $this->sorted   = true;
-    }
+    private $sorted = false;
 
     /**
      * {@inheritdoc}
@@ -74,7 +64,7 @@ class Priority implements PriorityInterface
     /**
      * {@inheritdoc}
      */
-    public function flush()
+    public function all()
     {
         $this->sort();
 
@@ -94,7 +84,7 @@ class Priority implements PriorityInterface
     {
         $handlers = [];
 
-        foreach ($this->flush() as $handler) {
+        foreach ($this->all() as $handler) {
             $handlers[] = $handler;
         }
 

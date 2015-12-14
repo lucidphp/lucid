@@ -9,7 +9,7 @@
  * that was distributed with this package.
  */
 
-namespace Lucid\Cache\Driver;
+namespace Lucid\Cache\Client;
 
 function extension_loaded($ext)
 {

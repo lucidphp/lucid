@@ -97,9 +97,9 @@ class TemplateFunction implements FunctionInterface
     /**
      * {@inheritdoc}
      */
-    public function __invoke()
+    public function __invoke(...$args)
     {
-        return $this->call(func_get_args());
+        return $this->call($args);
     }
 
     /**

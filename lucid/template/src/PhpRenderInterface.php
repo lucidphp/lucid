@@ -69,5 +69,5 @@ interface PhpRenderInterface
      *
      * @return void
      */
-    public function func();
+    public function func(...$args);
 }

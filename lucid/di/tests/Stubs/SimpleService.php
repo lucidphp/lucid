@@ -22,8 +22,8 @@ class SimpleService
 {
     public $arguments;
 
-    public function __construct()
+    public function __construct(...$args)
     {
-        $this->arguments = func_get_args();
+        $this->arguments = $args;
     }
 }

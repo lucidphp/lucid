@@ -63,5 +63,5 @@ interface PriorityInterface
      *
      * @return \Iterator
      */
-    public function flush();
+    public function all();
 }

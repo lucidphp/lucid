@@ -53,9 +53,8 @@ class Uri implements UriInterface
      * @var array
      */
     private static $defaults = [
-        'scheme'   => null, 'host'     => null, 'port' => null,
-        'query'    => null, 'fragment' => null, 'user' => null,
-        'password' => null
+        'path'  => '/',  'scheme'   => 'http', 'host' => 'localhost', 'port' => 80,
+        'query' => null, 'fragment' => null,   'user' => null,        'pass' => null
     ];
 
     /**
@@ -132,11 +131,11 @@ class Uri implements UriInterface
         $host = null,
         $port = null,
         $query = null,
-        $frag = null,
+        $fragment = null,
         $user = null,
-        $pass = null
+        $password = null
     ) {
-        var_dump($this->getPathRegexp());
+        $this->initialize($path, $scheme, $host, $port, $query, $fragment, $user, $password);
     }
 
     /**
@@ -197,8 +196,6 @@ class Uri implements UriInterface
         return $this->port;
     }
 
-
-
     /**
      * {@inheritdoc
      */
@@ -214,8 +211,6 @@ class Uri implements UriInterface
     {
         return $this->query;
     }
-
-
 
     /**
      * {@inheritdoc
@@ -354,12 +349,12 @@ class Uri implements UriInterface
      *
      * @return UriInterface
      */
-    public static function fromString($url)
-    {
-        extract(array_merge(static::$defaults, static::parseUrl($url)));
+    //public static function fromString($url)
+    //{
+        //extract(array_merge(static::$defaults, static::parseUrl($url)));
 
-        return new self($path, $scheme, $host, $port, $query, $fragment, $user, $pass);
-    }
+        //return new self($path, $scheme, $host, $port, $query, $fragment, $user, $pass);
+    //}
 
     /**
      * setScheme
@@ -368,7 +363,7 @@ class Uri implements UriInterface
      *
      * @return void
      */
-    private function setScheme($scheme)
+    private function setScheme($scheme = 'http')
     {
         if (!$this->isValidScheme($scheme)) {
             throw new \InvalidArgumentException(sprintf('Given scheme %s is invalid.', (string)$scheme));
@@ -406,18 +401,6 @@ class Uri implements UriInterface
     }
 
     /**
-     * setQuery
-     *
-     * @param mixed $query
-     *
-     * @return void
-     */
-    private function setQuery($query)
-    {
-        $this->query = $this->sanitizeQuery($query);
-    }
-
-    /**
      * sanitizeQuery
      *
      * @param string $query
@@ -426,7 +409,7 @@ class Uri implements UriInterface
      */
     private function sanitizeQuery($query)
     {
-        ltrim($query, '?&');
+        return trim($query, '?&');
     }
 
     /**
@@ -438,10 +421,7 @@ class Uri implements UriInterface
      */
     private function setPath($path)
     {
-        if (false === $parts = static::$parseUrl($path) || !isset($parts['path'])) {
-            //throw
-        }
-
+        $this->path = $path;
     }
 
     /**
@@ -457,21 +437,44 @@ class Uri implements UriInterface
             $fragment = substr($fragment, 1);
         }
 
-        return $fragment;
+        $this->fragment = $fragment;
     }
 
     /**
-     * setUserInfo
+     * Initializes the Uri oject with sensible data.
      *
+     * @param string $path
+     * @param string $scheme
+     * @param int $host
+     * @param int $port
+     * @param string $query
+     * @param string $fragment
      * @param string $user
-     * @param string $password
+     * @param string $pass
      *
      * @return void
      */
-    public function setUserInfo($user, $password = null)
+    private function initialize($path, ...$args)
     {
-        $this->user = $user;
-        $this->password = $password;
+        if (!preg_match("#^(https?|ftp|file)?:\/\/.*#", $path)) {
+            $path = '//'.$path;
+        }
+
+        var_dump($path);
+
+        $parts = static::parseUrl($path);
+
+        array_unshift($args, $parts['path']);
+
+        $args = array_combine($keys = array_keys(static::$defaults), $args);
+
+        array_walk($args, function (&$val, $key) use (&$args, $parts) {
+            $val = null !== $val ? $val : (isset($parts[$key]) ? $parts[$key] : static::$defaults[$key]);
+        });
+
+        array_map(function ($key) use ($args) {
+            call_user_func([$this, 'set'.ucfirst($key)], $args[$key]);
+        }, $keys);
     }
 
     /**
@@ -511,28 +514,35 @@ class Uri implements UriInterface
         return isset($this->validSchemes[$this->scheme]) && $this->port === $this->validSchemes[$this->scheme];
     }
 
-    /**
-     * filterUrlString
-     *
-     * @param string $string
-     *
-     * @return string
-     */
     private function filterUrlPath($string)
     {
         return $this->filterUrlString($string, $this->getPathRegexp());
     }
 
-    /**
-     * filterQueryAndFragment
-     *
-     * @param mixed $string
-     *
-     * @return string
-     */
     private function filterQueryAndFragment($string)
     {
         return $this->filterUrlString($string, $this->getQueryReqexp());
+    }
+
+    private function setQuery($query)
+    {
+        if (null === $query || empty($query)) {
+            $q = [];
+        }
+
+        parse_str($this->sanitizeQuery($query), $q);
+
+        $this->query = $q;
+    }
+
+    private function setUser($user)
+    {
+        $this->user = $user;
+    }
+
+    private function setPass($password)
+    {
+        $this->password = $password;
     }
 
     /**
@@ -543,13 +553,13 @@ class Uri implements UriInterface
      *
      * @return string
      */
-    private function filterUrlString($string, $regexp)
-    {
-        return preg_replace_callback($regexp, function ($matches) {
-            return rawurldecode($matches[0]);
-        }, $string);
+    //private function filterUrlString($string, $regexp)
+    //{
+    //    return preg_replace_callback($regexp, function ($matches) {
+    //        return rawurldecode($matches[0]);
+    //    }, $string);
 
-    }
+    //}
 
     private function getPathRegexp()
     {
@@ -561,7 +571,6 @@ class Uri implements UriInterface
 
     # Matches unreserved characters
     $urChars
-
     # Matches subdelimiter.
     $subDelims
     # Authority parts
@@ -585,7 +594,7 @@ REGEX;
      */
     private static function parseUrl($url)
     {
-        if (false === ($parts = parse_url($url)) || isset($parts['path'])) {
+        if (false === ($parts = parse_url($url)) || !isset($parts['path'])) {
             throw new \InvalidArgumentException('Given url seems to be malformed.');
         }
 

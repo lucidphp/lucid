@@ -12,6 +12,7 @@
 namespace Lucid\Mux;
 
 use Closure;
+use RuntimeException;
 
 /**
  * @class
@@ -20,76 +21,34 @@ use Closure;
  */
 class Route implements RouteInterface
 {
-    /**
-     * keys that can be serialized
-     *
-     * @var array
-     */
+    /** @var array */
     private static $keys = [
-        'pattern'     ,
-        'handler'     ,
-        'methods'     ,
-        'host'        ,
-        'defaults'    ,
-        'constraints' ,
-        'schemes'     ,
-        'context'     ,
+        'pattern', 'handler', 'methods', 'host',
+        'defaults', 'constraints', 'schemes', 'context',
     ];
 
-    /**
-     * pattern
-     *
-     * @var string
-     */
+    /** @var string */
     private $pattern;
 
-    /**
-     * handler
-     *
-     * @var string|callable
-     */
+    /** @var string|callable */
     private $handler;
 
-    /**
-     * methods
-     *
-     * @var string|array
-     */
+    /** @var array */
     private $methods;
 
-    /**
-     * host
-     *
-     * @var string
-     */
+    /** @var string */
     private $host;
 
-    /**
-     * defaults
-     *
-     * @var array
-     */
+    /** @var array */
     private $defaults;
 
-    /**
-     * constraints
-     *
-     * @var array
-     */
+    /** @var array */
     private $constraints;
 
-    /**
-     * schemes
-     *
-     * @var array
-     */
+    /** @var array */
     private $schemes;
 
-    /**
-     * context
-     *
-     * @var RouteContextInterface
-     */
+    /** @var RouteContextInterface */
     private $context;
 
     /**
@@ -230,8 +189,8 @@ class Route implements RouteInterface
      */
     public function serialize()
     {
-        if (!$this->isSerializableHandler($this->gethandler())) {
-            throw new \RuntimeException('Cannot serialize handler.');
+        if (!$this->isSerializableHandler($this->getHandler())) {
+            throw new RuntimeException('Cannot serialize handler.');
         }
 
         return array_map(static::$keys, function ($key) {
@@ -268,9 +227,10 @@ class Route implements RouteInterface
     }
 
     /**
-     * setMethods
+     * Sets supported request methods.
      *
-     * @param mixed $methods
+     * @param mixed $methods string or array of strings containing accepted
+     * methods.
      *
      * @return void
      */
@@ -284,9 +244,10 @@ class Route implements RouteInterface
     }
 
     /**
-     * setSchemes
+     * Sets the schemes.
      *
-     * @param mixed $schemes
+     * @param mixed $schemes string or array of strings containing accepted
+     * schemes.
      *
      * @return void
      */
@@ -304,7 +265,7 @@ class Route implements RouteInterface
      *
      * @param mixed $handler
      *
-     * @return boolean
+     * @return bool
      */
     private function isSerializableHandler($handler)
     {

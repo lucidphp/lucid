@@ -11,64 +11,38 @@
 
 namespace Lucid\Mux\Cache;
 
+use Lucid\Mux\Routes;
+use Lucid\Resource\ResourceCollectorInterface as CollectorInterface;
 use Lucid\Resource\Loader\LoaderInterface;
 
 /**
  * @class Routing
  *
- * @package Lucid\Mux
+ * @package Lucid\Mux\Cache
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
 class Routing implements LoaderListener
 {
-    /**
-     * storage
-     *
-     * @var StorageInterface
-     */
+    /** @var StorageInterface */
     private $storage;
 
-    /**
-     * resources
-     *
-     * @var CollectorInterface
-     */
+    /** @var CollectorInterface */
     private $resources;
 
-    /**
-     * loader
-     *
-     * @var LoaderInterface
-     */
+    /** @var LoaderInterface */
     private $loader;
 
-    /**
-     * current
-     *
-     * @var string
-     */
+    /** @var string */
     private $current;
 
-    /**
-     * debug
-     *
-     * @var boolean
-     */
+    /** @var bool */
     private $debug;
 
-    /**
-     * meta
-     *
-     * @var array
-     */
+    /** @var array */
     private $meta;
 
-    /**
-     * metaCache
-     *
-     * @var array
-     */
+    /** @var array */
     private $metaCache;
 
     /**
@@ -151,7 +125,7 @@ class Routing implements LoaderListener
      */
     private function isDebugging()
     {
-        return $this->debug;
+        return (bool)$this->debug;
     }
 
     /**
@@ -185,7 +159,7 @@ class Routing implements LoaderListener
      */
     private function doLoadResources()
     {
-        $collection = new RouteCollection;
+        $collection = new Routes;
 
         foreach ($this->resources->getResources() as $i => $resource) {
             // dont't add the prmary resource to

@@ -48,6 +48,6 @@ class IdentityParserTest extends \PHPUnit_Framework_TestCase
         $parser = new IdentityParser;
         $mock = $this->getMock('Lucid\Template\IdentityInterface');
 
-        $this->assertSame($mock, $parser->identify($mock));
+        $this->assertTrue($mock === $parser->identify($mock));
     }
 }

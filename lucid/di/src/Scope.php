@@ -20,11 +20,41 @@ namespace Lucid\DI;
  */
 final class Scope
 {
+    /** @var string */
     const SINGLETON = 'singleton';
 
+    /** @var string */
     const PROTOTYPE = 'prototype';
 
-    private function __construct()
+    /**
+     * Constructor
+     *
+     * @param string $type
+     * @param Scope $parent
+     */
+    public function __construct($type = self::SINGLETON, Scope $parent = null)
     {
+        $this->type = $type;
+        $this->parent = $parent;
+    }
+
+    /**
+     * getParent
+     *
+     * @return Scope|null
+     */
+    public function getParent()
+    {
+        return $this->parent;
+    }
+
+    /**
+     * __toString
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->type;
     }
 }

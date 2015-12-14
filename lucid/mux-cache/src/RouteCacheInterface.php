@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This File is part of the Lucid\Mux package
+ * This File is part of the Lucid\Mux\Cache package
  *
  * (c) iwyg <mail@thomas-appel.com>
  *
@@ -16,21 +16,21 @@ use Lucid\Mux\RouteCollectionInterface;
 /**
  * @interface RouteCacheInterface
  *
- * @package Lucid\Mux
+ * @package Lucid\Mux\Cache
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
 interface RouteCacheInterface
 {
     /**
-     * read
+     * Reads a routecollection from cache.
      *
-     * @return void
+     * @return RouteCacheInterface
      */
     public function read();
 
     /**
-     * write
+     * Writes a routecollection to cache.
      *
      * @param RouteCollectionInterface $routes
      *
@@ -39,21 +39,21 @@ interface RouteCacheInterface
     public function write(RouteCollectionInterface $routes);
 
     /**
-     * isValid
+     * Determine if the cache is still valid.
      *
-     * @return boolean
+     * @return bool
      */
     public function isValid();
 
     /**
-     * exists
+     * Determine if the cache already exists.
      *
-     * @return boolean
+     * @return bool
      */
     public function exists();
 
     /**
-     * getLastWriteTime
+     * Gets the timestamp the last time the cache was written to.
      *
      * @return int
      */

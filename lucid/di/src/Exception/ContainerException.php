@@ -50,32 +50,4 @@ class ContainerException extends Exception implements InteropContainerException
             sprintf('The requested serive "%s" is not instantiable.', $id)
         );
     }
-
-    /**
-     * Should be used if a service definition is not resolveable.
-     *
-     * @param string $id
-     *
-     * @return ContainerException
-     */
-    public static function notResolveable($id)
-    {
-        return new self(
-            sprintf('The requested serive "%s" is not resolveable.', $id)
-        );
-    }
-
-    /**
-     * Should be used if a service definition is referencing itself.
-     *
-     * @param string $id
-     *
-     * @return ContainerException
-     */
-    public static function circularReference($id)
-    {
-        return new self(
-            sprintf('The requested service "%s" has a circular reference.', $id)
-        );
-    }
 }

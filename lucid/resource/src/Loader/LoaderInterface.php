@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This File is part of the Lucid\Resource\Loader package
+ * This File is part of the Lucid\Resource package
  *
  * (c) iwyg <mail@thomas-appel.com>
  *
@@ -14,12 +14,18 @@ namespace Lucid\Resource\Loader;
 /**
  * @class LoaderInterface
  *
- * @package Lucid\Resource\Loader
+ * @package Lucid\Resource
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
 interface LoaderInterface
 {
+    /** @var bool */
+    const LOAD_ALL = true;
+
+    /** @var bool */
+    const LOAD_ONE = false;
+
     /**
      * load
      *
@@ -50,18 +56,18 @@ interface LoaderInterface
     /**
      * addListener
      *
-     * @param LoaderListenerInterface $listener
+     * @param ListenerInterface $listener
      *
      * @return void
      */
-    public function addListener(LoaderListenerInterface $listener);
+    public function addListener(ListenerInterface $listener);
 
     /**
      * removeListener
      *
-     * @param LoaderListenerInterface $listener
+     * @param ListenerInterface $listener
      *
      * @return void
      */
-    public function removeListener(LoaderListenerInterface $listener);
+    public function removeListener(ListenerInterface $listener);
 }

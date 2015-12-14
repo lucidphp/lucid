@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This File is part of the Lucid\Resource\Loader package
+ * This File is part of the Lucid\Resource package
  *
  * (c) iwyg <mail@thomas-appel.com>
  *
@@ -16,23 +16,19 @@ use SplObjectStorage;
 /**
  * @class AbstractLoader
  *
- * @package Lucid\Resource\Loader
+ * @package Lucid\Resource
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
 abstract class AbstractLoader implements LoaderInterface
 {
-    /**
-     * listeners
-     *
-     * @var SplObjectStorage
-     */
+    /** @var SplObjectStorage */
     private $listeners;
 
     /**
      * {@inheritdoc}
      */
-    public function addListener(LoaderListenerInterface $listener)
+    public function addListener(ListenerInterface $listener)
     {
         $this->getListeners()->attach($listener);
     }
@@ -40,13 +36,13 @@ abstract class AbstractLoader implements LoaderInterface
     /**
      * {@inheritdoc}
      */
-    public function removeListener(LoaderListenerInterface $listener)
+    public function removeListener(ListenerInterface $listener)
     {
         $this->getListeners()->detach($listener);
     }
 
     /**
-     * notify
+     * Calls 'onLoaded' on all listeners.
      *
      * @return void
      */
@@ -58,13 +54,13 @@ abstract class AbstractLoader implements LoaderInterface
     }
 
     /**
-     * loadResource
+     * Loads a resource.
      *
      * @param mixed $resource
      *
      * @return void
      */
-    private function loadResource($resource)
+    protected function loadResource($resource)
     {
         $res = $this->doLoad($resource);
         $this->notify($resource);

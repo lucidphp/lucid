@@ -29,9 +29,14 @@ class Event implements EventInterface
     /** @var bool */
     private $isStopped = false;
 
+    /**
+     * Constructor.
+     *
+     * @param string $name
+     */
     public function __construct($name = null)
     {
-        $this->originalName = new EventName($this, $name);
+        $this->originalName = new EventName($this, (string)$name);
     }
 
     /**
@@ -61,7 +66,7 @@ class Event implements EventInterface
     /**
      * {@inheritdoc}
      */
-    public function setName($name)
+    final public function setName($name)
     {
         $this->name = new EventName($this, $name);
     }
@@ -69,7 +74,7 @@ class Event implements EventInterface
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    final public function getName()
     {
         return $this->name ?: $this->originalName;
     }
@@ -77,7 +82,7 @@ class Event implements EventInterface
     /**
      * {@inheritdoc}
      */
-    public function getOriginalName()
+    final public function getOriginalName()
     {
         return $this->originalName;
     }

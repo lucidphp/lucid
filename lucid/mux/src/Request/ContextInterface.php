@@ -12,7 +12,7 @@
 namespace Lucid\Mux\Request;
 
 /**
- * @class ContextInterface
+ * @interface ContextInterface
  *
  * @package Lucid\Mux
  * @version $Id$

@@ -20,13 +20,24 @@ namespace Lucid\DI\Parameter;
  */
 class Value
 {
+    /** @var string */
     private $value;
 
+    /**
+     * Constructor.
+     *
+     * @param string $value
+     */
     public function __construct($value)
     {
         $this->value = (string)$value;
     }
 
+    /**
+     * String representation of Vlaue.
+     *
+     * @return string
+     */
     public function __toString()
     {
         return $this->value;

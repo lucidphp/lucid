@@ -6,17 +6,8 @@
 An extendable templating library for php.
 
 ## Installation
-
-```json
-{
-	"require": {
-		"lucid/template":"dev-master"
-	}
-}
-```
-
 ```bash
-$ composer install
+$ composer require lucid/template dev-master
 ```
 
 ## Getting started

@@ -11,6 +11,10 @@
 
 namespace Lucid\Resource;
 
+use LogicException;
+use ReflectionObject;
+use InvalidArgumentException;
+
 /**
  * @class ObjectResource
  *
@@ -40,15 +44,15 @@ class ObjectResource extends AbstractResource
     private function getObjectResource($object)
     {
         if (!is_object($object)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 sprintf('%s expects first argument to be object, instead saw %s', get_class($this), gettype($object))
             );
         }
 
-        $reflection = new \ReflectionObject($object);
+        $reflection = new ReflectionObject($object);
 
         if ($reflection->isInternal()) {
-            throw new \LogicException(
+            throw new LogicException(
                 sprintf('Cannot use internal class "%s" as resource.', $reflection->getName())
             );
         }
