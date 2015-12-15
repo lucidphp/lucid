@@ -21,7 +21,7 @@ use RuntimeException;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-class XcacheClient extends AbstractClient
+class Xcache extends AbstractClient
 {
     /**
      * Constructor.

@@ -76,7 +76,7 @@ class SectionTest extends \PHPUnit_Framework_TestCase
     {
         $section = $this->newSection();
         $this->cache->method('get')->with('section:section:key')->willReturn('rnd');
-        $this->cache->method('seal')->with('rnd:section:key', 'data', $compress)->willReturn(true);
+        $this->cache->method('persist')->with('rnd:section:key', 'data', $compress)->willReturn(true);
 
         $this->assertTrue($section->persist('key', 'data', $compress));
     }
@@ -93,7 +93,7 @@ class SectionTest extends \PHPUnit_Framework_TestCase
 
         $section = $this->newSection();
         $this->cache->method('get')->with('section:section:key')->willReturn('rnd');
-        $this->cache->method('seal')->with('rnd:section:key', 'data', $compress)->willReturn(true);
+        $this->cache->method('persist')->with('rnd:section:key', 'data', $compress)->willReturn(true);
 
         $this->assertTrue($section->persistUsing('key', $callback, $compress));
     }
@@ -106,11 +106,13 @@ class SectionTest extends \PHPUnit_Framework_TestCase
         ];
     }
 
-    protected function newSection($name = 'section')
+    protected function newSection($name = 'section', $storage = null)
     {
-        $this->cache = $this->mockStorage();
+        if (null !== $storage) {
+            return new Section($storage, $name);
+        }
 
-        return new Section($this->cache, $name);
+        return new Section($this->cache = $this->mockStorage(), $name);
     }
 
     protected function mockStorage()

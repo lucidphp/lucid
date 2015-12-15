@@ -1,14 +1,14 @@
 # Caching library.
 
 [![Author](http://img.shields.io/badge/author-iwyg-blue.svg?style=flat-square)](https://github.com/iwyg)
-[![Source Code](http://img.shields.io/badge/source-lucid/signal-blue.svg?style=flat-square)](https://github.com/lucidphp/cache/tree/master)
-[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](https://github.com/lucidphp/cache/blob/master/LICENSE.md)
+[![Source Code](http://img.shields.io/badge/source-lucid/signal-blue.svg?style=flat-square)](https://github.com/lucidphp/cache/tree/local-dev)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](https://github.com/lucidphp/cache/blob/local-dev/LICENSE.md)
 
-[![Build Status](https://img.shields.io/travis/iwyg/cache/master.svg?style=flat-square)](https://travis-ci.org/lucidphp/cache)
+[![Build Status](https://img.shields.io/travis/iwyg/cache/local-dev.svg?style=flat-square)](https://travis-ci.org/lucidphp/cache)
 <!--
-[![Code Coverage](https://img.shields.io/coveralls/iwyg/cache/master.svg?style=flat-square)](https://coveralls.io/r/lucidphp/cache)
+[![Code Coverage](https://img.shields.io/coveralls/iwyg/cache/local-dev.svg?style=flat-square)](https://coveralls.io/r/lucidphp/cache)
 -->
-[![HHVM](https://img.shields.io/hhvm/lucid/cache/master.svg?style=flat-square)](http://hhvm.h4cc.de/package/lucid/cache)
+[![HHVM](https://img.shields.io/hhvm/lucid/cache/local-dev.svg?style=flat-square)](http://hhvm.h4cc.de/package/lucid/cache)
 
 ## Requirements
 ```
@@ -38,6 +38,7 @@ $cache->get('id'); // 'value'
 
 - `APCu`
 - `Filesystem`
+- `InMemory`
 - `Redis`
 - `Memcached`
 - `Memcache (php < 7.0)`
