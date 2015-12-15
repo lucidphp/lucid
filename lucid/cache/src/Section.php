@@ -23,19 +23,11 @@ use Closure;
  */
 class Section implements CacheInterface, SectionableInterface
 {
-    /**
-     * cache
-     *
-     * @var mixed
-     */
-    protected $cache;
+    /** @var CacheInterface */
+    private $cache;
 
-    /**
-     * section
-     *
-     * @var string
-     */
-    protected $section;
+    /** @var string */
+    private $section;
 
     /**
      * Constructor.
@@ -140,7 +132,7 @@ class Section implements CacheInterface, SectionableInterface
      */
     public function persistUsing($key, callable $callback, $compressed = false)
     {
-        return $this->persist($key, $callback(), $compressed);
+        return $this->persist($key, call_user_func($callback), $compressed);
     }
 
     /**

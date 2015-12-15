@@ -11,11 +11,13 @@
 
 namespace Lucid\Cache\Client;
 
-function extension_loaded($ext)
+/**
+ * @class MySqlClient
+ *
+ * @package Lucid\Cache
+ * @version $Id$
+ * @author iwyg <mail@thomas-appel.com>
+ */
+class MySql extends AbstractSqlClient
 {
-    if (in_array($ext, ['apc', 'apcu', 'xcache'])) {
-        return true;
-    }
-
-    return call_user_func_array('extension_loaded', func_get_args());
 }

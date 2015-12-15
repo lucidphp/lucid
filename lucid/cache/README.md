@@ -38,6 +38,7 @@ $cache->get('id'); // 'value'
 
 - `APCu`
 - `Filesystem`
+- `InMemory`
 - `Redis`
 - `Memcached`
 - `Memcache (php < 7.0)`

@@ -9,7 +9,7 @@
  * that was distributed with this package.
  */
 
-namespace Lucid\Cache\Driver;
+namespace Lucid\Cache\Client;
 
 function apcu_exists($key)
 {
@@ -33,6 +33,7 @@ function apcu_fetch($key, &$success)
 {
     if ('item.fails' === $key) {
         $success = false;
+
         return false;
     }
 
