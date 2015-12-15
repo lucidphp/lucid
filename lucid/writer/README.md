@@ -1,4 +1,4 @@
-# Selene Writer: dumping strings with elegance
+# Lucid Writer: dumping strings with elegance
 
 [![Build Status](https://travis-ci.org/seleneapp/writer.svg?branch=development)](https://travis-ci.org/seleneapp/writer)
 [![Latest Stable Version](https://poser.pugx.org/selene/writer/v/stable.png)](https://packagist.org/packages/selene/writer) 
@@ -12,7 +12,7 @@
 
 ## Installation
 
-Require `Selene\Module\Writer` in your composer file.
+Require `Lucid\Writer` in your composer file.
 
 ```json
 {
@@ -37,7 +37,7 @@ Write a 2 line text block:
 ```php
 <?php
 
-use \Selene\Module\Writer\Writer;
+use Lucid\Writer\Writer;
 
 $writer = new Writer;
 
@@ -59,7 +59,7 @@ method.
 ```php
 <?php
 
-use \Selene\Module\Writer\Writer;
+use Lucid\Writer\Writer;
 
 $writer = new Writer;
 $writer->allowTrailingSpace(true); // will now preserve trailing space chars for each line.
@@ -75,7 +75,7 @@ constructor:
 ```php
 <?php
 
-use \Selene\Module\Writer\Writer;
+use Lucid\Writer\Writer;
 
 $writer = new Writer(2);
 
@@ -91,7 +91,7 @@ You may also change spaces to tabs using the `useTabs()` method.
 ```php
 <?php
 
-use \Selene\Module\Writer\Writer;
+use Lucid\Writer\Writer;
 
 $writer = new Writer;
 $writer->useTabs(true);
@@ -108,22 +108,22 @@ acts as a multiplyer.
 
 Fluent methods:
 
-- **`Selene\Module\Writer\Writer` writeln( `string|null $str` )**  
+- **`Lucid\Writer\Writer` writeln( `string|null $str` )**  
 Adds a line.
  
-- **`Selene\Module\Writer\Writer` indent( `void` )** 
+- **`Lucid\Writer\Writer` indent( `void` )** 
 Adds an indentation.
 
-- **`Selene\Module\Writer\Writer` replaceln( string $str, int $index)**  
+- **`Lucid\Writer\Writer` replaceln( string $str, int $index)**  
 Replaces a line at a line index.
 
-- **`Selene\Module\Writer\Writer` removeln( `int $index` )**  
+- **`Lucid\Writer\Writer` removeln( `int $index` )**  
 Removes a line at a line index.
 
-- **`Selene\Module\Writer\Writer` popln ( `void` )**  
+- **`Lucid\Writer\Writer` popln ( `void` )**  
 Removes the last line.
 
-- **`Selene\Module\Writer\Writer` appendln ( `string $str` )**  
+- **`Lucid\Writer\Writer` appendln ( `string $str` )**  
 Appends a string to the last line.
 
 None fluent methods:
@@ -165,7 +165,7 @@ or `AcmeLibFoo`, or `AcmeLibFooAlias`, and so on.
 Note that the use statement is considered to be the FQN;
 
 - **getImportResolver( )**  
-Will return an instance of `Selene\Module\Writer\Object\ImportResolver`.
+Will return an instance of `Lucid\Writer\Object\ImportResolver`.
 This is useful if you need to know the aliases name of a imported string
 (interface, trait, parent class or usestatement), e.g.
 
@@ -174,18 +174,18 @@ This is useful if you need to know the aliases name of a imported string
 $alias = $cg->getImportResolver()->getAlias('Acme\MyClass') // e.g. AcmeMyClassAlias;
 ```
 
-- **`void` addConstant( `Selene\Module\Writer\Object\Constant $constant` )**  
+- **`void` addConstant( `Lucid\Writer\Object\Constant $constant` )**  
 Adds a constant to the interface.
 
-- **`void` addMethod( `Selene\Module\Writer\Object\MethodInterface $method` )**  
-Takes an object of type `Selene\Module\Writer\Object\MethodInterface` and adds it to the object declaration.
+- **`void` addMethod( `Lucid\Writer\Object\MethodInterface $method` )**  
+Takes an object of type `Lucid\Writer\Object\MethodInterface` and adds it to the object declaration.
 
-- **`Selene\Module\Writer\Object\DocBlock` getDoc( `void` )**  
-Returns an instance of `Selene\Module\Writer\Object\DocBlock` that represents the
+- **`Lucid\Writer\Object\DocBlock` getDoc( `void` )**  
+Returns an instance of `Lucid\Writer\Object\DocBlock` that represents the
 document level docblock.
 
-- **`Selene\Module\Writer\Object\DocBlock` getObjDoc( `void` )**  
-Returns an instance of `Selene\Module\Writer\Object\DocBlock` that represents the
+- **`Lucid\Writer\Object\DocBlock` getObjDoc( `void` )**  
+Returns an instance of `Lucid\Writer\Object\DocBlock` that represents the
 object level docblock.
 
 - **`void` noAutoGenerateTag( void )**  
@@ -200,7 +200,7 @@ Use this for autogenerating php interfaces.
 ```php
 <?php 
 
-use \Selene\Module\Writer\Object\ClassWriter;
+use Lucid\Writer\Object\ClassWriter;
 
 $iw = new InterfaceWriter('Foo', 'Acme', '\Acme\Parent');
 
@@ -229,8 +229,8 @@ interface Foo extends Parent
 
 ### API
 
-- **addMethod( `Selene\Module\Writer\Object\MethodInterface $method` )**  
-Takes an object of type `Selene\Module\Writer\Object\InterfaceMethod` and adds it to the interface.
+- **addMethod( `Lucid\Writer\Object\MethodInterface $method` )**  
+Takes an object of type `Lucid\Writer\Object\InterfaceMethod` and adds it to the interface.
 
 
 ### ClassWriter
@@ -240,7 +240,7 @@ Use this for autogenerating php classes.
 ```php
 <?php 
 
-use \Selene\Module\Writer\Object\ClassWriter;
+use Lucid\Writer\Object\ClassWriter;
 
 $cg = new ClassWriter('Foo', 'Acme');
 
@@ -286,10 +286,10 @@ Takes an object of type `Method` and adds it to the class.
 
 - **`void` setProperties( `array $properties` )**   
 Set the class properties. `$properties` must be an array of
-`Selene\Module\Writer\Object\Property` instances.
+`Lucid\Writer\Object\Property` instances.
 
-- **`void` addProperty( `Selene\Module\Writer\Object\Property $property` )**  
-Takes an object of type `Selene\Module\Writer\Object\Property` and adds it as a class property.
+- **`void` addProperty( `Lucid\Writer\Object\Property $property` )**  
+Takes an object of type `Lucid\Writer\Object\Property` and adds it as a class property.
 
 - **`void` useTraitMethodAs(`string $trait`, `string $method`, `string $replacement`, `[string $visibility]`)**    
 Replaces a method naming conflict between a trait an a class. Default visiblity
@@ -305,12 +305,12 @@ Generating a class with constants, methods, properties, and traits.
 ```php
 <?php
 
-use \Selene\Module\Writer\Writer;
-use \Selene\Module\Writer\Object\Constant;
-use \Selene\Module\Writer\Object\Argument;
-use \Selene\Module\Writer\Object\Method;
-use \Selene\Module\Writer\Object\Property;
-use \Selene\Module\Writer\Object\ClassGenerator;
+use Lucid\Writer\Writer;
+use Lucid\Writer\Object\Constant;
+use Lucid\Writer\Object\Argument;
+use Lucid\Writer\Object\Method;
+use Lucid\Writer\Object\Property;
+use Lucid\Writer\Object\ClassGenerator;
 
 $cg = new ClassGenerator('Foo', 'Acme');
 
