@@ -12,6 +12,7 @@
 namespace Lucid\Signal;
 
 use RuntimeException;
+use InvalidArgumentException;
 
 /**
  * @class EventDispatcher
@@ -123,7 +124,7 @@ class EventDispatcher implements EventDispatcherInterface
 
             $event->setName($name);
 
-            foreach ($this->handlers[$name]->flush() as $handler) {
+            foreach ($this->handlers[$name]->all() as $handler) {
                 if ($event->isStopped()) {
                     break;
                 }
@@ -167,7 +168,7 @@ class EventDispatcher implements EventDispatcherInterface
      * getHandler
      *
      * @param  $handler
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      *
      * @return callable
      */
@@ -181,7 +182,7 @@ class EventDispatcher implements EventDispatcherInterface
             return $handler;
         }
 
-        throw new \InvalidArgumentException(
+        throw new InvalidArgumentException(
             sprintf('Invalid handler "%s".', is_string($handler) ? $handler : gettype($handler))
         );
     }

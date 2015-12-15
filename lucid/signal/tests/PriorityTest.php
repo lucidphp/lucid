@@ -29,14 +29,14 @@ class PriorityTest extends \PHPUnit_Framework_TestCase
     }
 
     /** @test */
-    public function flushMustAlwaysReturnIterator()
+    public function allMustAlwaysReturnIterator()
     {
         $pri = new Priority;
-        $this->assertInstanceOf('\Iterator', $pri->flush());
+        $this->assertInstanceOf('\Iterator', $pri->all());
     }
 
     /** @test */
-    public function itShouldFlushHandlersInCorrectOrder()
+    public function itShouldAllHandlersInCorrectOrder()
     {
         $handlerA = 'handlerA';
         $handlerB = 'handlerB';
@@ -49,7 +49,7 @@ class PriorityTest extends \PHPUnit_Framework_TestCase
 
         $handlers = [];
 
-        foreach ($pri->flush() as $handler) {
+        foreach ($pri->all() as $handler) {
             $handlers[] = $handler;
         }
 

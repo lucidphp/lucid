@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This File is part of the Lucid\Template\Tests package
+ * This File is part of the Lucid\Template package
  *
  * (c) iwyg <mail@thomas-appel.com>
  *
@@ -16,7 +16,7 @@ use Lucid\Template\RenderEngineDecorator;
 /**
  * @class RenderEngineDecoratorTest
  *
- * @package Lucid\Template\Tests
+ * @package Lucid\Template
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
@@ -41,8 +41,8 @@ class RenderEngineDecoratorTest extends \PHPUnit_Framework_TestCase
         $called = false;
 
         $engine->method('func')->willReturn(null);
-        $engine->method($method)->will($this->returnCallback(function () use (&$called, $args, $method) {
-            if ($args === func_get_args()) {
+        $engine->method($method)->will($this->returnCallback(function (...$arguments) use (&$called, $args, $method) {
+            if ($args === $arguments) {
                 $called = true;
             } else {
                 $this->fail('Arguments missmatch.');

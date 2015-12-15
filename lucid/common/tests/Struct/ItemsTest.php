@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This File is part of the Lucid\Common\Tests\Struct package
+ * This File is part of the Lucid\Common package
  *
  * (c) iwyg <mail@thomas-appel.com>
  *
@@ -16,7 +16,7 @@ use Lucid\Common\Struct\Items;
 /**
  * @class ItemsTest
  *
- * @package Lucid\Common\Tests\Struct
+ * @package Lucid\Common
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */

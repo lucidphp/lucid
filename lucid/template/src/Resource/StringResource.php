@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This File is part of the Lucid\Template\Resource package
+ * This File is part of the Lucid\Template package
  *
  * (c) iwyg <mail@thomas-appel.com>
  *
@@ -14,7 +14,7 @@ namespace Lucid\Template\Resource;
 /**
  * @class StringResource
  *
- * @package Lucid\Template\Resource
+ * @package Lucid\Template
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */

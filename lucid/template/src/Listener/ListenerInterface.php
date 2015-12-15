@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This File is part of the Lucid\Template\Listener package
+ * This File is part of the Lucid\Template package
  *
  * (c) iwyg <mail@thomas-appel.com>
  *
@@ -16,7 +16,7 @@ use Lucid\Template\Data\TemplateDataInterface;
 /**
  * @interface ListenerInterface
  *
- * @package Lucid\Template\Listener
+ * @package Lucid\Template
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */

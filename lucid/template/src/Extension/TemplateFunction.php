@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This File is part of the Lucid\Template\Extension package
+ * This File is part of the Lucid\Template package
  *
  * (c) iwyg <mail@thomas-appel.com>
  *
@@ -14,7 +14,7 @@ namespace Lucid\Template\Extension;
 /**
  * @class TemplateFunction
  *
- * @package Lucid\Template\Extension
+ * @package Lucid\Template
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
@@ -97,9 +97,9 @@ class TemplateFunction implements FunctionInterface
     /**
      * {@inheritdoc}
      */
-    public function __invoke()
+    public function __invoke(...$args)
     {
-        return $this->call(func_get_args());
+        return $this->call($args);
     }
 
     /**

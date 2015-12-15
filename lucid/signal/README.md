@@ -1,21 +1,27 @@
 # Event Dispatcher Library
 
 [![Author](http://img.shields.io/badge/author-iwyg-blue.svg?style=flat-square)](https://github.com/iwyg)
-[![Source Code](http://img.shields.io/badge/source-lucid/signal-blue.svg?style=flat-square)](https://github.com/lucidphp/signal/tree/develop)
-[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](https://github.com/iwyg/jitimage/blob/develop/LICENSE.md)  
+[![Source Code](http://img.shields.io/badge/source-lucid/signal-blue.svg?style=flat-square)](https://github.com/lucidphp/signal/tree/local-dev)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](https://github.com/lucidphp/signal/blob/local-dev/LICENSE.md)
 
-[![Build Status](https://img.shields.io/travis/iwyg/event/master.svg?style=flat-square)](https://travis-ci.org/iwyg/event)
+[![Build Status](https://img.shields.io/travis/iwyg/signal/local-dev.svg?style=flat-square)](https://travis-ci.org/lucidphp/signal)
 <!--
-[![Code Coverage](https://img.shields.io/coveralls/iwyg/event/master.svg?style=flat-square)](https://coveralls.io/r/iwyg/event)
+[![Code Coverage](https://img.shields.io/coveralls/iwyg/signal/local-dev.svg?style=flat-square)](https://coveralls.io/r/lucidphp/signal)
 -->
-[![HHVM](https://img.shields.io/hhvm/lucid/event/master.svg?style=flat-square)](http://hhvm.h4cc.de/package/lucid/event)
+[![HHVM](https://img.shields.io/hhvm/lucid/signal/local-dev.svg?style=flat-square)](http://hhvm.h4cc.de/package/lucid/signal)
+
+## Requirements
+
+```
+php >= 5.6
+```
 
 ## Installation
 
 You may install `lucid/signal` with composer.
 
 ```bash
-$ composer require lucid/signal
+$ composer require lucid/signal --save
 ```
 
 ## Usage
@@ -64,7 +70,7 @@ $handler = new MyHandler;
 
 $dispatcher->addHandler('my_event', $handler);
 
-```   
+```
 
 `MyHandler::handleEvent` will now be called when `my_event` is fired.
 

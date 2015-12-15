@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This File is part of the Lucid\Common\Helper package
+ * This File is part of the Lucid\Common package
  *
  * (c) iwyg <mail@thomas-appel.com>
  *
@@ -11,10 +11,13 @@
 
 namespace Lucid\Common\Helper;
 
+use RuntimeException;
+use InvalidArgumentException;
+
 /**
  * @class Str
  *
- * @package Lucid\Common\Helper
+ * @package Lucid\Common
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
@@ -52,6 +55,7 @@ final class Str
     {
         return strtolower(preg_replace('#[A-Z]#', $delim.'$0', lcfirst($string)));
     }
+
     /**
      * camelcase notataion
      *
@@ -64,6 +68,7 @@ final class Str
     {
         return lcfirst(self::camelCaseAll($string, $replacement));
     }
+
     /**
      * all camelcase notataion
      *
@@ -78,7 +83,7 @@ final class Str
     }
 
     /**
-     * equals
+     * Compares two strings using strcmp.
      *
      * @param string $string
      * @param string $input
@@ -91,7 +96,7 @@ final class Str
     }
 
     /**
-     * safeCmp
+     * Safe compare two strings.
      *
      * @param string $string
      * @param string $input
@@ -118,7 +123,7 @@ final class Str
     }
 
     /**
-     * rand
+     * Generates random strings of a given length.
      *
      * @param int $length
      *
@@ -127,9 +132,11 @@ final class Str
     public static function rand($length)
     {
         if (!is_int($length)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 sprintf(
-                    'Str::rand() expects first argument to be integer, instead saw %s.',
+                    '%s::%s() expects first argument to be integer, instead saw %s.',
+                    __CLASS__,
+                    __METHOD__,
                     gettype($length)
                 )
             );
@@ -140,18 +147,17 @@ final class Str
         }
 
         if (null === ($bytes = openssl_random_pseudo_bytes($length * 2))) {
-            throw new \RuntimeException('Cannot generate random string');
+            throw new RuntimeException('Cannot generate random string');
         }
 
         return substr(str_replace(['/', '=', '+'], '', base64_encode($bytes)), 0, $length);
     }
 
     /**
-     * strQuickRand
+     * Quick generation of pseudo-random strings.
      *
-     * @param mixed $length
+     * @param int $length
      *
-     * @access public
      * @return string
      */
     public static function quickRand($length)
@@ -159,6 +165,9 @@ final class Str
         return substr(str_shuffle(str_repeat(static::$rchars, 5)), 0, $length);
     }
 
+    /**
+     * Disable Constructor.
+     */
     private function __construct()
     {
     }

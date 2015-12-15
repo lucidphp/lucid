@@ -35,69 +35,34 @@ use Lucid\Template\Extension\ExtensionInterface;
  */
 class Engine extends AbstractPhpEngine implements ViewAwareInterface
 {
+    /** @var string */
     const SUPPORT_TYPE = 'php';
 
-    /**
-     * encoding
-     *
-     * @var string
-     */
+    /** @var string */
     protected $encoding;
 
-    /**
-     * functions
-     *
-     * @var array
-     */
+    /** @var array */
     protected $functions;
 
-    /**
-     * globals
-     *
-     * @var array
-     */
+    /** @var array */
     protected $globals;
 
-    /**
-     * sections
-     *
-     * @var array
-     */
+    /** @var array */
     public $sections;
 
-    /**
-     * parent
-     *
-     * @var array
-     */
+    /** @var array */
     protected $parents;
 
-    /**
-     * proxy
-     *
-     * @var PhpRenderInterface|null
-     */
+    /** @var array */
     protected $proxy;
 
-    /**
-     * stack
-     *
-     * @var \SplStack
-     */
+    /** @var \SplStack */
     protected $stack;
 
-    /**
-     * errHandler
-     *
-     * @var string
-     */
+    /** @var callable */
     protected $errHandler;
 
-    /**
-     * errFunc
-     *
-     * @var \Closure
-     */
+    /** @var \Closure */
     protected $errFunc;
 
     /**
@@ -117,13 +82,12 @@ class Engine extends AbstractPhpEngine implements ViewAwareInterface
 
         parent::__construct($loader, $parser);
         $this->addType(self::SUPPORT_TYPE);
-
     }
 
     /**
-     * setEncoding
+     * Sets the template encoding,
      *
-     * @param string $enc
+     * @param string $enc the encoding type, e.g. UTF-8
      *
      * @return void
      */
@@ -133,9 +97,12 @@ class Engine extends AbstractPhpEngine implements ViewAwareInterface
     }
 
     /**
-     * setGlobals
+     * Sets a set of "global" data
      *
-     * @param array $globals
+     * Global variables are accessible by all templates during the rendering
+     * cycle.
+     *
+     * @param array $globals a assocoiative array of vaiable key/value pairs
      *
      * @return void
      */
@@ -145,10 +112,10 @@ class Engine extends AbstractPhpEngine implements ViewAwareInterface
     }
 
     /**
-     * addGlobal
+     * Adds a global key/value pair to the globale template variables.
      *
-     * @param mixed $key
-     * @param mixed $parameter
+     * @param string $key the variable name
+     * @param mixed $parameter the variable value
      *
      * @return void
      */
@@ -158,7 +125,7 @@ class Engine extends AbstractPhpEngine implements ViewAwareInterface
     }
 
     /**
-     * Get global data.
+     * Gets all the global data.
      *
      * @return array
      */
@@ -168,7 +135,7 @@ class Engine extends AbstractPhpEngine implements ViewAwareInterface
     }
 
     /**
-     * registerExtension
+     * Registers a template extension.
      *
      * @param ExtensionInterface $extension
      *
@@ -178,13 +145,25 @@ class Engine extends AbstractPhpEngine implements ViewAwareInterface
     {
         $extension->setEngine($this);
 
-        foreach ($extension->functions() as $func) {
-            $this->registerFunction($func);
-        }
+        array_map([$this, 'registerFunction'], $extension->functions());
     }
 
     /**
-     * registerExtension
+     * Registers a function on the template engine.
+     *
+     * @param string $alias
+     * @param callable $callable
+     *
+     * @return void
+     */
+    public function registerFunction(FunctionInterface $fn)
+    {
+        $this->functions[$fn->getName()] = $fn;
+    }
+
+
+    /**
+     * Removes a template extension.
      *
      * @param ExtensionInterface $extension
      *
@@ -243,12 +222,12 @@ class Engine extends AbstractPhpEngine implements ViewAwareInterface
     }
 
     /**
-     * insert
+     * Inserts a template at the given position.
      *
      * @param mixed $template
-     * @param array $options
+     * @param array $replacements template parameters to be merged with existing ones.
      *
-     * @return void
+     * @return string the rendered template as string
      */
     public function insert($template, array $replacements = [])
     {
@@ -258,7 +237,7 @@ class Engine extends AbstractPhpEngine implements ViewAwareInterface
     }
 
     /**
-     * extend
+     * Extends a given template.
      *
      * @param mixed $template
      *
@@ -276,9 +255,9 @@ class Engine extends AbstractPhpEngine implements ViewAwareInterface
     }
 
     /**
-     * section
+     * Starts a template section at the current postion.
      *
-     * @param mixed $name
+     * @param string $name
      *
      * @return void
      */
@@ -297,7 +276,7 @@ class Engine extends AbstractPhpEngine implements ViewAwareInterface
     }
 
     /**
-     * endsection
+     * Ends a previuosly started section.
      *
      * @return void
      */
@@ -317,26 +296,12 @@ class Engine extends AbstractPhpEngine implements ViewAwareInterface
     }
 
     /**
-     * Register a function on the template engine.
-     *
-     * @param string $alias
-     * @param callable $callable
-     *
-     * @return void
-     */
-    public function registerFunction(FunctionInterface $fn)
-    {
-        $this->functions[$fn->getName()] = $fn;
-    }
-
-    /**
      * execute
      *
      * @return void
      */
-    public function func()
+    public function func(...$args)
     {
-        $args = func_get_args();
         $fns  = explode('|', array_shift($args));
         $res  = null;
 
@@ -424,7 +389,7 @@ class Engine extends AbstractPhpEngine implements ViewAwareInterface
         }
 
         $keys = array_keys($this->sections);
-        $key = array_pop($keys);
+        $key  = array_pop($keys);
 
         return $this->sections[$key];
     }
@@ -522,7 +487,7 @@ class Engine extends AbstractPhpEngine implements ViewAwareInterface
     }
 
     /**
-     * startErrorHandling
+     * Starts error handling.
      *
      * @return void
      */
@@ -532,7 +497,7 @@ class Engine extends AbstractPhpEngine implements ViewAwareInterface
     }
 
     /**
-     * Get the error handler
+     * Get the error handler.
      *
      * @return \Closure
      */
@@ -549,7 +514,7 @@ class Engine extends AbstractPhpEngine implements ViewAwareInterface
     }
 
     /**
-     * stopErrorHandling
+     * Stops the errorhandler.
      *
      * @return void
      */

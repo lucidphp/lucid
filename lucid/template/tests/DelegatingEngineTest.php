@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This File is part of the Lucid\Template\Tests package
+ * This File is part of the Lucid\Template package
  *
  * (c) iwyg <mail@thomas-appel.com>
  *
@@ -16,7 +16,7 @@ use Lucid\Template\DelegatingEngine;
 /**
  * @class DelegatingEngineTest
  *
- * @package Lucid\Template\Tests
+ * @package Lucid\Template
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
@@ -45,7 +45,7 @@ class DelegatingEngineTest extends \PHPUnit_Framework_TestCase
         $engine = new DelegatingEngine($engines);
 
         $this->assertTrue($engine->supports('template'));
-        $this->assertSame($b, $engine->resolveEngine('template'));
+        $this->assertTrue($b === $engine->resolveEngine('template'));
     }
 
     /** @test */

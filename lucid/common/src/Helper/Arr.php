@@ -24,6 +24,8 @@ use RecursiveIteratorIterator;
  */
 final class Arr
 {
+    /** @var string */
+    const NS_SEPARATOR = '.';
 
     /**
      * Flattens a multidimensional array.
@@ -96,9 +98,8 @@ final class Arr
      *
      * @return void
      */
-    public static function zip()
+    public static function zip(...$args)
     {
-        $args = func_get_args();
         $count = count($args);
 
         $out = [];
@@ -125,14 +126,15 @@ final class Arr
                 return count($a) < count($b) ? 1 : -1;
             }
         );
+
         return count(reset($args));
     }
 
     /**
-     * isList
+     * Determines if a given array is an indexed list.
      *
      * @param array $array
-     * @param mixed $strict
+     * @param bool $strict
      *
      * @return boolean
      */
@@ -164,6 +166,7 @@ final class Arr
                 return count($a) < count($b) ? 1 : -1;
             }
         );
+
         return count(end($args));
     }
 
@@ -176,7 +179,7 @@ final class Arr
      *
      * @return mixed
      */
-    public static function get(array $array, $namespace = null, $separator = '.')
+    public static function get(array $array, $namespace = null, $separator = self::NS_SEPARATOR)
     {
         if (!is_string($namespace)) {
             return $array;
@@ -202,7 +205,7 @@ final class Arr
      *
      * @return array
      */
-    public static function set(array &$input, $namespace, $value, $separator = '.')
+    public static function set(array &$input, $namespace, $value, $separator = self::NS_SEPARATOR)
     {
         $keys  = explode($separator, $namespace);
         $pointer = &$input;
@@ -227,7 +230,7 @@ final class Arr
      *
      * @return void
      */
-    public static function unsetKey(array &$array, $namespace, $separator = '.')
+    public static function unsetKey(array &$array, $namespace, $separator = self::NS_SEPARATOR)
     {
         if (!is_string($namespace)) {
             return $array;

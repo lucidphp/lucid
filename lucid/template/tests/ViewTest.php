@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This File is part of the Lucid\Template\Tests package
+ * This File is part of the Lucid\Template package
  *
  * (c) iwyg <mail@thomas-appel.com>
  *
@@ -16,7 +16,7 @@ use Lucid\Template\View;
 /**
  * @class ViewTest
  *
- * @package Lucid\Template\Tests
+ * @package Lucid\Template
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
@@ -127,8 +127,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
         $view = $this->newView($engine = $this->mockEngine());
         $engine->method('supports')->with('template')->willReturn(true);
 
-        $engine->expects($this->once())->method('render')->will($this->returnCallback(function () {
-            $args = func_get_args();
+        $engine->expects($this->once())->method('render')->will($this->returnCallback(function (...$args) {
             if ('template' !== $args[0]) {
                 $this->fail();
             }

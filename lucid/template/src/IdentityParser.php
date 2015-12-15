@@ -39,7 +39,6 @@ class IdentityParser implements IdentityParserInterface
         $name = (string)$template;
 
         if (!isset($this->pool[$name])) {
-
             $type = null;
 
             if (false !== ($pos = strrpos($name, '.'))) {
