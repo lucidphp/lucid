@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This File is part of the Lucid\Template\Loader package
+ * This File is part of the Lucid\Template package
  *
  * (c) iwyg <mail@thomas-appel.com>
  *
@@ -19,7 +19,7 @@ use Lucid\Template\Exception\LoaderException;
 /**
  * @class FilesystemLoader
  *
- * @package Lucid\Template\Loader
+ * @package Lucid\Template
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */

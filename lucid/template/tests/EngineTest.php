@@ -235,7 +235,8 @@ class EngineTest extends \PHPUnit_Framework_TestCase
         $data->set(['foo' => 'bar']);
         $engine = new Engine($loader = $this->mockLoader());
         $loader->method('load')->willReturn($this->mockResource());
-        $engine->setManager($view = $this->getMock('Lucid\Template\ViewManagerInterface'));
+        $engine->setManager($view = $this->mockViewManager());
+
         $view->expects($this->once())->method('notifyListeners')->with('template.php');
         $view->expects($this->once())->method('flushData')->with('template.php')->willReturn($data);
 
@@ -249,13 +250,19 @@ class EngineTest extends \PHPUnit_Framework_TestCase
         return $engine;
     }
 
+    protected function mockViewManager()
+    {
+        return $this->getMockbuilder('Lucid\Template\ViewManagerInterface')->disableOriginalConstructor()->getMock();
+    }
+
+
     protected function mockLoader()
     {
-        return $this->getMock('Lucid\Template\Loader\LoaderInterface');
+        return $this->getMockbuilder('Lucid\Template\Loader\LoaderInterface')->disableOriginalConstructor()->getMock();
     }
 
     protected function mockResource()
     {
-        return $this->getMock('Lucid\Template\Resource\ResourceInterface');
+        return $this->getMockbuilder('Lucid\Template\Resource\ResourceInterface')->disableOriginalConstructor()->getMock();
     }
 }

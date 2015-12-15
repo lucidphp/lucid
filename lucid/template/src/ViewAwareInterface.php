@@ -32,7 +32,7 @@ interface ViewAwareInterface
     /**
      * getManager
      *
-     * @return ViewManagerInterface
+     * @return Lucid\Template\ViewManagerInterface
      */
     public function getManager();
 }
