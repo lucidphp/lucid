@@ -30,7 +30,7 @@ DIRS=`ls -d lucid/*/`
 
 for d in `ls -d lucid/* | xargs`; do
 
-    if [[ ! `$GIT ls-files $d/composer.json --error-unmatch >&?; echo $?` = 0 ]]; then
+    if [[ ! `$GIT ls-files $d/composer.json --error-unmatch 2>/dev/null; echo $?` ]]; then
         continue
     fi
 
