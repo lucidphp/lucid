@@ -13,7 +13,7 @@ before_script:
   - composer self-update
   - composer -vvv install --prefer-dist --no-interaction
 script:
-    - bash -c './.pupunit'
+  - ./.pupunit
 notififation:
   on_success: never
   on_failure: always
