@@ -55,6 +55,7 @@ final class Str
     {
         return strtolower(preg_replace('#[A-Z]#', $delim.'$0', lcfirst($string)));
     }
+
     /**
      * camelcase notataion
      *
@@ -67,6 +68,7 @@ final class Str
     {
         return lcfirst(self::camelCaseAll($string, $replacement));
     }
+
     /**
      * all camelcase notataion
      *

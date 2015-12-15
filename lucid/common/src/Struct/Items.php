@@ -32,6 +32,8 @@ class Items implements ListInterface, ArrayAccess, Countable, Serializable, Iter
     private $data;
 
     /**
+     * Constructor.
+     *
      * @param mixed $args
      */
     public function __construct(...$args)
