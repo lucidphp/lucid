@@ -1,9 +1,22 @@
 # Templating library
 
-![Build Status](https://img.shields.io/travis/iwyg/template.svg?style=flat-square)
-![Coverage](https://img.shields.io/coveralls/iwyg/template.svg?style=flat-square)
+[![Author](http://img.shields.io/badge/author-iwyg-blue.svg?style=flat-square)](https://github.com/iwyg)
+[![Source Code](http://img.shields.io/badge/source-lucid/signal-blue.svg?style=flat-square)](https://github.com/lucidphp/template/tree/local-dev)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](https://github.com/lucidphp/template/blob/local-dev/LICENSE.md)
+
+[![Build Status](https://img.shields.io/travis/iwyg/template/local-dev.svg?style=flat-square)](https://travis-ci.org/lucidphp/template)
+<!--
+[![Code Coverage](https://img.shields.io/coveralls/iwyg/template/local-dev.svg?style=flat-square)](https://coveralls.io/r/lucidphp/template)
+-->
+[![HHVM](https://img.shields.io/hhvm/lucid/template/local-dev.svg?style=flat-square)](http://hhvm.h4cc.de/package/lucid/template)
 
 An extendable templating library for php.
+
+## Requirements
+
+```
+php >= 5.6
+```
 
 ## Installation
 ```bash
@@ -23,8 +36,6 @@ $engine = new Engine(new Loader(['path/to/templates']));
 $engine->render('partials/content.php', ['title' => 'Hello World!']);
 
 ```
-
-
 
 ## Partials
 
@@ -53,7 +64,6 @@ The templates
 ```php
 
 <?= $view->extend('master.php') ?>
-    
 <?= $view->section('content') ?>
     <p>Extended content</p>
 <?= $view->endsection() ?>
@@ -82,5 +92,37 @@ The templates
 
 ### Sections
 
+### Tempalte Listeners
 
-### Render delegates        
+Adding template listeners can be usefull if you want to add data to a specific
+template. This data my be derieved from any resource you may want (e.g. DB,
+Container, etc).
+
+```php
+<?php
+
+$view->addListener('head.php', new RenderHeadListener($headerData));
+```
+
+Your listener may look something like this
+
+```php
+<?php
+
+use Lucid\Template\Listener\ListenerInterface;
+
+class RenderHeadListener implements ListenerInterface
+{
+	private $data;
+
+	public function __construct(array $headerData)
+	{
+		$this->data = $data;
+	}
+
+    public function onRender(TemplateDataInterface $data)
+	{
+		// add header data to `$data`
+	}
+}
+```
