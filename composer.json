@@ -11,7 +11,9 @@
   },
   "require-dev": {
     "phpunit/phpunit": "5.2.*@dev",
-    "sebastian/peek-and-poke": "1.0.*"
+    "sebastian/peek-and-poke": "1.0.*",
+    "satooshi/php-coveralls": "0.7.*@dev",
+    "squizlabs/php_codesniffer": "2.*"
   },
   "license": "MIT",
   "authors": [

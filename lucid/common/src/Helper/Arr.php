@@ -140,7 +140,7 @@ final class Arr
      */
     public static function isList(array $array, $strict = false)
     {
-        $isNumbers = ctype_digit(implode('', array_keys($array)));
+        $isNumbers = ctype_digit(implode('', $keys = array_keys($array)));
 
         if (!$strict) {
             return $isNumbers;
@@ -148,7 +148,7 @@ final class Arr
             return false;
         }
 
-        return array_keys($array) === range(0, count($array) - 1);
+        return $keys === range(0, count($array) - 1);
     }
 
     /**
