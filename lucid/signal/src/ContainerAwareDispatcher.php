@@ -59,31 +59,6 @@ class ContainerAwareDispatcher extends EventDispatcher
     }
 
     /**
-     * {@inheritdoc}
-     */
-    protected function resolveHandler($handler)
-    {
-        if (is_string($handler)) {
-            if ($this->hasAttachedMethod($handler)) {
-                list($id, $method) = explode(self::M_SEPARATOR, $handler);
-            } else {
-                $id = $handler;
-                $method = null;
-            }
-
-            if ($this->container->has($id)) {
-                $handler = $this->container->get($id);
-
-                if (null !== $method) {
-                    return [$handler, $method];
-                }
-            }
-        }
-
-        return parent::resolveHandler($handler);
-    }
-
-    /**
      * hasAttachedMethod
      *
      * @param string $string

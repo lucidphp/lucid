@@ -36,6 +36,28 @@ class PriorityTest extends \PHPUnit_Framework_TestCase
     }
 
     /** @test */
+    public function flushMustAlwaysReturnIterator()
+    {
+        $pri = new Priority;
+        $this->assertInstanceOf('\Iterator', $pri->flush());
+    }
+
+    /** @test */
+    public function flushNeedsToFlushHandlers()
+    {
+        $pri = new Priority;
+
+        $pri->add('handlerA', 1);
+        $pri->add('handlerC', 20);
+        $pri->add('handlerB', 10);
+
+        foreach ($pri->flush() as $handler) {
+        }
+
+        $this->assertEquals([], $pri->toArray());
+    }
+
+    /** @test */
     public function itShouldThrowExceptionOnInvalidHandlers()
     {
         $pri = new Priority;

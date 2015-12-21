@@ -84,8 +84,9 @@ class Priority implements PriorityInterface
 
         foreach ($this->handlers as $handlers) {
             foreach ($handlers as $handler) {
-                $this->remove($handler);
-                yield $handler;
+                if ($this->remove($handler)) {
+                    yield $handler;
+                }
             }
         }
     }
