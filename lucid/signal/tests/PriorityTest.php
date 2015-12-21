@@ -36,6 +36,48 @@ class PriorityTest extends \PHPUnit_Framework_TestCase
     }
 
     /** @test */
+    public function itShouldThrowExceptionOnInvalidHandlers()
+    {
+        $pri = new Priority;
+        try {
+            $pri->add(['not_a_handler'], 0);
+        } catch (\RuntimeException $e) {
+            $this->assertSame('Can\'t convert handler to string.', $e->getMessage());
+
+            return;
+        }
+
+        $this->fail();
+    }
+
+    /** @test */
+    public function itShouldAlwaysReturnAnIteratable()
+    {
+        $pri = new Priority;
+        $this->assertInstanceof('\Iterator', $pri->all());
+    }
+
+
+    /** @test */
+    public function itShouldRemoveHandler()
+    {
+        $pri = new Priority;
+
+        $pri->add('handlerA', 1);
+        $pri->add('handlerC', 20);
+        $pri->add('handlerB', 10);
+
+        $pri->remove('handlerA');
+
+        $this->assertSame(['handlerC', 'handlerB'], $pri->toArray());
+
+        $pri->remove('c');
+        $pri->remove('handlerC');
+
+        $this->assertSame(['handlerB'], $pri->toArray());
+    }
+
+    /** @test */
     public function itShouldAllHandlersInCorrectOrder()
     {
         $handlerA = 'handlerA';
