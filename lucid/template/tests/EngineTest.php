@@ -263,6 +263,8 @@ class EngineTest extends \PHPUnit_Framework_TestCase
 
     protected function mockResource()
     {
-        return $this->getMockbuilder('Lucid\Template\Resource\ResourceInterface')->disableOriginalConstructor()->getMock();
+        return $this->getMockbuilder('Lucid\Template\Resource\ResourceInterface')
+            ->disableOriginalConstructor()
+            ->getMock();
     }
 }

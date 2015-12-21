@@ -1,14 +1,12 @@
 # Lucid Writer: dumping strings with elegance
 
-[![Build Status](https://travis-ci.org/seleneapp/writer.svg?branch=development)](https://travis-ci.org/seleneapp/writer)
-[![Latest Stable Version](https://poser.pugx.org/selene/writer/v/stable.png)](https://packagist.org/packages/selene/writer) 
-[![Latest Unstable Version](https://poser.pugx.org/selene/writer/v/unstable.png)](https://packagist.org/packages/selene/writer) 
-[![License](https://poser.pugx.org/selene/writer/license.png)](https://packagist.org/packages/selene/writer)
-[![HHVM Status](http://hhvm.h4cc.de/badge/selene/writer.png)](http://hhvm.h4cc.de/package/selene/writer)
+[![Author](http://img.shields.io/badge/author-iwyg-blue.svg?style=flat-square)](https://github.com/iwyg)
+[![Source Code](http://img.shields.io/badge/source-lucid/signal-blue.svg?style=flat-square)](https://github.com/lucidphp/writer/tree/develop)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](https://github.com/lucidphp/writer/blob/develop/LICENSE.md)
 
-[![Coverage Status](https://coveralls.io/repos/seleneapp/writer/badge.png?branch=development)](https://coveralls.io/r/seleneapp/writer?branch=development)
-[![Code Climate](https://codeclimate.com/github/seleneapp/writer/badges/gpa.svg)](https://codeclimate.com/github/seleneapp/writer)
-
+[![Build Status](https://img.shields.io/travis/lucidphp/writer/develop.svg?style=flat-square)](https://travis-ci.org/lucidphp/writer)
+[![HHVM](https://img.shields.io/hhvm/lucid/writer/develop.svg?style=flat-square)](http://hhvm.h4cc.de/package/lucid/writer)	
+[![Code Coverage](https://img.shields.io/coveralls/lucidphp/writer/develop.svg?style=flat-square)](https://coveralls.io/r/lucidphp/writer)
 
 ## Installation
 
