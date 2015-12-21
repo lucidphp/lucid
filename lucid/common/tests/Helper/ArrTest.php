@@ -63,6 +63,7 @@ class ArrTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(Arr::isList([0 => 1, 1 => 2, 2 => 3]));
         $this->assertFalse(Arr::isList(['a' => 1, 'b' => 2]));
         $this->assertFalse(Arr::isList([1 => 1, 2 => 2, 3 => 3], true));
+        $this->assertFalse(Arr::isList(["0" => 1, "1" => 2, "bla" => 3], true));
     }
 
     /** @test */
