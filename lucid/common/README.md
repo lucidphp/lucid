@@ -1,14 +1,14 @@
 # Shared utilities for lucid/* packages
 
 [![Author](http://img.shields.io/badge/author-iwyg-blue.svg?style=flat-square)](https://github.com/iwyg)
-[![Source Code](http://img.shields.io/badge/source-lucid/signal-blue.svg?style=flat-square)](https://github.com/lucidphp/common/tree/local-dev)
-[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](https://github.com/lucidphp/common/blob/local-dev/LICENSE.md)
+[![Source Code](http://img.shields.io/badge/source-lucid/signal-blue.svg?style=flat-square)](https://github.com/lucidphp/common/tree/master)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](https://github.com/lucidphp/common/blob/master/LICENSE.md)
 
-[![Build Status](https://img.shields.io/travis/iwyg/common/local-dev.svg?style=flat-square)](https://travis-ci.org/lucidphp/common)
+[![Build Status](https://img.shields.io/travis/iwyg/common/master.svg?style=flat-square)](https://travis-ci.org/lucidphp/common)
 <!--
-[![Code Coverage](https://img.shields.io/coveralls/iwyg/common/local-dev.svg?style=flat-square)](https://coveralls.io/r/lucidphp/common)
+[![Code Coverage](https://img.shields.io/coveralls/iwyg/common/master.svg?style=flat-square)](https://coveralls.io/r/lucidphp/common)
 -->
-[![HHVM](https://img.shields.io/hhvm/lucid/common/local-dev.svg?style=flat-square)](http://hhvm.h4cc.de/package/lucid/common)
+[![HHVM](https://img.shields.io/hhvm/lucid/common/master.svg?style=flat-square)](http://hhvm.h4cc.de/package/lucid/common)
 
 ## Requirements
 
