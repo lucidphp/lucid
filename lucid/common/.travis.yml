@@ -17,19 +17,19 @@ matrix:
 before_install:
   - if [[ $CODE_COVERAGE_LOG != 'true' ]]; then phpenv config-rm xdebug.ini || return 0 ; fi
   - composer self-update
+  - if [[ $CODE_COVERAGE_LOG == 'true' ]]; then composer require --no-update satooshi/php-coveralls:dev-master; fi
   - if [[ $CS_CHECK_ENABLED == 'true' ]]; then composer require squizlabs/php_codesniffer:~2.5; fi
-  - if [[ $CODE_COVERAGE_LOG == 'true' ]]; then composer require --no-update satooshi/php-coveralls:0.7.*@dev; fi
 
 install:
   - composer install --prefer-source --no-interaction
 
 script:
   - if [[ $CODE_COVERAGE_LOG != 'true' ]]; then php vendor/bin/phpunit --verbose; fi;
-  - if [[ $CODE_COVERAGE_LOG == 'true' ]]; then php vendor/bin/phpunit --coverage-clover clover.xml; fi;
+  - if [[ $CODE_COVERAGE_LOG == 'true' ]]; then php vendor/bin/phpunit --coverage-clover clover.xml --whitelist src/; fi;
   - if [[ $CS_CHECK_ENABLED == 'true' ]]; then php vendor/bin/phpcs --standard=PSR2 --ignore=vendor/* src tests; fi
 
 after_script:
-  - if [[ $CODE_COVERAGE_LOG == 'true' ]]; then travis_retry php vendor/bin/coveralls -v; fi
+  - if [[ $CODE_COVERAGE_LOG == 'true' ]]; then php vendor/bin/coveralls -v; fi
 
 notififation:
   on_success: never
