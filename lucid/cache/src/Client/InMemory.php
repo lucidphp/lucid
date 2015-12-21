@@ -21,7 +21,7 @@ use ArrayObject;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-class ArrayClient extends AbstractClient
+class InMemory extends AbstractClient
 {
     /** @var ArrayObject */
     private $storage;
@@ -42,7 +42,7 @@ class ArrayClient extends AbstractClient
     {
         $this->persistPath = $path;
         $this->persist     = (bool)$persist;
-        $this->setUpStorage();
+        $this->boot();
     }
 
     /**

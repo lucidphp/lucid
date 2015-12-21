@@ -13,12 +13,9 @@ namespace Lucid\Cache;
 
 use Closure;
 use ArrayAccess;
-use Lucid\Cache\Driver\DriverInterface;
 
 /**
  * @class Storage
- * @see CacheInterface
- * @see ArrayAccess
  *
  * @package Lucid\Cache
  * @version $Id$
@@ -26,36 +23,24 @@ use Lucid\Cache\Driver\DriverInterface;
  */
 class Storage implements CacheInterface, SectionableInterface, ArrayAccess
 {
-    /**
-     * Array containing already retrieved items from the caching source.
-     *
-     * @var array
-     */
-    protected $pool = [];
+    /** @var array */
+    private $pool = [];
 
-    /**
-     * Cache driver instance
-     *
-     * @var DriverInterface
-     */
-    protected $driver;
+    /** @var ClientInterface */
+    private $driver;
 
-    /**
-     * cache id prefix
-     *
-     * @var string
-     */
-    protected $prefix;
+    /** @var string */
+    private $prefix;
 
     /**
      * Constructor.
      *
-     * @param DriverInterface $cachDriver
+     * @param ClientInterface $client
      * @param string          $prefix cache id prefix
      */
-    public function __construct(DriverInterface $cachDriver, $prefix = 'cache')
+    public function __construct(ClientInterface $client, $prefix = 'cache')
     {
-        $this->driver = $cachDriver;
+        $this->client = $client;
         $this->setCachePrefix($prefix);
     }
 
@@ -68,7 +53,7 @@ class Storage implements CacheInterface, SectionableInterface, ArrayAccess
             return true;
         }
 
-        return $this->driver->exists($key);
+        return $this->client->exists($key);
     }
 
     /**
@@ -80,7 +65,7 @@ class Storage implements CacheInterface, SectionableInterface, ArrayAccess
             return $this->pool[$key];
         }
 
-        if ($data = $this->driver->read($key)) {
+        if ($data = $this->client->read($key)) {
             return $data;
         }
 
@@ -92,10 +77,10 @@ class Storage implements CacheInterface, SectionableInterface, ArrayAccess
      */
     public function set($key, $data, $expires = 60, $compressed = false)
     {
-        $expires = $this->driver->parseExpireTime($expires);
+        $expires = $this->client->parseExpireTime($expires);
 
-        if ($this->driver->write($key = $this->getPrefixed($key), $data, $expires, $compressed)) {
-            $this->pool[$key] = $this->driver->read($key);
+        if ($this->client->write($key = $this->getPrefixed($key), $data, $expires, $compressed)) {
+            $this->pool[$key] = $this->client->read($key);
 
             return true;
         }
@@ -108,7 +93,7 @@ class Storage implements CacheInterface, SectionableInterface, ArrayAccess
      */
     public function persist($key, $data, $compressed = false)
     {
-        return $this->driver->saveForever($this->getPrefixed($key), $data, $compressed);
+        return $this->client->saveForever($this->getPrefixed($key), $data, $compressed);
     }
 
     /**
@@ -140,10 +125,10 @@ class Storage implements CacheInterface, SectionableInterface, ArrayAccess
         if (null === ($key)) {
             $this->pool = [];
 
-            return $this->driver->flush();
+            return $this->client->flush();
         }
 
-        if ($del = $this->driver->delete($key = $this->getPrefixed($key))) {
+        if ($del = $this->client->delete($key = $this->getPrefixed($key))) {
             unset($this->pool[$key]);
         }
 
@@ -155,7 +140,7 @@ class Storage implements CacheInterface, SectionableInterface, ArrayAccess
      */
     public function increment($key, $value = 1)
     {
-        if ($this->driver->increment($key = $this->getPrefixed($key), $value)) {
+        if ($this->client->increment($key = $this->getPrefixed($key), $value)) {
             unset($this->pool[$key]);
         }
     }
@@ -165,7 +150,7 @@ class Storage implements CacheInterface, SectionableInterface, ArrayAccess
      */
     public function decrement($key, $value = 1)
     {
-        if ($this->driver->decrement($key = $this->getPrefixed($key), $value)) {
+        if ($this->client->decrement($key = $this->getPrefixed($key), $value)) {
             unset($this->pool[$key]);
         }
     }
