@@ -2,41 +2,107 @@
 
 set -e
 
+key=
+
 # clean up subsplit files
 cleanUp() {
 	rm -rf ./.subsplit
+	rm -rf ./tmp
+    unset GIT
+    unset DIRS
+    unset BRANCH
 }
+
+for key in "$@"; do
+    key=$1
+    case $key in
+        --branch|-b)
+            BRANCH=$2
+            echo "$BRANCH"
+            shift 2
+            continue
+        ;;
+        --dryrun|-d)
+            echo "DRYRUN"
+            DRYRUN=true
+            shift 1
+            continue
+        ;;
+            *)
+            shift 1
+            echo Invalid option "$key". >&2
+            exit 1
+        ;;
+    esac
+    shift
+done
 
 # abort if error and clean up subsplit files
 abortIf() {
-	if [[ ! "$1" = 0 ]]; then
-        echo "error"
+	if [[ ! "$1" == 0 ]]; then
 		cleanUp
-		echo $2
+		echo "\e[31m%s\e[m\n" "$2"
 		exit $1
 	fi
 	return 0
 }
 
 GIT=`which git`
-SUBSPLIT=`$GIT subsplit init git@github.com:lucidphp/lucid.git`
 # abort if subsplit init failed
-abortIf $? $SUBSPLIT
+if [[ `$GIT subtree &>/dev/null; echo $?` == 1 ]]; then
+    abortIf 1 "git subtree not supported.\n"
 
-BRANCH=`$GIT rev-parse --abbrev-ref HEAD`
+    exit 1;
+fi
+
+if [[ `$GIT subsplit &>/dev/null; echo $?` == 1 ]]; then
+    echo "Installing git subsplit"
+    mkdir -p tmp/subsplit
+    `$GIT clone https://github.com/dflydev/git-subsplit.git tmp/subsplit`
+    cd tmp/subsplit
+    ./install.sh
+    printf "\e[33m%s\e[m\n" "Git subsplit installed."
+    cd -
+else
+    printf "\e[33m%s\e[m\n" "Git subsplit already installed."
+fi
+
+if [ -z "$BRANCH" ]; then
+    BRANCH=`$GIT rev-parse --abbrev-ref HEAD`
+    if [ ! `$GIT checkout $BRANCH &>/dev/null; echo $?` ]; then
+        abortIf 1 "Error checking out branch $BRANCH."
+    fi
+fi
+
+if [[ ! -z "$DRYRUN" ]]; then
+    echo "DRYRUN: $GIT subsplit init git@github.com:lucidphp/lucid.git"
+else
+    SUBSPLIT=`$GIT subsplit init git@github.com:lucidphp/lucid.git`
+    abortIf $? $SUBSPLIT
+fi
+
 echo "current branch is $BRANCH"
 
 DIRS=`ls -d lucid/*/`
 
 for d in `ls -d lucid/* | xargs`; do
 
+        printf "\e[33mtesting %s\e[m...\n" $d
+
     if [[ ! `$GIT ls-files $d/composer.json --error-unmatch 2>/dev/null; echo $?` ]]; then
+        printf "\e[31m%s\e[m: not in repository or composer.json missing.\n" $d
         continue
     fi
 
     name=`basename $d`
-	RET=`$GIT subsplit publish --no-tags --heads="$BRANCH" "$d":git@github.com:lucidphp/"$name".git`
-    abortIf $? $RET
+    if [[ ! -z "$DRYRUN" ]]; then
+        echo "DRYRUN: $GIT subsplit publish --no-tags --heads="$BRANCH" "$d":git@github.com:lucidphp/"$name".git"
+        sleep 1
+    else
+        RET=`$GIT subsplit publish --no-tags --heads="$BRANCH" "$d":git@github.com:lucidphp/"$name".git`
+        abortIf $? $RET
+    fi
 done
+unset d
 cleanUp
 exit 0
