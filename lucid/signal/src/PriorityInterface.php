@@ -39,29 +39,36 @@ interface PriorityInterface
     const PRIORITY_LOW = -1000;
 
     /**
-     * Adds a handler to the pool.
+     * Adds a thing to the pool.
      *
      * @param mixed $handler
      * @param int $priority
      *
      * @return void
      */
-    public function add($handler, $priority);
+    public function add($thing, $priority);
 
     /**
-     * Removes a handler.
+     * Removes a thing.
      *
-     * @param mixed $handler
+     * @param mixed $thing
      *
      * @return bool
      */
-    public function remove($handler);
+    public function remove($thing);
 
     /**
-     * Flushes handlers all handlers by priority
+     * Returns all things ordered by priority
      * by returning an Iterator.
      *
      * @return \Iterator
      */
     public function all();
+
+    /**
+     * Like `all()`, but removes all things.
+     *
+     * @return void
+     */
+    public function flush();
 }

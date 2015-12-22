@@ -12,7 +12,7 @@
 namespace Lucid\Cache\Tests;
 
 use Lucid\Cache\Storage;
-use Lucid\Cache\Driver\ArrayDriver;
+use Lucid\Cache\Client\InMemory;
 
 /**
  * @class CacheTest
@@ -80,6 +80,6 @@ class StorageTest extends \PHPUnit_Framework_TestCase
 
     protected function newCache()
     {
-        return new Storage(new ArrayDriver(false));
+        return new Storage(new InMemory(false));
     }
 }

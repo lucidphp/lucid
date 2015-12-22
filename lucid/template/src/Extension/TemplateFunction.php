@@ -20,8 +20,13 @@ namespace Lucid\Template\Extension;
  */
 class TemplateFunction implements FunctionInterface
 {
+    /** @var string */
     private $name;
+
+    /** @var callable */
     private $callable;
+
+    /** @var array */
     private $options;
 
     /**
@@ -30,8 +35,6 @@ class TemplateFunction implements FunctionInterface
      * @param string $name
      * @param callable $callable
      * @param array $options
-     *
-     * @return void
      */
     public function __construct($name, callable $callable, array $options = [])
     {

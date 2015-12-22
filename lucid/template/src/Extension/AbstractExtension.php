@@ -39,12 +39,4 @@ abstract class AbstractExtension implements ExtensionInterface
     {
         return $this->engine;
     }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function functions()
-    {
-        return [];
-    }
 }

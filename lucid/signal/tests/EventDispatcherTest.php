@@ -214,8 +214,42 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase
         $this->assertSame([], $order);
     }
 
+    /** @test */
+    public function itShouldStopDispatchingIfEventIsStopped()
+    {
+        $event = new Event('IAmStopped');
+
+        $events = new EventDispatcher;
+
+        $events->addHandler('IAmStopped', function ($event) {
+            $event->stop();
+        });
+
+        $events->addHandler('IAmStopped', function ($event) {
+            $this->fail('Handler should never been called.');
+        });
+
+        $events->dispatchEvent($event);
+        $this->assertTrue(true);
+    }
+
+    /** @test */
+    public function itShouldSetDispatcherOnChainedEvents()
+    {
+        $event = $this->getMockbuilder('Lucid\Signal\ChainedEventInterface')
+            ->disableOriginalConstructor()
+            ->getMock();
+        $event->expects($this->once())->method('setDispatcher');
+        $event->method('getName')->willReturn('chained_event');
+
+        $events = new EventDispatcher;
+        $events->dispatchEvent($event);
+    }
+
     private function mockHandler()
     {
-        return $this->getMockbuilder('Lucid\Signal\HandlerInterface')->disableOriginalConstructor()->getMock();
+        return $this->getMockbuilder('Lucid\Signal\HandlerInterface')
+            ->disableOriginalConstructor()
+            ->getMock();
     }
 }

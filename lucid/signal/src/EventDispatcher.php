@@ -188,23 +188,6 @@ class EventDispatcher implements EventDispatcherInterface
     }
 
     /**
-     * resolveHandler
-     *
-     * @param mixed $handler
-     * @throws RuntimeException
-     *
-     * @return void
-     */
-    protected function resolveHandler($handler)
-    {
-        if (is_callable($handler)) {
-            return $handler;
-        }
-
-        throw new RuntimeException(sprintf('Handler is not resolveable.'));
-    }
-
-    /**
      * getHandlerQueue
      *
      * @param mixed $event

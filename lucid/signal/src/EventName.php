@@ -45,13 +45,19 @@ class EventName
      */
     public function getName()
     {
-        if (null !== $this->name) {
+        if (!$this->isEmpty($this->name)) {
             return $this->name;
         }
 
         foreach (['getName', 'getOriginalName'] as $fn) {
-            if (null !== ($name = call_user_func([$this->event, $fn])) && $name !== $this) {
-                return $name;
+            $name = call_user_func([$this->event, $fn]);
+
+            if ($this->isEmpty($name) || $name === $this) {
+                continue;
+            }
+
+            if ($name instanceof self) {
+                return $name = $name->getName();
             }
         }
 
@@ -76,5 +82,10 @@ class EventName
         $name = basename(strtr(get_class($this->event), ['\\' => '/']));
 
         return strtolower(preg_replace('#[A-Z]#', '.$0', lcfirst($name)));
+    }
+
+    private function isEmpty($name)
+    {
+        return null === $name || empty($name);
     }
 }

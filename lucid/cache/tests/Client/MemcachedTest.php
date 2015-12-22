@@ -209,9 +209,11 @@ class MemcachedTest extends AbstractClientTest
 
     protected function setUp()
     {
-        $this->markTestSkipped('Skipping tests until https://github.com/php-memcached-dev/php-memcached/issues/126 is resolved.');
-        //$this->mc = null;
-        //$this->driver = null;
+        $this->markTestSkipped(
+            'Skipping tests until https://github.com/php-memcached-dev/php-memcached/issues/126 is resolved.'
+        );
+        // $this->mc = null;
+        // $this->driver = null;
     }
 
     /**

@@ -1,28 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit backupGlobals="false"
-		backupStaticAttributes="false"
-		bootstrap="vendor/autoload.php"
-		colors="true"
-		convertErrorsToExceptions="true"
-		convertNoticesToExceptions="true"
-		convertWarningsToExceptions="true"
-		processIsolation="false"
-		stopOnFailure="false"
-		syntaxCheck="false">
-	<testsuites>
-		<testsuite name="Common">
-			<directory>./Tests/</directory>
-		</testsuite>
-	</testsuites>
+    backupStaticAttributes="false"
+    bootstrap="vendor/autoload.php"
+    colors="true"
+    convertErrorsToExceptions="true"
+    convertNoticesToExceptions="true"
+    convertWarningsToExceptions="true"
+    processIsolation="false"
+    stopOnFailure="false"
+    syntaxCheck="false">
+  <testsuites>
+    <testsuite name="Lucid Common">
+      <directory>./tests</directory>
+    </testsuite>
+  </testsuites>
   <filter>
     <blacklist>
       <directory suffix=".php">./vendor</directory>
-      <directory suffix=".php">./Tests</directory>
+      <directory suffix=".php">./tests</directory>
     </blacklist>
+    <whitelist processUncoveredFilesFromWhitelist="true">
+      <directory suffix=".php">./src</directory>
+    </whitelist>
   </filter>
-  <logging>
-    <log type="coverage-text" target="php://stdout" showUncoveredFiles="true"/>
-    <log type="coverage-html" target="./report/html" charset="UTF-8" highlight="false" lowUpperBound="35" highLowerBound="70"/>
-    <log type="coverage-clover" target="./report/clover/coverage.xml"/>
-  </logging>    
 </phpunit>

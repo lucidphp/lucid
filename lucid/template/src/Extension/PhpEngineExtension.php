@@ -11,6 +11,9 @@
 
 namespace Lucid\Template\Extension;
 
+use Lucid\Template\EngineInterface;
+use Lucid\Template\PhpRenderInterface;
+
 /**
  * @class PhpEngineExtension
  *
@@ -18,21 +21,30 @@ namespace Lucid\Template\Extension;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-class PhpEngineExtension implements ExtensionInterface
+class PhpEngineExtension extends AbstractExtension
 {
-    private $engine;
-
-    public function __construct(EngineInterface $engine)
-    {
-        $this->engine = $engine;
-    }
-
     public function functions()
     {
+        $engine = $this->getEngine();
         return [
-            new TemplateFunction('insert', [$this, 'insertTemplate']),
-            new TemplateFunction('section', [$this, 'startSection']),
-            new TemplateFunction('endsection', [$this, 'endSection']),
+            new TemplateFunction('section', [$engine, 'section']),
+            new TemplateFunction('endsection', [$engine, 'endsection']),
+            new TemplateFunction('insert', [$engine, 'insert']),
+            new TemplateFunction('extend', [$engine, 'extend']),
+            new TemplateFunction('escape', [$engine, 'escape']),
+            new TemplateFunction('func', [$engine, 'func']),
         ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setEngine(EngineInterface $engine)
+    {
+        if (!$engine instanceof PhpRenderInterface) {
+            throw new \InvalidArgumentException;
+        }
+
+        parent::setEngine($engine);
     }
 }

@@ -76,6 +76,22 @@ class Priority implements PriorityInterface
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function flush()
+    {
+        $this->sort();
+
+        foreach ($this->handlers as $handlers) {
+            foreach ($handlers as $handler) {
+                if ($this->remove($handler)) {
+                    yield $handler;
+                }
+            }
+        }
+    }
+
+    /**
      * toArray
      *
      * @return array
@@ -101,6 +117,7 @@ class Priority implements PriorityInterface
      */
     private function getHandlerString($handler)
     {
+
         if (is_string($handler)) {
             return $handler;
         }
@@ -109,7 +126,7 @@ class Priority implements PriorityInterface
             return spl_object_hash($handler);
         }
 
-        if (is_callable($handler) && is_array($handler)) {
+        if (is_array($handler) && is_callable($handler)) {
             return $this->getHandlerString($handler[0]) . '@' . $handler[1];
         }
 
@@ -128,5 +145,6 @@ class Priority implements PriorityInterface
         }
 
         krsort($this->handlers);
+        $this->sorted = true;
     }
 }
