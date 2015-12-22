@@ -11,7 +11,23 @@
 
 namespace Lucid\Template\Tests\Listener;
 
+use Lucid\Template\Tests\Stubs\Listener;
+
 class ListenerTest extends \PHPUnit_Framework_TestCase
 {
+    /** @test */
+    public function itShouldBeInstantiable()
+    {
+        $this->assertInstanceOf(
+            'Lucid\Template\Listener\ListenerInterface',
+            new Listener
+        );
+    }
 
+    public function mockListener()
+    {
+        return $this->getMockbuilder('Lucid\Template\Listener\ListenerInterface')
+            ->disableOriginalConstructor()
+            ->getMock();
+    }
 }

@@ -4,11 +4,9 @@
 [![Source Code](http://img.shields.io/badge/source-lucid/signal-blue.svg?style=flat-square)](https://github.com/lucidphp/template/tree/develop)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](https://github.com/lucidphp/template/blob/develop/LICENSE.md)
 
-[![Build Status](https://img.shields.io/travis/iwyg/template/develop.svg?style=flat-square)](https://travis-ci.org/lucidphp/template)
-<!--
-[![Code Coverage](https://img.shields.io/coveralls/iwyg/template/develop.svg?style=flat-square)](https://coveralls.io/r/lucidphp/template)
--->
-[![HHVM](https://img.shields.io/hhvm/lucid/template/develop.svg?style=flat-square)](http://hhvm.h4cc.de/package/lucid/template)
+[![Build Status](https://img.shields.io/travis/lucidphp/template/develop.svg?style=flat-square)](https://travis-ci.org/lucidphp/template)
+[![Code Coverage](https://img.shields.io/coveralls/lucidphp/template/develop.svg?style=flat-square)](https://coveralls.io/r/lucidphp/template)
+[![HHVM](https://img.shields.io/hhvm/lucid/template/dev-develop.svg?style=flat-square)](http://hhvm.h4cc.de/package/lucid/template)
 
 An extendable templating library for php.
 
