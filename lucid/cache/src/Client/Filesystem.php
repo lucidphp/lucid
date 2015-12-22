@@ -192,7 +192,9 @@ class Filesystem extends AbstractClient
         $state = (int)substr($contents = file_get_contents($file), 0, 1);
         $data = substr($contents, 2);
 
-        $data = static::C_UNCOMPRESSED === $state ? $data = unserialize($data) : unserialize($this->uncompressData($data));
+        $data = static::C_UNCOMPRESSED === $state ?
+            $data = unserialize($data) :
+            unserialize($this->uncompressData($data));
 
         return [$data, $state];
     }
