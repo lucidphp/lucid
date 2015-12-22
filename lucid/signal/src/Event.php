@@ -20,14 +20,7 @@ namespace Lucid\Signal;
  */
 class Event implements EventInterface
 {
-    /** @var EventName */
-    private $originalName;
-
-    /** @var EventName */
-    private $name;
-
-    /** @var bool */
-    private $isStopped = false;
+    use EventTrait;
 
     /**
      * Constructor.
@@ -37,53 +30,5 @@ class Event implements EventInterface
     public function __construct($name = null)
     {
         $this->originalName = new EventName($this, (string)$name);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function __clone()
-    {
-        $this->isStopped = false;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    final public function stop()
-    {
-        $this->isStopped = true;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    final public function isStopped()
-    {
-        return $this->isStopped;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    final public function setName($name)
-    {
-        $this->name = new EventName($this, $name);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    final public function getName()
-    {
-        return $this->name ?: $this->originalName;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    final public function getOriginalName()
-    {
-        return $this->originalName;
     }
 }
