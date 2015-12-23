@@ -11,6 +11,7 @@
 
 namespace Lucid\Common\Tests\Struct;
 
+use InvalidArgumentException;
 use Lucid\Common\Struct\Items;
 
 /**
@@ -22,6 +23,56 @@ use Lucid\Common\Struct\Items;
  */
 class ItemsTest extends \PHPUnit_Framework_TestCase
 {
+
+    /** @test */
+    public function testPush()
+    {
+        $list = new Items(1, 2);
+        $list->push(3);
+
+        $this->assertSame([1, 2, 3], $list->toArray());
+    }
+
+    /** @test */
+    public function itShouldHaveArrayAccess()
+    {
+        $list = new Items(1, 2);
+        $list[] = 3;
+
+        $this->assertSame([1, 2, 3], $list->toArray());
+
+        unset($list[2]);
+
+        $this->assertSame([1, 2], $list->toArray());
+        $this->assertTrue(isset($list[0]));
+        $this->assertTrue(isset($list[1]));
+        $this->assertFalse(isset($list[2]));
+
+        $this->assertSame(1, $list[0]);
+        $this->assertSame(2, $list[1]);
+    }
+
+    /** @test */
+    public function itShouldBeIteratable()
+    {
+        $list = new Items(1, 2, 3);
+        $res = [];
+        foreach ($list as $key => $value) {
+            $res[$key] = $value;
+        }
+
+        $this->assertSame($res, $list->toArray());
+    }
+
+    /** @test */
+    public function itShouldBeSerializable()
+    {
+        $list = new Items(1, 2, 3);
+        $serialized = serialize($list);
+
+        $this->assertInstanceOf('Lucid\Common\Struct\ListInterface', $unserialized = unserialize($serialized));
+        $this->assertSame($list->toArray(), $unserialized->toArray());
+    }
 
     /** @test */
     public function testConstructWithData()
@@ -48,7 +99,7 @@ class ItemsTest extends \PHPUnit_Framework_TestCase
 
         try {
             $this->assertEquals(4, $list->remove(3));
-        } catch (\InvalidArgumentException $e) {
+        } catch (InvalidArgumentException $e) {
             $this->assertTrue(true);
             return;
         }

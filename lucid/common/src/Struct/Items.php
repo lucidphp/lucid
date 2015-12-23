@@ -42,52 +42,23 @@ class Items implements ListInterface, ArrayAccess, Countable, Serializable, Iter
     }
 
     /**
-     * push
-     *
-     * @param mixed $value
-     *
-     * @access public
-     * @return void
+     * {@inheritdoc}
      */
-    public function append($value)
+    public function push($value)
     {
         $this->data[] = $value;
     }
 
     /**
-     * push
-     *
-     * @param mixed $value
-     *
-     * @access public
-     * @return void
-     */
-    public function add($value)
-    {
-        $this->data[] = $value;
-    }
-
-    /**
-     * insert
-     *
-     * @param int $index
-     * @param mixed $value
-     *
-     * @access public
-     * @return void
+     * {@inheritdoc}
      */
     public function insert($index, $value)
     {
-        array_splice($this->data, $index, 0, $value);
+        array_splice($this->data, (int)$index, 0, $value);
     }
 
     /**
-     * pop
-     *
-     * @param int $index
-     *
-     * @access public
-     * @return mixed
+     * {@inheritdoc}
      */
     public function pop($index = null)
     {
@@ -95,12 +66,7 @@ class Items implements ListInterface, ArrayAccess, Countable, Serializable, Iter
     }
 
     /**
-     * remove
-     *
-     * @param mixed $value
-     *
-     * @access public
-     * @return void
+     * {@inheritdoc}
      */
     public function remove($value)
     {
@@ -112,12 +78,7 @@ class Items implements ListInterface, ArrayAccess, Countable, Serializable, Iter
     }
 
     /**
-     * count
-     *
-     * @param mixed $value
-     *
-     * @access public
-     * @return int
+     * {@inheritdoc}
      */
     public function countValue($value)
     {
@@ -127,10 +88,7 @@ class Items implements ListInterface, ArrayAccess, Countable, Serializable, Iter
     }
 
     /**
-     * count
-     *
-     * @access public
-     * @return int
+     * {@inheritdoc}
      */
     public function count()
     {
@@ -138,10 +96,7 @@ class Items implements ListInterface, ArrayAccess, Countable, Serializable, Iter
     }
 
     /**
-     * sort
-     *
-     * @access public
-     * @return mixed
+     * {@inheritdoc}
      */
     public function sort()
     {
@@ -149,10 +104,7 @@ class Items implements ListInterface, ArrayAccess, Countable, Serializable, Iter
     }
 
     /**
-     * reverse
-     *
-     * @access public
-     * @return mixed
+     * {@inheritdoc}
      */
     public function reverse()
     {
@@ -160,12 +112,7 @@ class Items implements ListInterface, ArrayAccess, Countable, Serializable, Iter
     }
 
     /**
-     * extend
-     *
-     * @param ListInterface $list
-     *
-     * @access public
-     * @return mixed
+     * {@inheritdoc}
      */
     public function extend(ListInterface $list)
     {
@@ -177,10 +124,7 @@ class Items implements ListInterface, ArrayAccess, Countable, Serializable, Iter
     }
 
     /**
-     * toArray
-     *
-     * @access public
-     * @return array
+     * {@inheritdoc}
      */
     public function toArray()
     {
@@ -188,26 +132,15 @@ class Items implements ListInterface, ArrayAccess, Countable, Serializable, Iter
     }
 
     /**
-     * offsetSet
-     *
-     * @param int $offset
-     * @param mixed $value
-     *
-     * @access public
-     * @return voic
+     * {@inheritdoc}
      */
     public function offsetSet($offset, $value)
     {
-        $this->append($value);
+        $this->push($value);
     }
 
     /**
-     * offsetGet
-     *
-     * @param int $offset
-     *
-     * @access public
-     * @return mixed
+     * {@inheritdoc}
      */
     public function offsetGet($offset)
     {
@@ -215,12 +148,7 @@ class Items implements ListInterface, ArrayAccess, Countable, Serializable, Iter
     }
 
     /**
-     * offsetUnset
-     *
-     * @param int $offset
-     *
-     * @access public
-     * @return void
+     * {@inheritdoc}
      */
     public function offsetUnset($offset)
     {
@@ -228,23 +156,15 @@ class Items implements ListInterface, ArrayAccess, Countable, Serializable, Iter
     }
 
     /**
-     * offsetExists
-     *
-     * @param int $offset
-     *
-     * @access public
-     * @return boolean
+     * {@inheritdoc}
      */
     public function offsetExists($offset)
     {
-        isset($this->data[$offset]);
+        return isset($this->data[$offset]);
     }
 
     /**
-     * getIterator
-     *
-     * @access public
-     * @return ArrayIterator
+     * {@inheritdoc}
      */
     public function getIterator()
     {
@@ -252,10 +172,7 @@ class Items implements ListInterface, ArrayAccess, Countable, Serializable, Iter
     }
 
     /**
-     * serialize
-     *
-     * @access public
-     * @return string
+     * {@inheritdoc}
      */
     public function serialize()
     {
@@ -263,16 +180,12 @@ class Items implements ListInterface, ArrayAccess, Countable, Serializable, Iter
     }
 
     /**
-     * unserialize
-     *
-     * @param mixed $data
-     *
-     * @access public
-     * @return ListStruct
+     * {@inheritdoc}
      */
     public function unserialize($data)
     {
         $this->data = unserialize($data);
+
         return $this;
     }
 }

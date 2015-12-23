@@ -19,3 +19,16 @@ php >= 5.6
 ```bash
 $ composer require lucid/common
 ```
+
+## Data Structs
+### Items
+The `Items` class implements a `ListInterface` and is modeled after pythons `list`.
+
+
+```php
+<?php
+
+use Lucid\Common\Struct\Items;
+
+$list = new Items('foo', 'bar', ...);
+```
