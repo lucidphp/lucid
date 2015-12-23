@@ -18,7 +18,7 @@ php >= 5.6
 
 ## Installation
 ```bash
-$ composer require lucid/template dev-master
+$ composer require lucid/template
 ```
 
 ## Getting started

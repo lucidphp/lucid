@@ -1,18 +1,19 @@
 {
   "name": "lucid/template",
   "license": "MIT",
-  "description": "Event Dispatcher Library",
-  "keywords": ["events", "eventing"],
+  "description": "Templating library",
+  "keywords": ["templating"],
   "authors": [
     {
       "name": "iwyg",
       "email": "mail@thomas-appel.com"
     }
   ],
-  "require-dev": {
+  "require": {
     "php":">=5.6"
   },
   "require-dev": {
+    "psr/log": "^1.0",
     "phpunit/phpunit": "5.2.*@dev"
   },
   "autoload": {

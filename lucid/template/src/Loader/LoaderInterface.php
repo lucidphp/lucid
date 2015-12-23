@@ -27,7 +27,7 @@ interface LoaderInterface
      *
      * @param IdentityInterface $template
      *
-     * @return string
+     * @return Lucid\Template\Resource\ResourceInterface
      */
     public function load(IdentityInterface $template);
 
