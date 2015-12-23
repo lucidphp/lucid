@@ -1,8 +1,8 @@
 {
   "name": "lucid/template",
   "license": "MIT",
-  "description": "Event Dispatcher Library",
-  "keywords": ["events", "eventing"],
+  "description": "Templating library",
+  "keywords": ["templating"],
   "authors": [
     {
       "name": "iwyg",
