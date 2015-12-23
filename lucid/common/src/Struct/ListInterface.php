@@ -27,7 +27,7 @@ interface ListInterface
      *
      * @return void
      */
-    public function append($value);
+    public function push($value);
 
     /**
      * Insert a value at a given index.

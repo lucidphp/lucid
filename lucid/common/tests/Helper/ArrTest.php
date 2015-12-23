@@ -26,6 +26,16 @@ class ArrTest extends \PHPUnit_Framework_TestCase
     public function flatten()
     {
         $this->assertSame(['b' => 'c'], Arr::flatten(['a' => ['b' => 'c']]));
+        $this->assertSame(['c', 'd' => 'e'], Arr::flatten([['b' => ['c']], ['d' => 'e']]));
+    }
+
+    /** @test */
+    public function compact()
+    {
+        $subj = [0, 1, 'yep', true, null];
+
+        $this->assertSame([1 => 1, 2 => 'yep', 3 => true], Arr::compact($subj));
+        $this->assertSame([1, 'yep', true], Arr::compact($subj, true));
     }
 
     /** @test */
@@ -131,6 +141,40 @@ class ArrTest extends \PHPUnit_Framework_TestCase
         Arr::set($data, 'baz', ['doo']);
         Arr::set($data, 'baz.some', 'goo');
         Arr::set($data, 'baz.glue', 'fuxk');
+    }
+
+    /** @test */
+    public function unsetKey()
+    {
+        $data = ['foo' => ['bar' => 'baz', 'baz' => 'tab']];
+
+        Arr::unsetKey($data, 'foo.bar');
+
+        $this->assertSame(['foo' => ['baz' => 'tab']], $data);
+    }
+
+    /** @test */
+    public function testPluck()
+    {
+        $a = new \stdClass();
+        $b = new \stdClass();
+
+        $a->name = 'foo';
+        $b->name = 'bar';
+
+        $this->assertSame(['foo', 'bar'], Arr::pluck([$a, $b], 'name'));
+        $this->assertSame(['foo', 'bar'], Arr::pluck([['name' => 'foo'], ['name' => 'bar']], 'name'));
+    }
+
+    /** @test */
+    public function testZip()
+    {
+        $zipped = Arr::zip(['moe', 'larry', 'curly'], [30, 40, 50], [true, false, false]);
+        $this->assertSame(
+            [["moe", 30, true], ["larry", 40, false], ["curly", 50, false]],
+            $zipped
+        );
+
     }
 
     public function arrayGetDataProvider()

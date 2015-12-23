@@ -5,7 +5,7 @@
  *
  * (c) iwyg <mail@thomas-appel.com>
  *
- * For full copyright and license information, please refer to the LICENSE file
+ * For full copyright and limense information, please refer to the LICENSE file
  * that was distributed with this package.
  */
 
@@ -39,11 +39,7 @@ final class Arr
         $out = [];
 
         foreach (new RecursiveIteratorIterator(new RecursiveArrayIterator($array)) as $key => $item) {
-            if (is_int($key)) {
-                $out[] = $item;
-            } else {
-                $out[$key] = $item;
-            }
+            $out[$key] = $item;
         }
 
         return $out;
@@ -52,27 +48,15 @@ final class Arr
     /**
      * column
      *
-     * @param array $array
+     * @param array  $array
      * @param string $key
-     * @param mixed $index
+     * @param mixed  $index
      *
      * @return array
      */
     public static function column(array $array, $key, $index = null)
     {
-        if (function_exists('array_column')) {
-            return array_column($array, $key, $index);
-        }
-
-        $out = [];
-        array_walk(
-            $array,
-            function ($item) use ($key, $index, &$out) {
-                null !== $index ? $out[$item[$index]] = $item[$key] : $out[] = $item[$key];
-            }
-        );
-
-        return $out;
+        return array_column($array, $key, $index);
     }
 
     /**
@@ -85,12 +69,9 @@ final class Arr
      */
     public static function pluck(array $array, $key)
     {
-        return array_map(
-            function ($item) use ($key) {
-                return is_object($item) ? $item->$key : $item[$key];
-            },
-            $array
-        );
+        return array_map(function ($item) use ($key) {
+            return is_object($item) ? $item->$key : $item[$key];
+        }, $array);
     }
 
     /**
@@ -100,12 +81,13 @@ final class Arr
      */
     public static function zip(...$args)
     {
+        $args = array_values($args);
         $count = count($args);
 
         $out = [];
 
         for ($i = 0; $i < $count; $i++) {
-            $out[$i] = self::pluck($i, $args);
+            $out[] = self::pluck($args, $i);
         }
 
         return $out;
@@ -120,14 +102,19 @@ final class Arr
      */
     public static function max(array $args)
     {
-        uasort(
-            $args,
-            function ($a, $b) {
-                return count($a) < count($b) ? 1 : -1;
-            }
-        );
+        return count(call_user_func_array('max', $args));
+    }
 
-        return count(reset($args));
+    /**
+     * Get the lowest value.
+     *
+     * @param array $args
+     *
+     * @return int
+     */
+    public static function min(array $args)
+    {
+        return count(call_user_func_array('min', $args));
     }
 
     /**
@@ -144,30 +131,13 @@ final class Arr
 
         if (!$strict) {
             return $isNumbers;
-        } elseif (!$isNumbers) {
+        }
+
+        if (!$isNumbers) {
             return false;
         }
 
         return $keys === range(0, count($array) - 1);
-    }
-
-    /**
-     * Get the lowest value.
-     *
-     * @param array $args
-     *
-     * @return int
-     */
-    public static function min(array $args)
-    {
-        usort(
-            $args,
-            function ($a, $b) {
-                return count($a) < count($b) ? 1 : -1;
-            }
-        );
-
-        return count(end($args));
     }
 
     /**
@@ -187,7 +157,7 @@ final class Arr
 
         $keys = explode($separator, $namespace);
 
-        while (count($keys) > 0 and !is_null($array)) {
+        while (count($keys) > 0 && !is_null($array)) {
             $key = array_shift($keys);
             $array = isset($array[$key]) ? $array[$key] : null;
         }
@@ -238,7 +208,7 @@ final class Arr
 
         $keys = explode($separator, $namespace);
 
-        while (($count = count($keys)) > 0 and !is_null($array)) {
+        while (($count = count($keys)) > 0 && !is_null($array)) {
             $key = array_shift($keys);
             if (isset($array[$key])) {
                 if ($count < 2) {
