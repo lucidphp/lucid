@@ -12,6 +12,7 @@
 namespace Lucid\Template\Loader;
 
 use Psr\Log\LoggerInterface;
+use Lucid\Template\IdentityInterface;
 
 /**
  * @class LoggerAwareLoader
@@ -20,7 +21,7 @@ use Psr\Log\LoggerInterface;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-final class LoggerAwareLoader implements LoaderInterace
+final class LoggerAwareLoader implements LoaderInterface
 {
     /**
      * logger
@@ -53,9 +54,15 @@ final class LoggerAwareLoader implements LoaderInterace
      */
     public function load(IdentityInterface $template)
     {
-        if ($res = $this->loader->load($template)) {
+        if (!$res = $this->loader->load($template)) {
 
+            $this->logger->error('Error loading template "%s".', [(string)$template]);
+            return;
         }
+
+        $this->logger->info('Loaded template "%s".', [(string)$template]);
+
+        return $res;
     }
 
     /**
