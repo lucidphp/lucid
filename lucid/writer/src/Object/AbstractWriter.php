@@ -147,7 +147,7 @@ abstract class AbstractWriter implements GeneratorInterface
     public function getDoc()
     {
         if (!isset($this->blocks['doc'])) {
-            $this->blocks['doc'] = new DocBlock;
+            $this->blocks['doc'] = new CommentBlock;
         }
 
         return $this->blocks['doc'];

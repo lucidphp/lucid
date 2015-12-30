@@ -37,7 +37,7 @@ class InterfaceWriterTest extends AbstractWriterTest
         $cwr->noAutoGenerateTag();
         $cwr->setParent('\Acme\BarInterface');
 
-        $this->assertEquals(file_get_contents(__DIR__.'/Fixures/interface.0.php'), $cwr->generate());
+        $this->assertEquals($this->getContents('interface.0.php'), $cwr->generate());
     }
 
     /** @test */
@@ -51,7 +51,7 @@ class InterfaceWriterTest extends AbstractWriterTest
             new Constant('t_bar', '13', 'string')
         ]);
 
-        $this->assertEquals(file_get_contents(__DIR__.'/Fixures/interface.4.php'), $cwr->generate());
+        $this->assertEquals($this->getContents('interface.4.php'), $cwr->generate());
     }
 
     /** @test */
@@ -67,7 +67,7 @@ class InterfaceWriterTest extends AbstractWriterTest
         $cwr->addMethod(new InterfaceMethod('setFoo'));
         $cwr->addMethod(new InterfaceMethod('setBar'));
 
-        $this->assertEquals(file_get_contents(__DIR__.'/Fixures/interface.4.1.php'), $cwr->generate());
+        $this->assertEquals($this->getContents('interface.4.1.php'), $cwr->generate());
     }
 
     protected function newObw($name = 'MyObject', $namespace = null)

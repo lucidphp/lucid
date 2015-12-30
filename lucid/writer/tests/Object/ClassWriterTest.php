@@ -12,10 +12,10 @@
 namespace Lucid\Writer\Tests\Object;
 
 use Lucid\Writer\Object\Method;
-use Lucid\Writer\Object\InterfaceMethod;
 use Lucid\Writer\Object\Argument;
 use Lucid\Writer\Object\Property;
 use Lucid\Writer\Object\ClassWriter;
+use Lucid\Writer\Object\InterfaceMethod;
 
 /**
  * @class ClassWriterTest
@@ -33,24 +33,6 @@ class ClassWriterTest extends AbstractWriterTest
         $this->assertInstanceof('Lucid\Writer\Object\ClassWriter', $this->newObw());
     }
 
-    ///** @test */
-    //public function itShouldCompileToConstnatString()
-    //{
-    //    $tw = $this->newObw('FooClass', 'Acme\Lib');
-    //    $tw->addUseStatement('Snake\Lib\Parens');
-    //    $tw->addUseStatement('Snake\Lib\Steteful\Parens');
-    //    $tw->addUseStatement('AA\Lib\Ultimate\TheFoo\Lib\Parens');
-    //    $tw->addUseStatement('Fic\MacaronyAndCheese');
-    //    $tw->addUseStatement('Fic\Sliglty');
-    //    $tw->setParent('\Parent\Ns\Lib\Parens');
-
-    //    $tw->addInterface('\Fucking\Parens');
-
-    //    //echo PHP_EOL;
-    //    //echo $tw->generate();
-    //    //echo PHP_EOL;
-    //}
-
     /** @test */
     public function itShouldGenerateClasses()
     {
@@ -61,7 +43,7 @@ class ClassWriterTest extends AbstractWriterTest
         $cg->addInterface('Acme\Baz');
 
 
-        $this->assertEquals(file_get_contents(__DIR__.'/Fixures/class.0.php'), $cg->generate());
+        $this->assertEquals($this->getContents('class.0.php'), $cg->generate());
     }
 
     /** @test */
@@ -72,9 +54,7 @@ class ClassWriterTest extends AbstractWriterTest
         $cg->setParent('\Acme\Lib\Bar');
         $cg->addInterface('\Acme\Interfaces\Bar as FooBar');
 
-
-
-        $this->assertEquals(file_get_contents(__DIR__.'/Fixures/class.1.php'), $cg->generate());
+        $this->assertEquals($this->getContents('class.1.php'), $cg->generate());
     }
 
     /** @test */
@@ -90,7 +70,7 @@ class ClassWriterTest extends AbstractWriterTest
 
         $p->setValue("'baz'");
 
-        $this->assertEquals(file_get_contents(__DIR__.'/Fixures/class.3.php'), $cg->generate());
+        $this->assertEquals($this->getContents('class.3.php'), $cg->generate());
     }
 
     /** @test */
@@ -103,7 +83,7 @@ class ClassWriterTest extends AbstractWriterTest
         $cg->addTrait('\Acme\Traits\FooTrait');
         $cg->addTrait('\Acme\Traits\BarTrait');
 
-        $this->assertEquals(file_get_contents(__DIR__.'/Fixures/class.2.php'), $cg->generate());
+        $this->assertEquals($this->getContents('class.2.php'), $cg->generate());
     }
 
     /** @test */
@@ -119,7 +99,7 @@ class ClassWriterTest extends AbstractWriterTest
         $cg->useTraitMethodAs('\Acme\Traits\FooTrait', 'bar', 'baz', 'private');
         $cg->replaceTraitConflict('\Acme\Traits\BarTrait', '\Acme\Traits\FooTrait', 'foo');
 
-        $this->assertEquals($c = file_get_contents(__DIR__.'/Fixures/class.2.1.php'), $cg->generate());
+        $this->assertEquals($c = $this->getContents('class.2.1.php'), $cg->generate());
     }
 
     /** @test */
@@ -131,7 +111,7 @@ class ClassWriterTest extends AbstractWriterTest
         $cg->addMethod($m = new Method('__construct'));
         $m->addArgument(new Argument('bar', 'Bar'));
 
-        $this->assertEquals($c = file_get_contents(__DIR__.'/Fixures/class.4.php'), $cg->generate());
+        $this->assertEquals($c = $this->getContents('class.4.php'), $cg->generate());
     }
 
     /** @test */
@@ -141,7 +121,7 @@ class ClassWriterTest extends AbstractWriterTest
         $cg->noAutoGenerateTag();
         $cg->setAbstract(true);
 
-        $this->assertEquals($c = file_get_contents(__DIR__.'/Fixures/class.5.php'), $cg->generate());
+        $this->assertEquals($c = $this->getContents('class.5.php'), $cg->generate());
     }
 
     /**

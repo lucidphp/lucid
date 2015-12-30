@@ -1,4 +1,4 @@
-# Lucid Writer: dumping strings with elegance
+# Dumping strings with elegance
 
 [![Author](http://img.shields.io/badge/author-iwyg-blue.svg?style=flat-square)](https://github.com/iwyg)
 [![Source Code](http://img.shields.io/badge/source-lucid/signal-blue.svg?style=flat-square)](https://github.com/lucidphp/writer/tree/develop)
@@ -198,7 +198,7 @@ Results in:
 ```php
 <?php 
 
-/**
+/*
  * This file was generated at 2014-07-08 12:23:22.
  */
 
@@ -238,7 +238,7 @@ Results in:
 ```php
 <?php
 
-/**
+/*
  * This file was generated at 2014-07-08 12:23:22.
  */
 
@@ -331,7 +331,7 @@ Results in
 ```php
 <?php
 
-/**
+/*
  * This file was generated at 2014-07-09 02:07:42. 
  */
 
