@@ -5,25 +5,13 @@
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](https://github.com/lucidphp/writer/blob/develop/LICENSE.md)
 
 [![Build Status](https://img.shields.io/travis/lucidphp/writer/develop.svg?style=flat-square)](https://travis-ci.org/lucidphp/writer)
-[![HHVM](https://img.shields.io/hhvm/lucid/writer/develop.svg?style=flat-square)](http://hhvm.h4cc.de/package/lucid/writer)	
+[![HHVM](https://img.shields.io/hhvm/lucid/writer/develop.svg?style=flat-square)](http://hhvm.h4cc.de/package/lucid/writer)
 [![Code Coverage](https://img.shields.io/coveralls/lucidphp/writer/develop.svg?style=flat-square)](https://coveralls.io/r/lucidphp/writer)
 
 ## Installation
 
-Require `Lucid\Writer` in your composer file.
-
-```json
-{
-	"require": {
-		"selene/writer": "dev-development"
-	}
-}
-```
-
-Then, run the composer install or update command.
-
 ```bash
-$ composer install
+$ composer require lucid/writer
 ```
 
 ## The Writer

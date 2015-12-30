@@ -108,7 +108,7 @@ class WriterTest extends \PHPUnit_Framework_TestCase
         try {
             $wr->replaceln('bar', 1);
         } catch (\OutOfBoundsException $e) {
-            $this->assertSame('replaceln: undefined index "1".', $e->getMessage());
+            $this->assertSame('Lucid\Writer\Writer::replaceln: undefined index "1".', $e->getMessage());
             return;
         }
 
@@ -125,7 +125,7 @@ class WriterTest extends \PHPUnit_Framework_TestCase
         try {
             $wr->removeln(1);
         } catch (\OutOfBoundsException $e) {
-            $this->assertSame('removeln: undefined index "1".', $e->getMessage());
+            $this->assertSame('Lucid\Writer\Writer::removeln: undefined index "1".', $e->getMessage());
             return;
         }
 

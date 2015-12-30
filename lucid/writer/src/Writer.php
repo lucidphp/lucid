@@ -147,11 +147,7 @@ class Writer implements WriterInterface
      */
     public function appendln($str)
     {
-        $line = array_pop($this->lnbuff);
-
-        $line = $line.$str;
-
-        $this->lnbuff[] = $line;
+        $this->lnbuff[] = array_pop($this->lnbuff).$str;
 
         return $this;
     }
@@ -171,10 +167,7 @@ class Writer implements WriterInterface
      */
     public function replaceln($str, $index = 0)
     {
-        if ($index < 0 || ($index + 1) > count($this->lnbuff)) {
-            throw new OutOfBoundsException(sprintf('replaceln: undefined index "%s".', $index));
-        }
-
+        $this->throwOutOfBoundsIf(__METHOD__, $index);
         $this->addStr($str, $index);
 
         return $this;
@@ -185,10 +178,7 @@ class Writer implements WriterInterface
      */
     public function removeln($index = 0)
     {
-        if ($index < 0 || ($index + 1) > count($this->lnbuff)) {
-            throw new OutOfBoundsException(sprintf('removeln: undefined index "%s".', $index));
-        }
-
+        $this->throwOutOfBoundsIf(__METHOD__, $index);
         array_splice($this->lnbuff, $index, 1);
 
         return $this;
@@ -321,5 +311,20 @@ class Writer implements WriterInterface
         }
 
         return str_repeat(' ', $indent);
+    }
+
+    /**
+     * throwOutOfBoundsIf
+     *
+     * @param string $method
+     * @param int $index
+     *
+     * @return void
+     */
+    private function throwOutOfBoundsIf($method, $index)
+    {
+        if ($index < 0 || ($index + 1) > count($this->lnbuff)) {
+            throw new OutOfBoundsException(sprintf('%s: undefined index "%s".', $method, $index));
+        }
     }
 }
