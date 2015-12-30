@@ -6,7 +6,7 @@
 
 [![Build Status](https://img.shields.io/travis/lucidphp/writer/develop.svg?style=flat-square)](https://travis-ci.org/lucidphp/writer)
 [![HHVM](https://img.shields.io/hhvm/lucid/writer/develop.svg?style=flat-square)](http://hhvm.h4cc.de/package/lucid/writer)
-[![Code Coverage](https://img.shields.io/coveralls/lucidphp/writer/develop.svg?style=flat-square)](https://coveralls.io/r/lucidphp/writer)
+[![Code Coverage](https://img.shields.io/coveralls/lucidphp/writer/dev-develop.svg?style=flat-square)](https://coveralls.io/r/lucidphp/writer)
 
 ## Installation
 
