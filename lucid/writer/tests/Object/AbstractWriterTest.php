@@ -51,4 +51,14 @@ abstract class AbstractWriterTest extends \PHPUnit_Framework_TestCase
      * @return AbstractWriter
      */
     abstract protected function newObw($name = 'MyObject', $namespace = null);
+
+
+    protected function getContents($file)
+    {
+        if (!is_file($path = __DIR__.'/Fixures/'.$file)) {
+            throw new \InvalidArgumentException($file.' is not a valid file.');
+        }
+
+        return file_get_contents($path);
+    }
 }
