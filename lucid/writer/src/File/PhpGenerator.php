@@ -1,28 +1,36 @@
 <?php
 
 /*
- * This File is part of the Selene\Module\Writer\Generator\File package
+ * This File is part of the Lucid\Writer package
  *
- * (c) Thomas Appel <mail@thomas-appel.com>
+ * (c) iwyg <mail@thomas-appel.com>
  *
  * For full copyright and license information, please refer to the LICENSE file
  * that was distributed with this package.
  */
 
-namespace Selene\Module\Writer\File;
+namespace Lucid\Writer\File;
 
-use \Selene\Module\Writer\Writer;
-use \Selene\Module\Writer\GeneratorInterface;
+use Lucid\Writer\Writer;
+use Lucid\Writer\GeneratorInterface;
 
 /**
  * @class PhpGenerator
- * @package Selene\Module\Writer\Generator\File
+ *
+ * @package Lucid\Writer
  * @version $Id$
+ * @author iwyg <mail@thomas-appel.com>
  */
 class PhpGenerator implements GeneratorInterface
 {
+    /** @var string */
     private $contents;
 
+    /**
+     * Constructor.
+     *
+     * @param bool $raw
+     */
     public function generate($raw = false)
     {
         $writer = new Writer;

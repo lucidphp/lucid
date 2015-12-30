@@ -9,11 +9,11 @@
  * that was distributed with this package.
  */
 
-namespace Selene\Module\Writer\File;
+namespace Lucid\Writer\File;
 
-use \Selene\Module\Writer\Writer;
-use \Selene\Module\Writer\GeneratorInterface;
-use \Selene\Module\Common\Helper\ListHelper;
+use Lucid\Writer\Writer;
+use Lucid\Writer\GeneratorInterface;
+use Lucid\Common\Helper\Arr;
 
 /**
  * @class JsonGenerator
@@ -64,7 +64,7 @@ class JsonGenerator implements GeneratorInterface
      */
     public function addContent($key, $content)
     {
-        ListHelper::arraySet($this->content, $key, $content);
+        Arr::set($this->content, $key, $content);
 
         return $this;
     }

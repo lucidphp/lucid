@@ -148,7 +148,9 @@ class Argument implements GeneratorInterface
         $writer = new Writer;
         $prefix = $this->isVariadic ? '...' : ($this->isReference ? '&' : '');
 
-        $type = null === $this->type || in_array($this->type, array_merge(self::$silent, self::$primitives)) ? '' : $this->type . ' ';
+        $type = null === $this->type || in_array($this->type, array_merge(self::$silent, self::$primitives)) ?
+            '' :
+            $this->type.' ';
 
         if (null !== $this->default) {
             $line = sprintf('%s%s$%s = %s', $type, $prefix, $this->name, $this->default);

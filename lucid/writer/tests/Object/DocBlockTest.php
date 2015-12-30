@@ -132,4 +132,50 @@ EOL;
         ]);
         $this->assertSame($expected, $doc->generate());
     }
+
+    /** @test */
+    public function itShouldInlineBlocks()
+    {
+        $expected = '/** @test */';
+
+        $doc = new DocBlock;
+        $doc->addAnnotation('test');
+        $doc->setInline(true);
+
+        $this->assertSame($expected, $doc->generate());
+    }
+
+    /** @test */
+    public function itShouldOverrideInlineIfDiscriptionOrAnnotations()
+    {
+
+        $expected = <<<EOL
+/**
+ * @foo foo
+ * @bar bar
+ */
+EOL;
+        $doc = new DocBlock;
+        $doc->setAnnotations([
+            ['foo', 'foo'],
+            ['bar', 'bar']
+        ]);
+        $doc->setInline(true);
+        $this->assertSame($expected, $doc->generate());
+
+        $expected = <<<EOL
+/**
+ * FooBar
+ *
+ * @bar bar
+ */
+EOL;
+        $doc = new DocBlock;
+        $doc->setDescription('FooBar');
+        $doc->setAnnotations([
+            ['bar', 'bar']
+        ]);
+        $doc->setInline(true);
+        $this->assertSame($expected, $doc->generate());
+    }
 }

@@ -11,11 +11,10 @@
 
 namespace Lucid\Writer\Object;
 
-use Lucid\Writer\Writer;
+use Lucid\Writer\WriterInterface;
 
 /**
  * @class CommentBlock
- * @see DocBlock
  *
  * @package Lucid\Writer
  * @version $Id$
@@ -26,7 +25,7 @@ class CommentBlock extends DocBlock
     /**
      * {@inheritdoc}
      */
-    protected function openBlock(Writer $writer)
+    protected function openBlock(WriterInterface $writer)
     {
         return $writer->writeln('/*');
     }

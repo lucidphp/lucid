@@ -7,17 +7,9 @@ namespace Acme;
  */
 class Foo
 {
-    /**
-     * bar
-     *
-     * @var mixed
-     */
+    /** @var mixed */
     private $bar;
 
-    /**
-     * baz
-     *
-     * @var string
-     */
+    /** @var string */
     public $baz = 'baz';
 }

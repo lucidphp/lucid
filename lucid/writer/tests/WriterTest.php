@@ -79,8 +79,10 @@ class WriterTest extends \PHPUnit_Framework_TestCase
             ->writeln('bar')
             ->writeln('baz');
 
-        $wr->popln();
+        $ln = $wr->popln();
 
+        $this->assertInstanceOf('Lucid\Writer\WriterInterface', $ln);
+        $this->assertFalse($wr === $ln);
         $this->assertSame("foo\nbar", $wr->dump());
     }
 
