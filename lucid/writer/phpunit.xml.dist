@@ -9,19 +9,11 @@
     processIsolation="false"
     stopOnFailure="true"
     syntaxCheck="true">
-<<<<<<< HEAD
   <testsuites>
     <testsuite name="Lucid Writer">
       <directory>./tests</directory>
     </testsuite>
   </testsuites>
-=======
-    <testsuites>
-      <testsuite name="Lucid Writer">
-        <directory>./tests</directory>
-      </testsuite>
-    </testsuites>
->>>>>>> 2489a7c08571aba6438a879b0cc2f11e43334bad
   <filter>
     <blacklist>
       <directory suffix=".php">./vendor</directory>
