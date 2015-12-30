@@ -157,9 +157,10 @@ class Writer implements WriterInterface
      */
     public function popln()
     {
-        array_pop($this->lnbuff);
+        $writer = clone $this;
+        $writer->lnbuff = [array_pop($this->lnbuff)];
 
-        return $this;
+        return $writer;
     }
 
     /**

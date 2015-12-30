@@ -47,8 +47,8 @@ class InterfaceWriterTest extends AbstractWriterTest
         $cwr->noAutoGenerateTag();
 
         $cwr->setConstants([
-            new Constant('t_foo', '12'),
-            new Constant('t_bar', '13')
+            new Constant('t_foo', '12', 'int'),
+            new Constant('t_bar', '13', 'string')
         ]);
 
         $this->assertEquals(file_get_contents(__DIR__.'/Fixures/interface.4.php'), $cwr->generate());
@@ -61,7 +61,7 @@ class InterfaceWriterTest extends AbstractWriterTest
         $cwr->noAutoGenerateTag();
 
         $cwr->setConstants([
-            new Constant('t_foo', '12')
+            new Constant('t_foo', '12', 'int')
         ]);
 
         $cwr->addMethod(new InterfaceMethod('setFoo'));

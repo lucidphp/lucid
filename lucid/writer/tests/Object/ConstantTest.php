@@ -23,6 +23,7 @@ class ConstantTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function itShouldCompileToConstnatString()
     {
-        $this->assertSame('    const FOO = 12;', (new Constant('foo', '12'))->generate());
+        $this->assertSame("    /** @var string */\n    const FOO = '12';", (new Constant('foo', '12'))->generate());
+        $this->assertSame("    /** @var int */\n    const FOO = 12;", (new Constant('foo', '12', 'int'))->generate());
     }
 }

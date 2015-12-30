@@ -26,11 +26,7 @@ class PropertyTest extends \PHPUnit_Framework_TestCase
         $prop = new Property('foo');
 
         $expected = <<<EOL
-    /**
-     * foo
-     *
-     * @var mixed
-     */
+    /** @var mixed */
     public \$foo;
 EOL;
         $this->assertSame($expected, (string)$prop);
@@ -42,11 +38,7 @@ EOL;
         $prop = new Property('foo');
 
         $expected = <<<EOL
-    /**
-     * foo
-     *
-     * @var string
-     */
+    /** @var string */
     private \$foo = 'foo';
 EOL;
         $prop->setValue("'foo'");

@@ -7,6 +7,7 @@ namespace Acme;
  */
 interface FooInterface
 {
+    /** @var int */
     const T_FOO = 12;
 
     /**

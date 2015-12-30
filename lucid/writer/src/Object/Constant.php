@@ -23,23 +23,18 @@ use Lucid\Writer\GeneratorInterface;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-class Constant implements GeneratorInterface
+class Constant extends Annotateable implements GeneratorInterface
 {
     use Stringable;
 
-    /**
-     * name
-     *
-     * @var string
-     */
+    /** @var string */
     private $name;
 
-    /**
-     * value
-     *
-     * @var string
-     */
+    /** @var string */
     private $value;
+
+    /** @var string */
+    private $type;
 
     /**
      * Constructor.
@@ -47,10 +42,13 @@ class Constant implements GeneratorInterface
      * @param string $name
      * @param string $value
      */
-    public function __construct($name, $value)
+    public function __construct($name, $value, $type = 'string')
     {
         $this->name  = $name;
         $this->value = $value;
+        $this->type  = $type;
+
+        parent::__construct();
     }
 
     /**
@@ -64,8 +62,32 @@ class Constant implements GeneratorInterface
     {
         $writer = new Writer;
         $writer->setOutputIndentation(1);
-        $writer->writeln(sprintf('const %s = %s;', strtoupper($this->name), $this->value));
+        $this->getDoc($writer);
+        $writer->setOutputIndentation(1);
+        $writer->writeln(sprintf('const %s = %s;', strtoupper($this->name), $this->getValue()));
 
         return $raw ? $writer : $writer->dump();
+    }
+
+    protected function prepareAnnotations(DocBlock $block)
+    {
+        if (!$block->hasDescription()) {
+            $block->setInline(true);
+        }
+
+        if ($block->hasAnnotations()) {
+            $block->unshiftAnnotation(null);
+        }
+
+        $block->unshiftAnnotation('var', $this->type);
+    }
+
+    private function getValue()
+    {
+        if ('string' === $this->type) {
+            return sprintf('\'%s\'', trim($this->value, '\'\"'));
+        }
+
+        return $this->value;
     }
 }

@@ -26,40 +26,25 @@ use Lucid\Writer\GeneratorInterface;
  */
 class Property extends Annotateable implements MemberInterface, GeneratorInterface
 {
-    /**
-     * name
-     *
-     * @var string
-     */
+    use VisibilityHelperTrait;
+
+    /** @var string */
     private $name;
 
-    /**
-     * visibility
-     *
-     * @var string
-     */
+    /** @var string */
     private $visibility;
 
-    /**
-     * prefix
-     *
-     * @var string
-     */
+    /** @var string */
     private $prefix;
 
-    /**
-     * type
-     *
-     * @var string
-     */
+    /** @var string */
     private $type;
 
-    /**
-     * value
-     *
-     * @var string
-     */
+    /** @var string */
     private $value;
+
+    /** @var bool */
+    private $inline = false;
 
     /**
      * Constructor.
@@ -71,9 +56,11 @@ class Property extends Annotateable implements MemberInterface, GeneratorInterfa
      */
     public function __construct($name, $visibility = self::IS_PUBLIC, $type = 'mixed', $static = false)
     {
-        $this->name = $name;
+        $this->checkVisibility($visibility);
+
+        $this->name       = $name;
         $this->visibility = $visibility;
-        $this->type = $type;
+        $this->type       = $type;
 
         $this->setStatic($static);
 
@@ -165,7 +152,7 @@ class Property extends Annotateable implements MemberInterface, GeneratorInterfa
     protected function prepareAnnotations(DocBlock $block)
     {
         if (!$block->hasDescription()) {
-            $block->setDescription($this->name);
+            $block->setInline(true);
         }
 
         if ($block->hasAnnotations()) {
