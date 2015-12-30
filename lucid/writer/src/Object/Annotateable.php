@@ -24,12 +24,11 @@ use Lucid\Writer\Writer;
  */
 abstract class Annotateable implements MemberInterface
 {
-    /**
-     * docComment
-     *
-     * @var string
-     */
+    /** @var DocBlock */
     private $docBlock;
+
+    /** @var bool */
+    private $inline;
 
     /**
      * Constructor.
@@ -94,7 +93,7 @@ abstract class Annotateable implements MemberInterface
      */
     final protected function getDoc(Writer $writer, $asString = false)
     {
-        $this->prepareAnnotations($block = clone($this->docBlock));
+        $this->prepareAnnotations($block = clone $this->docBlock);
 
         $writer->writeln($block);
 

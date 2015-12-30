@@ -67,9 +67,7 @@ class InterfaceWriter extends AbstractWriter
     {
         $this->constants = [];
 
-        foreach ($constants as $const) {
-            $this->addConstant($const);
-        }
+        array_map([$this, 'addConstant'], $constants);
     }
 
     /**
@@ -165,8 +163,14 @@ class InterfaceWriter extends AbstractWriter
      */
     protected function writeObjectBody(WriterInterface $writer)
     {
-        foreach ($this->constants as $constant) {
+        $cc = count($this->constants);
+        $addLines = 1 < $cc;
+
+        foreach ($this->constants as $i => $constant) {
             $writer->writeln($constant->generate());
+            if ($addLines && $i !== ($cc - 1)) {
+                $writer->newline();
+            }
         }
 
         if (!empty($this->methods)) {

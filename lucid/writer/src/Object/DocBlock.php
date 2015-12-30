@@ -43,6 +43,11 @@ class DocBlock implements GeneratorInterface
     /** @var string|null */
     private $returnAnnotation;
 
+    /** @var bool */
+    private $inline = false;
+
+    /** @var bool */
+    private $setInline = false;
 
     /**
      * Sets the short description.
@@ -54,6 +59,18 @@ class DocBlock implements GeneratorInterface
     public function setDescription($description)
     {
         $this->description[self::DESC_SHORT] = $description;
+    }
+
+    /**
+     * setInline
+     *
+     * @param bool $inline
+     *
+     * @return void
+     */
+    public function setInline($inline)
+    {
+        $this->inline = (bool)$inline;
     }
 
     /**
@@ -205,6 +222,14 @@ class DocBlock implements GeneratorInterface
         $this->writeBlock($writer);
         $this->closeBlock($writer);
 
+        if ($this->setInline) {
+            $ln2 = $writer->popln();
+            $ln1 = $writer->popln();
+            $writer->appendln($ln1.$ln2);
+
+            $this->setInline = false;
+        }
+
         return $raw ? $writer : $writer->dump();
     }
 
@@ -342,8 +367,15 @@ class DocBlock implements GeneratorInterface
      */
     protected function blockLines(WriterInterface $writer, array $lines)
     {
+        if ($this->inline && 1 === count($lines)) {
+            $this->setInline = true;
+            $prefix = ' ';
+        } else {
+            $prefix = ' * ';
+        }
+
         foreach ($lines as $line) {
-            $writer->writeln(' * ' . $line);
+            $writer->writeln($prefix . $line);
         }
     }
 }

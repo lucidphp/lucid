@@ -190,24 +190,31 @@ trait TraitAwareWriterHelper
         foreach ($this->traits as $trait) {
 
             if ($replUse) {
-                $useRpl = array_merge($useRpl, array_filter($this->replacements['trait_use_as'], function ($def) use ($trait) {
-                    return AbstractWriter::trimNs($trait) === AbstractWriter::trimNs($def[0]);
-                }));
+                $useRpl = array_merge(
+                    $useRpl,
+                    array_filter($this->replacements['trait_use_as'], function ($def) use ($trait) {
+                        return AbstractWriter::trimNs($trait) === AbstractWriter::trimNs($def[0]);
+                    })
+                );
             }
 
             if ($replCfl) {
-                $cflRpl = array_merge($cflRpl, array_filter($this->replacements['trait_conflict'], function ($def) use ($trait, $resolver) {
-                    // conflicting trait exists:
-                    $cflExists = false;
+                $cflRpl = array_merge(
+                    $cflRpl,
+                    array_filter($this->replacements['trait_conflict'], function ($def) use ($trait, $resolver) {
+                        // conflicting trait exists:
+                        $cflExists = false;
 
-                    foreach ($this->traits as $strait) {
-                        if ($clfExists = (AbstractWriter::trimNs($strait) === AbstractWriter::trimNs($def[1]))) {
-                            break;
+                        foreach ($this->traits as $strait) {
+                            if ($clfExists = (AbstractWriter::trimNs($strait) === AbstractWriter::trimNs($def[1]))) {
+                                break;
+                            }
                         }
-                    }
 
-                    return $clfExists && (AbstractWriter::trimNs($trait) === AbstractWriter::trimNs($def[0]));
-                }));
+                        return $clfExists && (AbstractWriter::trimNs($trait) === AbstractWriter::trimNs($def[0]));
+                    })
+                );
+
             }
         }
 
@@ -231,7 +238,12 @@ trait TraitAwareWriterHelper
         foreach ($cflRpl as $crpl) {
             list ($trait, $conflict, $method) = $crpl;
 
-            $this->writeConflictReplacement($writer, $resolver->getAlias($trait), $method, $resolver->getAlias($conflict));
+            $this->writeConflictReplacement(
+                $writer,
+                $resolver->getAlias($trait),
+                $method,
+                $resolver->getAlias($conflict)
+            );
         }
 
         $writer

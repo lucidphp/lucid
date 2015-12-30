@@ -26,7 +26,7 @@ interface WriterInterface
      * @param string $str
      *
      * @api
-     * @return Writer
+     * @return self
      */
     public function writeln($str = null);
 
@@ -54,7 +54,7 @@ interface WriterInterface
      * @api
      * @throws OutOfBoundsException
      *
-     * @return Writer
+     * @return self
      */
     public function removeln($index = 0);
 
@@ -67,15 +67,19 @@ interface WriterInterface
      * @api
      * @throws OutOfBoundsException
      *
-     * @return Writer
+     * @return self
      */
     public function replaceln($str, $index = 0);
 
     /**
      * Removes the last line.
      *
+     * popln removes the last line of the current writer instance
+     * and returns a new instance of writer with a singel line.
+     *
      * @api
-     * @return writer
+     * @return WriterInterface a new instance of the writer object which
+     * contains the popped line from the current writer.
      */
     public function popln();
 
@@ -83,7 +87,7 @@ interface WriterInterface
      * Adds an indentation to the following line.
      *
      * @api
-     * @return Writer
+     * @return self
      */
     public function indent();
 
@@ -91,7 +95,7 @@ interface WriterInterface
      * Removes the previous indentation.
      *
      * @api
-     * @return Writer
+     * @return self
      */
     public function outdent();
 

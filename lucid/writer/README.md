@@ -236,7 +236,7 @@ file_put_contents('Acme/Foo.php', $cg->generate());
 Results in:
 
 ```php
-<?php 
+<?php
 
 /**
  * This file was generated at 2014-07-08 12:23:22.
@@ -252,7 +252,7 @@ class Foo
 }
 ```
 
-###API
+### API
 
 In addition to the InterfaceWriter:
 
@@ -301,8 +301,8 @@ use Lucid\Writer\Object\ClassGenerator;
 $cg = new ClassGenerator('Foo', 'Acme');
 
 $cg->setParent('Acme\Lib\Bar');
-$cg->addProperty(new Property('foo', 'string'));
-$cg->addConstant(new Constant('T_ASW', '42'));
+$cg->addProperty(new Property('foo', Property::IS_PRIVATE, 'string'));
+$cg->addConstant(new Constant('T_ASW', '42', 'int'));
 $cg->addMethod($method = new Method('__construct', Method::IS_PUBLIC, Method::T_VOID));
 
 // declare method:
@@ -353,20 +353,17 @@ use Acme\Lib\Traits\FooTrait;
  */
 class Foo extends Bar
 {
-	const T_ASW = 42;
-
     use FooTrait, 
 		BarTrait {
 		FooTrait::getFoo as private getFooStr;	
 		BarTrait::getBar insteadof FooTrait;	
 	}
 
-    /**
-     * foo
-     *
-     * @var mixed
-     */
-    string $foo;
+    /** @var int */
+	const T_ASW = 42;
+
+    /** @var string */
+    private $foo;
 
     /**
 	 * Constructor.
