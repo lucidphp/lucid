@@ -2,9 +2,6 @@
 
 namespace Acme;
 
-use Acme\Traits\BarTrait;
-use Acme\Traits\FooTrait;
-
 /**
  * @class Foo
  * @see Acme\Bar
@@ -12,6 +9,4 @@ use Acme\Traits\FooTrait;
  */
 class Foo extends Bar implements Baz
 {
-    use FooTrait,
-        BarTrait;
 }

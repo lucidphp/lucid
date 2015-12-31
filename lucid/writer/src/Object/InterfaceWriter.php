@@ -41,6 +41,7 @@ class InterfaceWriter extends AbstractWriter
     public function __construct($name, $namespace = null, $parent = null)
     {
         parent::__construct($name, $namespace, $this->getTypeConstant());
+
         $this->setParent($parent);
         $this->constants = [];
     }
@@ -54,7 +55,6 @@ class InterfaceWriter extends AbstractWriter
 
         return parent::generate($raw);
     }
-
 
     /**
      * Sets the interface constants.
@@ -91,8 +91,8 @@ class InterfaceWriter extends AbstractWriter
     public function addMethod(MethodInterface $method)
     {
         if (!$method instanceof InterfaceMethod) {
-            throw InvalidArgumentException(
-                sprintf('Method %s must be instance of "InterfaceMethod".', $method->getName())
+            throw new InvalidArgumentException(
+                sprintf('Method "%s" must be instance of "InterfaceMethod".', $method->getName())
             );
         }
 
@@ -109,11 +109,11 @@ class InterfaceWriter extends AbstractWriter
      */
     public function setParent($parent)
     {
-        if (null == $parent) {
+        if (null === $parent) {
             return;
         }
 
-        if (null !== $this->parent) {
+        if (null !== $this->getParent()) {
             throw new BadMethodCallException('Cannot set parent Parent. already set.');
         }
 
@@ -128,7 +128,6 @@ class InterfaceWriter extends AbstractWriter
     {
         return T_INTERFACE;
     }
-
 
     /**
      * prepareGenerate
@@ -163,21 +162,33 @@ class InterfaceWriter extends AbstractWriter
      */
     protected function writeObjectBody(WriterInterface $writer)
     {
-        $cc = count($this->constants);
-        $addLines = 1 < $cc;
-
-        foreach ($this->constants as $i => $constant) {
-            $writer->writeln($constant->generate());
-            if ($addLines && $i !== ($cc - 1)) {
-                $writer->newline();
-            }
-        }
-
-        if (!empty($this->methods)) {
-            $writer->newline();
-        }
+        $this->writeConstants($writer);
 
         return parent::writeObjectBody($writer);
+    }
+
+    /**
+     * writeConstants
+     *
+     * @param WriterInterface $writer
+     *
+     * @return void
+     */
+    protected function writeConstants(WriterInterface $writer)
+    {
+        if (empty($this->constants)) {
+            return;
+        }
+
+        foreach ($this->constants as $i => $constant) {
+            $writer
+                ->writeln($constant->generate())
+                ->newline();
+        }
+
+        if (!$this->hasMethods()) {
+            $writer->popln();
+        }
     }
 
     /**
@@ -195,15 +206,22 @@ class InterfaceWriter extends AbstractWriter
      */
     protected function prepareObjDoc(DocBlock $doc)
     {
-        if ($this->parent) {
+        if (null !== $parent = $this->getParent()) {
             $resolver = $this->getImportResolver();
-            $name = $resolver->hasAlias($this->parent) ? $resolver->getAlias($this->parent) : $this->getParent();
-            $doc->unshiftAnnotation('see', $name);
+            $doc->unshiftAnnotation(
+                'see',
+                $resolver->hasAlias($parent) ? $resolver->getAlias($parent) : $resolver->getImport($parent)
+            );
         }
 
         $doc->unshiftAnnotation($this->getType(), $this->getName());
     }
 
+    /**
+     * getExtends
+     *
+     * @return string
+     */
     protected function getExtends()
     {
         if (null === ($parent = $this->getParent())) {

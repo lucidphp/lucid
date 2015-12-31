@@ -2,8 +2,8 @@
 
 namespace Acme;
 
-use \Acme\Traits\BarTrait;
-use \Acme\Traits\FooTrait;
+use Acme\Traits\BarTrait;
+use Acme\Traits\FooTrait;
 
 /**
  * @class Foo

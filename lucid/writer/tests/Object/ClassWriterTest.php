@@ -42,7 +42,6 @@ class ClassWriterTest extends AbstractWriterTest
         $cg->setParent('Acme\Bar');
         $cg->addInterface('Acme\Baz');
 
-
         $this->assertEquals($this->getContents('class.0.php'), $cg->generate());
     }
 
@@ -111,6 +110,7 @@ class ClassWriterTest extends AbstractWriterTest
         $cg->addMethod($m = new Method('__construct'));
         $m->addArgument(new Argument('bar', 'Bar'));
 
+        $c = $this->getContents('class.4.php');
         $this->assertEquals($c = $this->getContents('class.4.php'), $cg->generate());
     }
 
@@ -136,8 +136,8 @@ class ClassWriterTest extends AbstractWriterTest
         $cg->addMethod($m = new InterfaceMethod('__construct'));
     }
 
-    protected function newObw($name = 'MyClass', $namespace = null)
+    protected function newObw($name = 'MyClass', $namespace = null, $parent = null)
     {
-        return new ClassWriter($name, $namespace);
+        return new ClassWriter($name, $namespace, $parent);
     }
 }

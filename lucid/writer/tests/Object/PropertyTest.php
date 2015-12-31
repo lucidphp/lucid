@@ -25,10 +25,10 @@ class PropertyTest extends \PHPUnit_Framework_TestCase
     {
         $prop = new Property('foo');
 
-        $expected = <<<EOL
+        $expected = <<<PHP
     /** @var mixed */
     public \$foo;
-EOL;
+PHP;
         $this->assertSame($expected, (string)$prop);
     }
 
@@ -37,10 +37,10 @@ EOL;
     {
         $prop = new Property('foo');
 
-        $expected = <<<EOL
+        $expected = <<<PHP
     /** @var string */
     private \$foo = 'foo';
-EOL;
+PHP;
         $prop->setValue("'foo'");
         $prop->setType(Property::T_STRING);
         $prop->setVisibility(Property::IS_PRIVATE);
@@ -50,8 +50,7 @@ EOL;
     /** @test */
     public function itIsExpectedThat()
     {
-
-        $expected = <<<EOL
+        $expected = <<<PHP
     /**
      * Acme\Foo\Wahtever
      *
@@ -62,7 +61,7 @@ EOL;
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     public \$id;
-EOL;
+PHP;
         $prop = new Property('id');
 
         $prop->setDescription('Acme\Foo\Wahtever');

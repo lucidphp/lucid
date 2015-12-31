@@ -38,14 +38,14 @@ class DocBlockTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function itShouldAddLongDescription()
     {
-        $expected = <<<EOL
+        $expected = <<<PHP
 /**
  * test
  *
  * A
  * B
  */
-EOL;
+PHP;
         $doc = new DocBlock;
         $doc->setDescription('test');
         $doc->setLongDescription("A\nB");
@@ -56,12 +56,12 @@ EOL;
     /** @test */
     public function itShouldAddAnnotations()
     {
-        $expected = <<<EOL
+        $expected = <<<PHP
 /**
  * @name foo
  * @param string \$bar
  */
-EOL;
+PHP;
         $doc = new DocBlock;
         $doc->addAnnotation('name', 'foo');
         $doc->addParam('string', 'bar');
@@ -73,7 +73,7 @@ EOL;
     public function itShouldWriteFullBlock()
     {
 
-        $expected = <<<EOL
+        $expected = <<<PHP
 /**
  * Foo
  *
@@ -85,7 +85,7 @@ EOL;
  *
  * @return string|null description
  */
-EOL;
+PHP;
         $doc = new DocBlock;
         $doc->setDescription('Foo');
         $doc->setLongDescription("Bar\nBaz");
@@ -100,13 +100,13 @@ EOL;
     public function itShouldWriteDescAndReturn()
     {
 
-        $expected = <<<EOL
+        $expected = <<<PHP
 /**
  * Foo
  *
  * @return void
  */
-EOL;
+PHP;
         $doc = new DocBlock;
         $doc->setDescription('Foo');
         $doc->setReturn('void');
@@ -117,13 +117,13 @@ EOL;
     public function itShouldWriteNewLinesOnAnnotations()
     {
 
-        $expected = <<<EOL
+        $expected = <<<PHP
 /**
  * @name foo
  *
  * @name bar
  */
-EOL;
+PHP;
         $doc = new DocBlock;
         $doc->setAnnotations([
             ['name', 'foo'],
@@ -149,12 +149,12 @@ EOL;
     public function itShouldOverrideInlineIfDiscriptionOrAnnotations()
     {
 
-        $expected = <<<EOL
+        $expected = <<<PHP
 /**
  * @foo foo
  * @bar bar
  */
-EOL;
+PHP;
         $doc = new DocBlock;
         $doc->setAnnotations([
             ['foo', 'foo'],
@@ -163,13 +163,13 @@ EOL;
         $doc->setInline(true);
         $this->assertSame($expected, $doc->generate());
 
-        $expected = <<<EOL
+        $expected = <<<PHP
 /**
  * FooBar
  *
  * @bar bar
  */
-EOL;
+PHP;
         $doc = new DocBlock;
         $doc->setDescription('FooBar');
         $doc->setAnnotations([

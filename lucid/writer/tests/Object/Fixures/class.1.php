@@ -2,8 +2,8 @@
 
 namespace Acme;
 
-use \Acme\Interfaces\Bar as FooBar;
-use \Acme\Lib\Bar;
+use Acme\Interfaces\Bar as FooBar;
+use Acme\Lib\Bar;
 
 /**
  * @class Foo

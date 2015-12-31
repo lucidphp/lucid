@@ -44,8 +44,8 @@ trait VisibilityHelperTrait
         }
 
         throw new InvalidArgumentException(sprintf(
-            '"%s" is not a valid visibilty, pssible values are: %s',
-            $visibilty,
+            '"%s" is not a valid visibility, possible values are: %s.',
+            $visibility,
             implode(', ', $this->vpool)
         ));
     }

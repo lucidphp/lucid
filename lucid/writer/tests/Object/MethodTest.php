@@ -27,7 +27,7 @@ class MethodTest extends \PHPUnit_Framework_TestCase
     {
         $method = new Method('setFoo');
 
-        $expected = <<<EOL
+        $expected = <<<PHP
     /**
      * setFoo
      *
@@ -36,7 +36,7 @@ class MethodTest extends \PHPUnit_Framework_TestCase
     public function setFoo()
     {
     }
-EOL;
+PHP;
         $this->assertSame($expected, (string)$method);
     }
 
@@ -45,7 +45,7 @@ EOL;
     {
         $method = new Method('setFoo');
 
-        $expected = <<<EOL
+        $expected = <<<PHP
     /**
      * setFoo
      *
@@ -56,7 +56,7 @@ EOL;
     public function setFoo(stdClass \$foo)
     {
     }
-EOL;
+PHP;
 
         $method->addArgument(new Argument('foo', 'stdClass'));
         $this->assertSame($expected, $method->generate());
@@ -72,7 +72,7 @@ EOL;
     {
         $method = new Method('getFoo');
 
-        $expected = <<<EOL
+        $expected = <<<PHP
     /**
      * Foo
      * Bar
@@ -82,7 +82,7 @@ EOL;
     public function getFoo()
     {
     }
-EOL;
+PHP;
 
         $method->setDescription("Foo\nBar");
 
@@ -94,14 +94,14 @@ EOL;
     {
         $method = new Method('__construct');
 
-        $expected = <<<EOL
+        $expected = <<<PHP
     /**
      * Constructor.
      */
     public function __construct()
     {
     }
-EOL;
+PHP;
         $method->setDescription('Constructor.');
         $this->assertSame($expected, $method->generate());
     }
@@ -112,7 +112,7 @@ EOL;
 
         $method = new Method('getFoo');
 
-        $expected = <<<EOL
+        $expected = <<<PHP
     /**
      * getFoo
      *
@@ -121,7 +121,7 @@ EOL;
     public function getFoo()
     {
     }
-EOL;
+PHP;
         $method->setType(Method::T_STRING);
         $this->assertSame($expected, $method->generate());
     }
@@ -131,7 +131,7 @@ EOL;
     {
         $method = new Method('getFoo');
 
-        $expected = <<<EOL
+        $expected = <<<PHP
     /**
      * getFoo
      *
@@ -141,7 +141,7 @@ EOL;
     {
         return;
     }
-EOL;
+PHP;
         $method->setBody('return;');
         $this->assertSame($expected, $method->generate());
 
@@ -153,7 +153,7 @@ EOL;
     /** @test */
     public function itShouldAddAnnotations()
     {
-        $expected = <<<EOL
+        $expected = <<<PHP
     /**
      * This is doc a comment.
      *
@@ -166,7 +166,7 @@ EOL;
     {
         return;
     }
-EOL;
+PHP;
         $method = new Method('getFoo');
         $method->setBody('return;');
         $method->setArguments([new Argument('foo', 'stdClass')]);
@@ -180,14 +180,14 @@ EOL;
     public function itShouldWriteAbstract()
     {
 
-        $expected = <<<EOL
+        $expected = <<<PHP
     /**
      * getFoo
      *
      * @return void
      */
     abstract public function getFoo();
-EOL;
+PHP;
         $method = new Method('getFoo');
         $method->setAbstract(true);
         $this->assertSame($expected, $method->generate());

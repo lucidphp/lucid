@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This File is part of the Lucid\Writer package
+ * This File is part of the Lucid\WriterInterface package
  *
  * (c) iwyg <mail@thomas-appel.com>
  *
@@ -11,7 +11,7 @@
 
 namespace Lucid\Writer\Object;
 
-use Lucid\Writer\Writer;
+use Lucid\Writer\WriterInterface;
 
 /**
  * @trait TraitHelper
@@ -114,12 +114,12 @@ trait TraitAwareWriterHelper
     /**
      * writeProperties
      *
-     * @param Writer $writer
+     * @param WriterInterface $writer
      * @param ImportResolver $resolver
      *
      * @return void
      */
-    protected function writeProperties(Writer $writer, ImportResolver $resolver)
+    protected function writeProperties(WriterInterface $writer, ImportResolver $resolver)
     {
         if (empty($this->properties)) {
             return;
@@ -141,13 +141,13 @@ trait TraitAwareWriterHelper
     /**
      * writeTraits
      *
-     * @param Writer $writer
+     * @param WriterInterface $writer
      * @param ImportResolver $resolver
      * @param mixed $newLine
      *
      * @return void
      */
-    protected function writeTraits(Writer $writer, ImportResolver $resolver, $newLine = false)
+    protected function writeTraits(WriterInterface $writer, ImportResolver $resolver, $newLine = false)
     {
         if (empty($this->traits)) {
             return;
@@ -174,12 +174,12 @@ trait TraitAwareWriterHelper
     /**
      * completeTraitList
      *
-     * @param Writer $writer
+     * @param WriterInterface $writer
      * @param ImportResolver $resolver
      *
      * @return void
      */
-    protected function completeTraitList(Writer $writer, ImportResolver $resolver)
+    protected function completeTraitList(WriterInterface $writer, ImportResolver $resolver)
     {
         $useRpl = [];
         $cflRpl = [];
@@ -254,7 +254,7 @@ trait TraitAwareWriterHelper
     /**
      * writeUseReplacement
      *
-     * @param Writer $writer
+     * @param WriterInterface $writer
      * @param string $alias
      * @param string $method
      * @param string $replacement
@@ -262,7 +262,7 @@ trait TraitAwareWriterHelper
      *
      * @return void
      */
-    protected function writeUseReplacement(Writer $writer, $alias, $method, $replacement, $visibility = null)
+    protected function writeUseReplacement(WriterInterface $writer, $alias, $method, $replacement, $visibility = null)
     {
         $visibility = $visibility ? sprintf('%s ', $visibility) : '';
 
@@ -272,7 +272,7 @@ trait TraitAwareWriterHelper
     /**
      * writeUseReplacement
      *
-     * @param Writer $writer
+     * @param WriterInterface $writer
      * @param string $alias
      * @param string $method
      * @param string $replacement
@@ -280,7 +280,7 @@ trait TraitAwareWriterHelper
      *
      * @return void
      */
-    protected function writeConflictReplacement(Writer $writer, $alias, $method, $replacement)
+    protected function writeConflictReplacement(WriterInterface $writer, $alias, $method, $replacement)
     {
         $writer->writeln(sprintf('%s::%s insteadof %s;', $alias, $method, $replacement));
     }
