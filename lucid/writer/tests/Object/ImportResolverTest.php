@@ -49,17 +49,17 @@ class ImportResolverTest extends \PHPUnit_Framework_TestCase
     {
         $res = new ImportResolver();
 
-        $this->assertSame('\Foo\Bar', $res->getAlias('Foo\Bar'));
+        $this->assertSame('Foo\Bar', $res->getAlias('Foo\Bar'));
 
         $res->add('\Foo\Bar');
 
-        $this->assertSame('\Foo\Bar', $res->getImport('Foo\Bar'));
+        $this->assertSame('Foo\Bar', $res->getImport('Foo\Bar'));
         $this->assertSame('Bar', $res->getAlias('Foo\Bar'));
 
         $res->add('\Faz\Bar');
 
-        $this->assertSame('\Faz\Bar as FazBar', $res->getImport('Faz\Bar'));
-        $this->assertSame('\baz as bar', $res->getImport('baz as bar'));
+        $this->assertSame('Faz\Bar as FazBar', $res->getImport('Faz\Bar'));
+        $this->assertSame('baz as bar', $res->getImport('baz as bar'));
     }
 
     /** @test */
@@ -104,7 +104,7 @@ class ImportResolverTest extends \PHPUnit_Framework_TestCase
         $res->add('\Lunar\Foo as FooAlias');
 
         $this->assertSame('FooAlias', $res->getAlias('\Lunar\Foo as FooAlias'));
-        $this->assertSame('\Lunar\Foo as FooAlias', $res->getImport('\Lunar\Foo as FooAlias'));
-        $this->assertSame('\Lunar\Bar as BarAlias', $res->getImport('\Lunar\Bar as BarAlias'));
+        $this->assertSame('Lunar\Foo as FooAlias', $res->getImport('\Lunar\Foo as FooAlias'));
+        $this->assertSame('Lunar\Bar as BarAlias', $res->getImport('\Lunar\Bar as BarAlias'));
     }
 }

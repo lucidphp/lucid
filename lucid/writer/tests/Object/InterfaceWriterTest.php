@@ -31,6 +31,33 @@ class InterfaceWriterTest extends AbstractWriterTest
         $this->assertInstanceof('Lucid\Writer\Object\AbstractWriter', new InterfaceWriter('MyObject'));
     }
 
+    /** @test */
+    public function itShouldDisallowClassMethods()
+    {
+        $cwr = $this->newObw('Acme\FooInterface');
+        $m = $this->getMockbuilder('Lucid\Writer\Object\MethodInterface')
+            ->disableOriginalConstructor()
+            ->getMock();
+        $m->method('getName')->willReturn('foo');
+        try {
+            $cwr->addMethod($m);
+        } catch (\InvalidArgumentException $e) {
+            $this->assertEquals('Method "foo" must be instance of "InterfaceMethod".', $e->getMessage());
+        }
+    }
+
+    /** @test */
+    public function itShouldNotSetParent()
+    {
+        $cwr = $this->newObw('FooInterface', 'Acme', 'BarInterface');
+        try {
+            $cwr->setParent('Lube');
+        } catch (\BadMethodCallException $e) {
+            $this->assertEquals('Cannot set parent Parent. already set.', $e->getMessage());
+        }
+    }
+
+    /** @test */
     public function itShouldBeExtendable()
     {
         $cwr = $this->newObw('Acme\FooInterface');
@@ -67,11 +94,45 @@ class InterfaceWriterTest extends AbstractWriterTest
         $cwr->addMethod(new InterfaceMethod('setFoo'));
         $cwr->addMethod(new InterfaceMethod('setBar'));
 
-        $this->assertEquals($this->getContents('interface.4.1.php'), $cwr->generate());
+        $this->assertEquals($this->getContents('interface.4.1.php'), $res = $cwr->generate());
     }
 
-    protected function newObw($name = 'MyObject', $namespace = null)
+    /** @test */
+    public function itShouldWriteNewLineBetweenConstantAndMethod()
     {
-        return new InterfaceWriter($name, $namespace);
+        $expected = <<<PHP
+<?php
+
+namespace Acme;
+
+/**
+ * @interface Foo
+ */
+interface Foo
+{
+    /** @var int */
+    const MY_CONST = 1;
+
+    /**
+     * getMyConst
+     *
+     * @return int
+     */
+    public function getMyConst();
+}
+
+PHP;
+
+        $cwr = $this->newObw('Acme\Foo');
+        $cwr->noAutoGenerateTag();
+        $cwr->addConstant(new Constant('MY_CONST', 1, 'int'));
+        $cwr->addMethod(new InterfaceMethod('getMyConst', 'int'));
+
+        $this->assertSame($expected, (string)$cwr->generate());
+    }
+
+    protected function newObw($name = 'MyObject', $namespace = null, $parent = null)
+    {
+        return new InterfaceWriter($name, $namespace, $parent);
     }
 }

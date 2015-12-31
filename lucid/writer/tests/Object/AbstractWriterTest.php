@@ -50,7 +50,7 @@ abstract class AbstractWriterTest extends \PHPUnit_Framework_TestCase
      *
      * @return AbstractWriter
      */
-    abstract protected function newObw($name = 'MyObject', $namespace = null);
+    abstract protected function newObw($name = 'MyObject', $namespace = null, $parent = null);
 
 
     protected function getContents($file)

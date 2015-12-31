@@ -57,14 +57,14 @@ class InterfaceMethodTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function itShouldWriteInterfaceMethod()
     {
-        $expected = <<<EOL
+        $expected = <<<PHP
     /**
      * getFoo
      *
      * @return void
      */
     public function getFoo();
-EOL;
+PHP;
         $im = new InterfaceMethod('getFoo');
 
         $this->assertSame($expected, $im->generate());

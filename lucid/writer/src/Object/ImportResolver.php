@@ -64,14 +64,14 @@ class ImportResolver
         list($import, $alias) = $this->splitImport($o = $this->pad($import));
 
         if (isset($this->aliases[$import])) {
-            return $this->aliases[$import];
+            return $this->trim($this->aliases[$import]);
         }
 
         if (isset($this->imports[$import])) {
-            return $this->imports[$import];
+            return $this->trim($this->imports[$import]);
         }
 
-        return $o;
+        return $this->trim($o);
     }
 
     /**
@@ -103,10 +103,10 @@ class ImportResolver
         list($import, $alias) = $this->splitImport($o = $this->pad($import));
 
         if (isset($this->aliases[$import])) {
-            return $import.' as '.$this->aliases[$import];
+            return $this->trim($import.' as '.$this->aliases[$import]);
         }
 
-        return $o;
+        return $this->trim($o);
     }
 
     /**
@@ -215,6 +215,18 @@ class ImportResolver
      */
     private function pad($import)
     {
-        return sprintf('\%s', ltrim($import, '\\'));
+        return sprintf('\%s', $this->trim($import));
+    }
+
+    /**
+     * trim
+     *
+     * @param mixed $str
+     *
+     * @return string
+     */
+    private function trim($str)
+    {
+        return ltrim($str, '\\');
     }
 }

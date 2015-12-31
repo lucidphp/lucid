@@ -51,7 +51,7 @@ class TraitWriter extends AbstractWriter
     {
         if ($method instanceof InterfaceMethod) {
             throw new InvalidArgumentException(
-                sprintf('Trait method %s must not be instance of "InterfaceMethod".', $method->getName())
+                sprintf('Trait method "%s" must not be instance of "InterfaceMethod".', $method->getName())
             );
         }
 
@@ -84,7 +84,7 @@ class TraitWriter extends AbstractWriter
      */
     protected function prepareObjDoc(DocBlock $block)
     {
-        return $block;
+        $block->unshiftAnnotation($this->getType(), $this->getName());
     }
 
     /**

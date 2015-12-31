@@ -60,6 +60,9 @@ abstract class AbstractWriter implements GeneratorInterface
     /** @var int */
     private $type;
 
+    /** @var int */
+    private $doctype;
+
     /** @var bool */
     private $locked;
 
@@ -85,17 +88,19 @@ abstract class AbstractWriter implements GeneratorInterface
      * @param string      $name
      * @param string|null $namespace
      */
-    public function __construct($name, $namespace = null, $type = null)
+    public function __construct($name, $namespace = null, $type = null, $docType = self::I_NATIVE)
     {
         $this->setNamespace($namespace);
         $this->setName($name);
-        $this->type = $type;
 
-        $this->uses = [];
-        $this->blocks = [];
+        $this->type    = $type;
+        $this->uses    = [];
+        $this->blocks  = [];
         $this->methods = [];
 
         $this->noAutoGenerateTag = false;
+
+        $this->setDocType($docType);
     }
 
     /**
@@ -107,6 +112,7 @@ abstract class AbstractWriter implements GeneratorInterface
      */
     public function setDocType($type = self::I_NATIVE)
     {
+        $this->doctype = $this->validateDocType($type);
     }
 
     /**
@@ -349,7 +355,7 @@ abstract class AbstractWriter implements GeneratorInterface
      * getType
      *
      * @throws \LogicException
-     * @return void
+     * @return string
      */
     protected function getType()
     {
@@ -364,6 +370,21 @@ abstract class AbstractWriter implements GeneratorInterface
             throw new \LogicException(sprintf('Invalid object type, type must be %s', implode(', ', $types)));
         }
     }
+
+    /**
+     * getDocType
+     *
+     * @return string
+     */
+    protected function getDocType()
+    {
+        if (null === $this->doctype) {
+            return self::$dockTypes[self::I_NATIVE];
+        }
+
+        return self::$docTypes[$this->docktype];
+    }
+
 
     /**
      * getTypePrefix
@@ -412,6 +433,16 @@ abstract class AbstractWriter implements GeneratorInterface
     protected function getImports()
     {
         return $this->uses;
+    }
+
+    /**
+     * hasMethods
+     *
+     * @return bool
+     */
+    protected function hasMethods()
+    {
+        return !empty($this->methods);
     }
 
     /**
@@ -559,5 +590,21 @@ abstract class AbstractWriter implements GeneratorInterface
 
         $this->fqn = self::N_SEP.static::trimNs($this->namespace ? $this->namespace.self::N_SEP.$name : $name);
         $this->name = $name;
+    }
+
+    /**
+     * validateDocType
+     *
+     * @param int $type
+     *
+     * @return int
+     */
+    private function validateDocType($type)
+    {
+        if (null !== $type && !in_array($type, array_keys(self::$docTypes))) {
+            throw new \InvalidArgumentException;
+        }
+
+        return $type;
     }
 }
