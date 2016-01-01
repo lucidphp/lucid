@@ -1,12 +1,12 @@
 # Dumping strings with elegance
 
 [![Author](http://img.shields.io/badge/author-iwyg-blue.svg?style=flat-square)](https://github.com/iwyg)
-[![Source Code](http://img.shields.io/badge/source-lucid/signal-blue.svg?style=flat-square)](https://github.com/lucidphp/writer/tree/develop)
-[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](https://github.com/lucidphp/writer/blob/develop/LICENSE.md)
+[![Source Code](http://img.shields.io/badge/source-lucid/signal-blue.svg?style=flat-square)](https://github.com/lucidphp/writer/tree/master)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](https://github.com/lucidphp/writer/blob/master/LICENSE.md)
 
-[![Build Status](https://img.shields.io/travis/lucidphp/writer/develop.svg?style=flat-square)](https://travis-ci.org/lucidphp/writer)
-[![HHVM](https://img.shields.io/hhvm/lucid/writer/dev-develop.svg?style=flat-square)](http://hhvm.h4cc.de/package/lucid/writer)
-[![Code Coverage](https://img.shields.io/coveralls/lucidphp/writer/develop.svg?style=flat-square)](https://coveralls.io/r/lucidphp/writer)
+[![Build Status](https://img.shields.io/travis/lucidphp/writer/master.svg?style=flat-square)](https://travis-ci.org/lucidphp/writer)
+[![HHVM](https://img.shields.io/hhvm/lucid/writer/dev-master.svg?style=flat-square)](http://hhvm.h4cc.de/package/lucid/writer)
+[![Code Coverage](https://img.shields.io/coveralls/lucidphp/writer/master.svg?style=flat-square)](https://coveralls.io/r/lucidphp/writer)
 
 ## Installation
 

@@ -25,12 +25,6 @@ trait Stringable
      */
     public function __toString()
     {
-        if ($this instanceof GeneratorInterface) {
-            return $this->generate(GeneratorInterface::RV_STRING);
-        }
-
-        if ($this instanceof WriterInterface) {
-            return $this->dump();
-        }
+        return $this->generate(GeneratorInterface::RV_STRING);
     }
 }

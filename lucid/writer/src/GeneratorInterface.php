@@ -34,4 +34,6 @@ interface GeneratorInterface
      * @return string|WriterInterface
      */
     public function generate($raw = self::RV_STRING);
+
+    public function __toString();
 }

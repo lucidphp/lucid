@@ -30,8 +30,4 @@ class JsonGeneratorTest extends \PHPUnit_Framework_TestCase
         $js->addContent('foo.bar', 'baz');
         $this->assertJsonStringEqualsJsonString(json_encode(['foo' => ['bar' => 'baz']]), $js->generate());
     }
-    /** @test */
-    public function itShouldFailWritingStuff()
-    {
-    }
 }

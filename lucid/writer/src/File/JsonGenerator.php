@@ -12,8 +12,9 @@
 namespace Lucid\Writer\File;
 
 use Lucid\Writer\Writer;
-use Lucid\Writer\GeneratorInterface;
+use Lucid\Writer\Stringable;
 use Lucid\Common\Helper\Arr;
+use Lucid\Writer\GeneratorInterface;
 
 /**
  * @class JsonGenerator
@@ -22,21 +23,23 @@ use Lucid\Common\Helper\Arr;
  */
 class JsonGenerator implements GeneratorInterface
 {
+    use Stringable;
+
     /**
      * content
      *
      * @var array
      */
-    protected $content;
+    private $payload;
 
     /**
      * Constructor.
      *
      * @param array $contents
      */
-    public function __construct(array $contents = [])
+    public function __construct(array $payload = [])
     {
-        $this->setContent($contents);
+        $this->setContent($payload);
     }
 
     /**
@@ -48,8 +51,11 @@ class JsonGenerator implements GeneratorInterface
      */
     public function setContent(array $contents)
     {
-        $this->content = [];
-        $this->doSetContents($contents);
+        $this->payload = [];
+
+        array_walk($contents, function ($val, $key) {
+            $this->addContent($key, $val);
+        });
 
         return $this;
     }
@@ -64,49 +70,19 @@ class JsonGenerator implements GeneratorInterface
      */
     public function addContent($key, $content)
     {
-        Arr::set($this->content, $key, $content);
+        Arr::set($this->payload, $key, $content);
 
         return $this;
     }
 
     /**
-     * generate
-     *
-     * @param mixed $raw
-     *
-     * @return string|Writer
+     * {@inheritdoc}
      */
     public function generate($raw = false)
     {
-        $writer = new Writer;
-
-        $writer
-            ->writeln(json_encode($this->getContent(), JSON_PRETTY_PRINT));
+        $writer = (new Writer)
+            ->writeln(json_encode($this->payload, JSON_PRETTY_PRINT));
 
         return $raw ? $writer : $writer->dump();
-    }
-
-    /**
-     * getContent
-     *
-     * @return array
-     */
-    protected function getContent()
-    {
-        return $this->content;
-    }
-
-    /**
-     * doSetContents
-     *
-     * @param array $contents
-     *
-     * @return void
-     */
-    protected function doSetContents(array $contents)
-    {
-        foreach ($contents as $key => $content) {
-            $this->addContent($key, $content);
-        }
     }
 }

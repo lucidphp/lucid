@@ -45,23 +45,15 @@ class Method extends Annotateable implements MethodInterface
     /** @var bool */
     private $abstract;
 
+    /** @var bool */
+    private $php7 = false;
+
     /** @var array */
     private static $magick = [
-        '__clone',
-        '__call',
-        '__callstatic',
-        '__construct',
-        '__destruct',
-        '__invoke',
-        '__tostring',
-        '__get',
-        '__set',
-        '__sleep',
-        '__wakeup',
-        '__debuginfo',
-        '__unset',
-        '__isset',
-        '__set_state',
+        '__clone',    '__call',   '__callstatic', '__construct',
+        '__destruct', '__invoke', '__tostring',   '__get',
+        '__set',      '__sleep',  '__wakeup',     '__debuginfo',
+        '__unset',    '__isset',  '__set_state',
     ];
 
     /**
@@ -70,7 +62,7 @@ class Method extends Annotateable implements MethodInterface
      * @param string $name
      * @param string $visibility
      * @param string $type
-     * @param boolean $static
+     * @param bool $static
      */
     public function __construct($name, $visibility = self::IS_PUBLIC, $type = self::T_VOID, $static = false)
     {
@@ -117,7 +109,7 @@ class Method extends Annotateable implements MethodInterface
     /**
      * Set this method stattic.
      *
-     * @param boolean $static
+     * @param bool $static
      *
      * @return void
      */
@@ -129,7 +121,7 @@ class Method extends Annotateable implements MethodInterface
     /**
      * Set this method abstract
      *
-     * @param boolean $abstract
+     * @param bool $abstract
      *
      * @return void
      */
@@ -161,9 +153,7 @@ class Method extends Annotateable implements MethodInterface
     {
         $this->arguments = [];
 
-        foreach ($arguments as $argument) {
-            $this->addArgument($argument);
-        }
+        array_map([$this, 'addArgument'], $arguments);
     }
 
     /**
