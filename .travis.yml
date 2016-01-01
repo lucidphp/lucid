@@ -12,8 +12,6 @@ matrix:
       - CS_CHECK_ENABLED: true
       - GIT_PUBLISH_SUBSPLIT: true
     - php: hhvm
-  allow_failures:
-    - php: hhvm
 
 before_install:
   - if [[ -z $CODE_COVERAGE_LOG ]]; then phpenv config-rm xdebug.ini || return 0 ; fi
