@@ -27,8 +27,6 @@ use InvalidArgumentException;
  */
 class Writer implements WriterInterface
 {
-    use Stringable;
-
     /** @var bool */
     private $ingnoreNull;
 
@@ -224,6 +222,14 @@ class Writer implements WriterInterface
         $pad = $this->padString('', $this->outputIndentation);
 
         return preg_replace('/^\s+$/m', '', $pad.implode("\n".$pad, $this->lnbuff));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __toString()
+    {
+        return $this->dump();
     }
 
     /**

@@ -12,6 +12,7 @@
 namespace Lucid\Writer\Object;
 
 use BadMethodCallException;
+use Lucid\Writer\Stringable;
 use InvalidArgumentException;
 use Lucid\Writer\WriterInterface;
 
@@ -25,6 +26,8 @@ use Lucid\Writer\WriterInterface;
  */
 class InterfaceWriter extends AbstractWriter
 {
+    use Stringable;
+
     /** @var string */
     protected $parent;
 

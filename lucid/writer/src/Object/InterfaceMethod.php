@@ -29,7 +29,7 @@ class InterfaceMethod extends Method
      *
      * @param string $name
      * @param string $type
-     * @param boolean $static
+     * @param bool $static
      */
     public function __construct($name, $type = self::T_VOID, $static = false)
     {

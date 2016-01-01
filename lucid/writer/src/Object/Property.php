@@ -56,13 +56,11 @@ class Property extends Annotateable implements MemberInterface, GeneratorInterfa
      */
     public function __construct($name, $visibility = self::IS_PUBLIC, $type = 'mixed', $static = false)
     {
-        $this->checkVisibility($visibility);
-
-        $this->name       = $name;
-        $this->visibility = $visibility;
-        $this->type       = $type;
-
+        $this->setVisibility($visibility);
         $this->setStatic($static);
+
+        $this->name = $name;
+        $this->type = $type;
 
         parent::__construct();
     }
@@ -98,6 +96,7 @@ class Property extends Annotateable implements MemberInterface, GeneratorInterfa
      */
     public function setVisibility($visibility)
     {
+        $this->checkVisibility($visibility);
         $this->visibility = $visibility;
     }
 
@@ -134,14 +133,12 @@ class Property extends Annotateable implements MemberInterface, GeneratorInterfa
             ->writeln(sprintf('%s%s $%s', $this->visibility, $this->prefix, $this->name));
 
         if (null !== $this->value) {
-            $writer
-                ->appendln(' = ' . $this->value);
+            $writer->appendln(' = ' . $this->value);
         }
 
         $writer
-            ->appendln(';');
-
-        $writer->setOutputIndentation(1);
+            ->appendln(';')
+            ->setOutputIndentation(1);
 
         return $raw ? $writer : $writer->dump();
     }

@@ -23,11 +23,37 @@ use Lucid\Writer\GeneratorInterface;
  */
 interface MethodInterface extends GeneratorInterface
 {
+    /**
+     * Sets the methods return type.
+     *
+     * @param string $type
+     *
+     * @return void
+     */
     public function setType($type);
 
+    /**
+     * Returns the name of the method.
+     *
+     * @return string
+     */
     public function getName();
 
+    /**
+     * Sets the methods arguments.
+     *
+     * @param array $arguments a list of `Argument`
+     *
+     * @return void
+     */
     public function setArguments(array $arguments);
 
+    /**
+     * Adds an argument.
+     *
+     * @param Argument $argument
+     *
+     * @return void
+     */
     public function addArgument(Argument $argument);
 }

@@ -14,6 +14,7 @@ namespace Lucid\Writer\Object;
 use DateTime;
 use InvalidArgumentException;
 use Lucid\Writer\Writer;
+use Lucid\Writer\Stringable;
 use Lucid\Writer\WriterInterface;
 use Lucid\Writer\GeneratorInterface;
 
@@ -28,7 +29,8 @@ use Lucid\Writer\GeneratorInterface;
  */
 abstract class AbstractWriter implements GeneratorInterface
 {
-    use ImportHelper;
+    use ImportHelper,
+        Stringable;
 
     /** @var int */
     const I_NATIVE = 890;
@@ -194,9 +196,19 @@ abstract class AbstractWriter implements GeneratorInterface
     {
         $this->methods = [];
 
-        foreach ($methods as $method) {
-            $this->addMethod($method);
-        }
+        array_map([$this, 'addMethod'], $methods);
+    }
+
+    /**
+     * Add a method.
+     *
+     * @param MethodInterface $method
+     *
+     * @return void
+     */
+    public function addMethod(MethodInterface $method)
+    {
+        $this->methods[] = $method;
     }
 
     /**
@@ -219,18 +231,6 @@ abstract class AbstractWriter implements GeneratorInterface
     public function addImport($use)
     {
         return $this->addUseStatement($use);
-    }
-
-    /**
-     * Add a method.
-     *
-     * @param MethodInterface $method
-     *
-     * @return void
-     */
-    public function addMethod(MethodInterface $method)
-    {
-        $this->methods[] = $method;
     }
 
     /**

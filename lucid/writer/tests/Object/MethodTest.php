@@ -157,6 +157,8 @@ PHP;
     /**
      * This is doc a comment.
      *
+     * This is the long description.
+     *
      * @author Thomas Appel <mail@thomas-appel.com>
      * @param stdClass \$foo
      *
@@ -172,6 +174,31 @@ PHP;
         $method->setArguments([new Argument('foo', 'stdClass')]);
         $method->addAnnotation('author', 'Thomas Appel <mail@thomas-appel.com>');
         $method->setDescription('This is doc a comment.');
+        $method->setLongDescription('This is the long description.');
+
+        $this->assertSame($expected, $method->generate());
+    }
+
+    /** @test */
+    public function itShouldWriteLongDesc()
+    {
+        $method = new Method('setFoo');
+        $method->addParam('string', 'bar', 'nonesense');
+        $method->addArgument(new Argument('foo', 'string'));
+
+        $expected = <<<PHP
+    /**
+     * setFoo
+     *
+     * @param string \$bar nonesense
+     * @param string \$foo
+     *
+     * @return void
+     */
+    public function setFoo(\$foo)
+    {
+    }
+PHP;
 
         $this->assertSame($expected, $method->generate());
     }

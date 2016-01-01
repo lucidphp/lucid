@@ -44,22 +44,12 @@ class Argument implements GeneratorInterface
 
     /** @var array */
     private static $primitives = [
-        'bool',
-        'boolean',
-        'int',
-        'integer',
-        'float',
-        'double',
-        'string',
-        'object',
-        'mixed',
+        'bool',   'boolean', 'int',    'integer', 'float',
+        'double', 'string',  'object', 'mixed',
     ];
 
-    private static $silent = [
-        'null',
-        'void',
-        'variadic'
-    ];
+    /** @var array */
+    private static $silent = ['null', 'void', 'variadic'];
 
     /**
      * Constructor.
@@ -67,13 +57,17 @@ class Argument implements GeneratorInterface
      * @param string $name
      * @param string $type
      * @param string $default
+     * @param bool $isRef
+     * @param bool $isVariadic
      */
-    public function __construct($name, $type = null, $default = null, $isRef = false)
+    public function __construct($name, $type = null, $default = null, $isRef = false, $isVariadic = false)
     {
         $this->name        = $name;
         $this->type        = $type;
         $this->default     = $default;
-        $this->isReference = $isRef;
+
+        $this->isReference($isRef);
+        $this->isVariadic($isVariadic);
     }
 
     /**

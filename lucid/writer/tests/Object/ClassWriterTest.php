@@ -34,6 +34,29 @@ class ClassWriterTest extends AbstractWriterTest
     }
 
     /** @test */
+    public function itItShouldIgnoreItemsWhithinSameNamespace()
+    {
+        $cg = $this->newObw('Foo', 'Acme');
+        $cg->noAutoGenerateTag();
+        $cg->addImport('Acme\Bar');
+
+        $expected = <<<PHP
+<?php
+
+namespace Acme;
+
+/**
+ * @class Foo
+ */
+class Foo
+{
+}
+
+PHP;
+        $this->assertEquals($expected, $cg->generate());
+    }
+
+    /** @test */
     public function itShouldGenerateClasses()
     {
         $cg = $this->newObw('Foo', 'Acme');
@@ -107,7 +130,7 @@ class ClassWriterTest extends AbstractWriterTest
         $cg = $this->newObw('Foo', 'Acme');
         $cg->noAutoGenerateTag();
 
-        $cg->addMethod($m = new Method('__construct'));
+        $cg->setMethods([$m = new Method('__construct')]);
         $m->addArgument(new Argument('bar', 'Bar'));
 
         $c = $this->getContents('class.4.php');
