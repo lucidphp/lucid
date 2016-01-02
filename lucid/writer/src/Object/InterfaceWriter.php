@@ -41,9 +41,9 @@ class InterfaceWriter extends AbstractWriter
      * @param string $namespace
      * @param string $parent
      */
-    public function __construct($name, $namespace = null, $parent = null)
+    public function __construct($name, $namespace = null, $parent = null, $docType = self::I_NATIVE)
     {
-        parent::__construct($name, $namespace, $this->getTypeConstant());
+        parent::__construct($name, $namespace, $this->getTypeConstant(), $docType);
 
         $this->setParent($parent);
         $this->constants = [];

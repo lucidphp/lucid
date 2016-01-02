@@ -32,9 +32,9 @@ class TraitWriter extends AbstractWriter
      * @param string $name
      * @param string $namespace
      */
-    public function __construct($name, $namespace = null)
+    public function __construct($name, $namespace = null, $docType = self::I_NATIVE)
     {
-        parent::__construct($name, $namespace, T_TRAIT);
+        parent::__construct($name, $namespace, T_TRAIT, $docType);
 
         $this->traits     = [];
         $this->properties = [];

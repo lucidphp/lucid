@@ -37,15 +37,16 @@ class ClassWriter extends InterfaceWriter
      * @param string $name
      * @param string $namespace
      * @param string $parent
+     * @param int $docType
      */
-    public function __construct($name, $namespace = null, $parent = null)
+    public function __construct($name, $namespace = null, $parent = null, $docType = self::I_NATIVE)
     {
         $this->traits     = [];
         $this->interfaces = [];
         $this->properties = [];
         $this->abstract   = false;
 
-        parent::__construct($name, $namespace, $parent);
+        parent::__construct($name, $namespace, $parent, $docType);
     }
 
     /**

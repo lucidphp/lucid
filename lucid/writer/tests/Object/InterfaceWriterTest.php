@@ -32,6 +32,20 @@ class InterfaceWriterTest extends AbstractWriterTest
     }
 
     /** @test */
+    public function itShouldExplodeOnInvalidDoctype()
+    {
+        try {
+            $cwr = new InterfaceWriter('MyObject', 'Acme\Test', null, 44);
+        } catch (\InvalidArgumentException $e) {
+            $this->assertSame('Invalid doctype.', $e->getMessage());
+
+            return;
+        }
+
+        $this->fail();
+    }
+
+    /** @test */
     public function itShouldDisallowClassMethods()
     {
         $cwr = $this->newObw('Acme\FooInterface');
