@@ -178,4 +178,22 @@ PHP;
         $doc->setInline(true);
         $this->assertSame($expected, $doc->generate());
     }
+
+    /** @test */
+    public function itShouldGetDescription()
+    {
+        $doc = new DocBlock;
+        $doc->setDescription('FooBar');
+
+        $this->assertSame('FooBar', $doc->getDescription());
+    }
+
+    /** @test */
+    public function itShouldGetLongDescription()
+    {
+        $doc = new DocBlock;
+        $doc->setLongDescription('Long description.');
+
+        $this->assertSame('Long description.', $doc->getLongDescription());
+    }
 }

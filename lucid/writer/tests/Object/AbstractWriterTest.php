@@ -22,6 +22,9 @@ abstract class AbstractWriterTest extends \PHPUnit_Framework_TestCase
     abstract public function itShouldBeInstantiable();
 
     /** @test */
+    abstract public function itShouldExplodeOnInvalidDoctype();
+
+    /** @test */
     public function itShouldSetNamespaceAndFqn()
     {
         $cwr = $this->newObw('MyObject', 'Acme\Test');

@@ -245,29 +245,6 @@ class DocBlock implements GeneratorInterface
     }
 
     /**
-     * Returns a copy of this instance.
-     *
-     * @return DocBlock copy of this instance.
-     */
-    public function copy()
-    {
-        $newDoc = new self;
-        if ($this->hasDescription()) {
-            $newDoc->setDescription($this->description[self::DESC_SHORT]);
-        }
-        if ($this->hasLongDescription()) {
-            $newDoc->setLongDescription($this->description[self::DESC_LONG]);
-        }
-
-        foreach ($this->annotations as $annotation) {
-            list ($a, $b) = array_pad((array)$annotation, 2, null);
-            $newDoc->addAnnotation($a, $b);
-        }
-
-        return $newDoc;
-    }
-
-    /**
      * Writes the opening dockblock line.
      *
      * @param WriterInterface $writer

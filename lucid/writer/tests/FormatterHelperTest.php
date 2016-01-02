@@ -72,6 +72,9 @@ class FormatterTraitTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals("[\n    'foo' => \$this->doStuff(),\n]", $str);
 
-        $var = ['foo' => 'bar', 'baz' => ['foof' => 'swosh']];
+        //$var = ['foo' => 'bar', 'baz' => ['foof' => 'swosh']];
+
+        $this->assertSame("[]", $this->extractParams([]));
+        $this->assertSame("[\n    1,\n    2,\n    3,\n]", $this->extractParams([1, 2, 3]));
     }
 }

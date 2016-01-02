@@ -29,6 +29,20 @@ class TraitWriterTest extends AbstractWriterTest
     }
 
     /** @test */
+    public function itShouldExplodeOnInvalidDoctype()
+    {
+        try {
+            $cwr = new TraitWriter('MyObject', 'Acme\Test', 44);
+        } catch (\InvalidArgumentException $e) {
+            $this->assertSame('Invalid doctype.', $e->getMessage());
+
+            return;
+        }
+
+        $this->fail();
+    }
+
+    /** @test */
     public function itShouldWriteSimpleTraits()
     {
         $tw = $this->newObw('FooTrait', 'Acme\Traits');

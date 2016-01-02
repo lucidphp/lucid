@@ -243,8 +243,7 @@ abstract class AbstractWriter implements GeneratorInterface
         $this->prepareDoc($ddoc = clone($this->getDoc()));
         $this->prepareObjDoc($odoc = clone($this->getObjDoc()));
 
-        $writer
-            ->writeln('<?php');
+        $writer->writeln($this->getDocType());
 
         if (!$ddoc->isEmpty()) {
             $writer
@@ -265,22 +264,6 @@ abstract class AbstractWriter implements GeneratorInterface
         $this->writeObject($writer);
 
         return $raw ? $writer : $writer->dump();
-    }
-
-    /**
-     * resetBlocks
-     *
-     * @return void
-     */
-    private function replaceBlocks()
-    {
-        $ddoc = clone($this->getDoc());
-        $odoc = clone($this->getObjDoc());
-
-        $this->blocks = [
-            'doc' => $ddoc,
-            'obj' => $odoc
-        ];
     }
 
     /**
@@ -359,16 +342,7 @@ abstract class AbstractWriter implements GeneratorInterface
      */
     protected function getType()
     {
-        try {
-            return self::$types[$this->type];
-        } catch (\Exception $e) {
-            $types = array_values(self::$types);
-
-            $type = array_pop($types);
-            $types[] = 'or ' . $type;
-
-            throw new \LogicException(sprintf('Invalid object type, type must be %s', implode(', ', $types)));
-        }
+        return self::$types[$this->type];
     }
 
     /**
@@ -378,11 +352,7 @@ abstract class AbstractWriter implements GeneratorInterface
      */
     protected function getDocType()
     {
-        if (null === $this->doctype) {
-            return self::$dockTypes[self::I_NATIVE];
-        }
-
-        return self::$docTypes[$this->docktype];
+        return self::$docTypes[$this->doctype];
     }
 
 
@@ -521,25 +491,10 @@ abstract class AbstractWriter implements GeneratorInterface
     }
 
     /**
-     * isLocked
-     *
-     * @return bool
-     */
-    final protected function isLocked()
-    {
-        return (bool)$this->locked;
-    }
-
-    /**
-     * lock
+     * @param string $name
      *
      * @return void
      */
-    final protected function lock()
-    {
-        $this->locked = true;
-    }
-
     protected function inNamespace($name)
     {
         list ($ns, $name) = $this->desectName($name);
@@ -602,7 +557,7 @@ abstract class AbstractWriter implements GeneratorInterface
     private function validateDocType($type)
     {
         if (null !== $type && !in_array($type, array_keys(self::$docTypes))) {
-            throw new \InvalidArgumentException;
+            throw new InvalidArgumentException('Invalid doctype.');
         }
 
         return $type;
