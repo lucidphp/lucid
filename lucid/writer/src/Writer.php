@@ -145,7 +145,9 @@ class Writer implements WriterInterface
      */
     public function appendln($str)
     {
-        $this->lnbuff[] = array_pop($this->lnbuff).$str;
+        if ($buff = array_pop($this->lnbuff)) {
+            $this->addStr($buff.$str, count($this->lnbuff));
+        }
 
         return $this;
     }
