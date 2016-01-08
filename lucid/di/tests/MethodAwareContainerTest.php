@@ -11,6 +11,7 @@
 
 namespace Lucid\DI\Tests;
 
+use Lucid\DI\Container;
 use Lucid\DI\Tests\Stubs\MethodContainer;
 
 /**
@@ -25,14 +26,25 @@ class MethodAwareContainerTest extends ContainerTest
     /** @test */
     public function itShouldFindAServiceByMethod()
     {
-        $container = $this->newContainer();
+        $container = $this->newContainer($provider = $this->mockProvider(['getServiceMyService']));
+
+        $provider->expects($this->exactly(2))->method('getServiceMyService')->willReturn(new \stdClass);
 
         $this->assertTrue($container->has('my_service'));
+        $container->get('my_service');
         $this->assertInstanceof('stdClass', $container->get('my_service'));
     }
 
-    protected function newContainer()
+    protected function newContainer($provider = null)
     {
-        return new MethodContainer;
+        return new Container($provider);
+    }
+
+    private function mockProvider(array $methods)
+    {
+        return $this
+            ->getMockBuilder('Lucid\DI\AbstractProvider')
+            ->setMethods($methods)
+            ->getMock();
     }
 }

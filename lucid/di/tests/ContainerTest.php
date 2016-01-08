@@ -24,6 +24,12 @@ use Interop\Container\Exception\NotFoundException as InteropNotFoundException;
 class ContainerTest extends AbstractContainerTest
 {
     /** @test */
+    public function itShouldBeInstantiable()
+    {
+        $this->assertInstanceOf('Interop\Container\ContainerInterface', new Container);
+    }
+
+    /** @test */
     public function itShouldThrowNotFoundExceptionIfNoProviderAndNoIdIsSet()
     {
         $container = new Container();
@@ -41,7 +47,7 @@ class ContainerTest extends AbstractContainerTest
     /** @test */
     public function itShouldThrowNotFoundExceptionIfProviderButNoId()
     {
-        $container = new Container($this->getMock('Lucid\DI\AbstractProvider'));
+        $container = new Container;
 
         try {
             $container->get('bar');
@@ -71,7 +77,7 @@ class ContainerTest extends AbstractContainerTest
     /**
      * {@inheritdoc}
      */
-    protected function newContainer()
+    protected function newContainer($provider = null)
     {
         return new Container;
     }

@@ -18,7 +18,7 @@ namespace Lucid\DI\Definition;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-interface FactoryInterface
+interface FactoryInterface extends ServiceInterface
 {
     /**
      * getMethod

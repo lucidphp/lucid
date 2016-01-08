@@ -36,9 +36,6 @@ class Container implements ContainerInterface
     protected $parameters;
 
     /** @var array */
-    protected $instances;
-
-    /** @var array */
     protected $synced;
 
     /** @var array */
@@ -60,15 +57,12 @@ class Container implements ContainerInterface
         ProviderInterface $provider = null,
         ParameterInterface $params = null,
         array $aliases = [],
-        array $icmap = [],
         array $synced = []
     ) {
-        $this->provider   = $provider;
+        $this->provider   = $provider ?: new SimpleProvider;
         $this->parameters = $params ?: new Parameters;
         $this->aliases    = $aliases;
-        $this->icmap      = $icmap;
         $this->synced     = $synced;
-        $this->instances  = [];
     }
 
     /**
@@ -78,7 +72,11 @@ class Container implements ContainerInterface
     {
         if (self::EXCEPTION_ON_DUPLICATE === $forceReplace && $this->has($id)) {
             throw new ContainerException(
-                sprintf('Service "%s" is alread set. Use "%s::replace()", or pass "$forceReplace".', $id, get_class($this))
+                sprintf(
+                    'Service "%s" is alread set. Use "%s::replace()", or pass "$forceReplace".',
+                    $id,
+                    get_class($this)
+                )
             );
         }
 
@@ -128,8 +126,8 @@ class Container implements ContainerInterface
 
         $id = $this->getId($id);
 
-        if (isset($this->instances[$id])) {
-            return $this->instances[$id];
+        if ($instance = $this->provider->getInstance($id)) {
+            return $instance;
         }
 
         return $this->provider->provide($id);
@@ -140,9 +138,7 @@ class Container implements ContainerInterface
      */
     public function has($id)
     {
-        $id = $this->getId($id);
-
-        return array_key_exists($id, $this->instances) || (null !== $this->provider && $this->provider->provides($id));
+        return $this->provider->provides($this->getId($id));
     }
 
     /**
@@ -167,9 +163,9 @@ class Container implements ContainerInterface
      *
      * @return void
      */
-    public function __get($param)
+    public function __get($thing)
     {
-        if (in_array($param, static::getReabableProps())) {
+        if (in_array($thing, static::getReadableProps())) {
             return $this->param;
         }
 
@@ -187,10 +183,12 @@ class Container implements ContainerInterface
     private function doSet($id, $object)
     {
         if (!is_object($object)) {
-            throw new InvalidArgumentException(sprintf('Serice must be of type object, instead saw "%s".', gettype($object)));
+            throw new InvalidArgumentException(
+                sprintf('Serice must be of type object, instead saw "%s".', gettype($object))
+            );
         }
 
-        $this->instances[$id] = $object;
+        $this->provider->setInstance($id, $object);
     }
 
     /**
@@ -198,7 +196,7 @@ class Container implements ContainerInterface
      *
      * @return array
      */
-    private static function getReadablyProps()
+    private static function getReadableProps()
     {
         return ['parameters', 'aliases'];
     }

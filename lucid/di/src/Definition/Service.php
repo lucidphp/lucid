@@ -33,7 +33,7 @@ class Service implements ServiceInterface, AttributeableInterface
     /** @var array */
     private $arguments;
 
-    /** @var string */
+    /** @var Lucid\DI\Scope */
     private $scope;
 
     /** @var string */
@@ -164,7 +164,7 @@ class Service implements ServiceInterface, AttributeableInterface
     /**
      * {@inheritdoc}
      */
-    public function setScope($scope)
+    public function setScope(Scope $scope)
     {
         $this->scope = $scope;
     }
@@ -182,7 +182,7 @@ class Service implements ServiceInterface, AttributeableInterface
      */
     public function hasScope($scope)
     {
-        return $scope === $this->scope;
+        return $scope === (string)$this->scope;
     }
 
     /**

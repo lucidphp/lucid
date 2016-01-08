@@ -37,4 +37,23 @@ interface ProviderInterface
      * @return Object
      */
     public function provide($serice);
+
+    /**
+     * setInstance
+     *
+     * @param mixed $id
+     * @param mixed $obj
+     *
+     * @return void
+     */
+    public function setInstance($id, $obj);
+
+    /**
+     * getInstance
+     *
+     * @param stringixed $id
+     *
+     * @return object
+     */
+    public function getInstance($id);
 }

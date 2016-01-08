@@ -30,7 +30,14 @@ class ResolverException extends \RuntimeException
     public static function notResolveable($id)
     {
         return new self(
-            sprintf('The requested serive "%s" is not resolveable.', $id)
+            sprintf('The requested service "%s" is not resolveable.', $id)
+        );
+    }
+
+    public static function notInstantiable($id)
+    {
+        return new self(
+            sprintf('The requested service "%s" is not instantiable.', $id)
         );
     }
 

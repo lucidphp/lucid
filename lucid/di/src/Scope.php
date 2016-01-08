@@ -12,7 +12,7 @@
 namespace Lucid\DI;
 
 /**
- * @class ScopeInterface
+ * @class Scope
  *
  * @package Lucid\DI
  * @version $Id$

@@ -1,21 +1,4 @@
-php:
-  volumes: 
-    - ./web:/web
-    - ./lucid:/lucid
-
-nginx: 
-  image: nginx:1.9.7 
-  files: nginx.conf
-
-redis:
-  image: redis
-  ports: ["6379"]
-
-memcached:
-  image: memcached
-  ports: ["6663"]
-
-postgres: 
-  image: postgres:9.4
+hhvm:
+  build: .
   volumes:
-    - "./dbdata:/var/lib/postgresql/data"
+    - .:/usr/src/lucid

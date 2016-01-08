@@ -33,12 +33,7 @@ class NotFoundException extends \Exception implements InteropNotFoundException
      */
     public static function undefinedService($id)
     {
-        return new self(
-            sprintf(
-                'The service "%s" is undefined or bound to another service and cannot be resolved on it\'s own.',
-                $id
-            )
-        );
+        return new self(sprintf('The service "%s" is undefined.', $id));
     }
 
     /**

@@ -17,7 +17,12 @@
   },
   "autoload": {
     "psr-4": {
-      "Lucid\\Module\\DI\\":""
+      "Lucid\\Module\\DI\\":"src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Lucid\\Module\\DI\\Tests\\":"tests/"
     }
   },
   "minimum-stability": "dev"

@@ -24,7 +24,10 @@ use Lucid\Common\Helper\Str;
 abstract class AbstractProvider implements ProviderInterface
 {
     /** @var string */
-    const FACTORY_PREFIX = 'getService';
+    const FACTORY_PREFIX          = 'getService';
+
+    /** @var string */
+    const FACTORY_PREFIX_INTERNAL = 'getInternalService';
 
     /** @var array */
     const FACTORY_REPLACEMENT = [
@@ -33,16 +36,29 @@ abstract class AbstractProvider implements ProviderInterface
     ];
 
     /** @var array */
-    private $cmap;
+    protected $cmap;
+
+    /** @var array */
+    protected $params;
+
+    /** @var array */
+    protected $internals;
+
+    /** @var array */
+    protected $instances = [];
 
     /**
      * Constructor
      *
      * @param array $cmap
+     * @param array $params
+     * @param array $internals
      */
-    final public function __construct(array $cmap = [])
+    public function __construct(array $cmap = [], array $params = [], array $internals = [])
     {
-        $this->cmap = $cmap;
+        $this->cmap      = $cmap;
+        $this->params    = $params;
+        $this->internals = $internals;
     }
 
     /**
@@ -50,7 +66,7 @@ abstract class AbstractProvider implements ProviderInterface
      */
     final public function provides($service)
     {
-        if (isset($this->cmap[$service])) {
+        if (isset($this->cmap[$service]) || isset($this->instances[$service])) {
             return true;
         }
 
@@ -61,6 +77,52 @@ abstract class AbstractProvider implements ProviderInterface
         }
 
         return false;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    final public function provide($service)
+    {
+        try {
+            return call_user_func([$this, $this->getFactoryName($service)], $service, false);
+        } catch (BadMethodCallException $e) {
+        }
+
+        return null;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    final public function getInstance($id)
+    {
+        return isset($this->instances[$id]) ? $this->instances[$id] : null;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    final public function setInstance($id, $instance)
+    {
+        $this->instances[$id] = $instance;
+    }
+
+    /**
+     * Returns an internal service.
+     *
+     * @param string $service
+     *
+     * @return object
+     */
+    protected function getInternal($service)
+    {
+        try {
+            return call_user_func([$this, $this->getFactoryName($service)], $service, true);
+        } catch (BadMethodCallException $e) {
+        }
+
+        return null;
     }
 
     /**
@@ -77,25 +139,13 @@ abstract class AbstractProvider implements ProviderInterface
         throw new BadMethodCallException('Service not available.');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    final public function provide($service)
-    {
-        try {
-            return call_user_func([$this, $this->getFactoryName($service)], $service);
-        } catch (BadMethodCallException $e) {
-        }
-
-        return null;
-    }
 
     /**
      * @return string
      */
-    final public static function factoryName($id)
+    final public static function factoryName($id, $prefix = self::FACTORY_PREFIX)
     {
-        return static::FACTORY_PREFIX.self::camalizeId($id);
+        return $prefix.self::camalizeId($id);
     }
 
     /**
@@ -107,14 +157,30 @@ abstract class AbstractProvider implements ProviderInterface
     }
 
     /**
+     * getParame
+     *
+     * @param string $key
+     *
+     * @return mixed
+     */
+    protected function getParame($key)
+    {
+        return array_key_exists($key, $this->params) ? $this->params[$key] : null;
+    }
+
+    /**
      * getFactoryName
      *
      * @param string $id
      *
      * @return string
      */
-    private function getFactoryName($service)
+    private function getFactoryName($service, $internal = false)
     {
-        return isset($this->cmap[$service]) ? $this->cmap[$service] : self::factoryName($service);
+        $prefix = $internal ? self::FACTORY_PREFIX_INTERNAL : self::FACTORY_PREFIX;
+        var_dump($prefix);
+        return isset($this->cmap[$service]) ?
+            $this->cmap[$service] :
+            self::factoryName($service, $prefix);
     }
 }

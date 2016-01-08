@@ -15,11 +15,13 @@ use ReflectionClass;
 use Lucid\DI\ContainerInterface;
 use Lucid\Config\ParameterInterface;
 use Lucid\DI\ContainerBuilderInterface;
+use Lucid\DI\Exception\ResolverException;
 use Lucid\DI\Exception\ContainerException;
 use Lucid\DI\Definition\ServiceInterface;
 use Lucid\DI\Definition\FactoryInterface;
 use Lucid\DI\Reference\CallerInterface as CallerReferenceInterface;
 use Lucid\DI\Reference\ServiceInterface as ServiceReferenceInterface;
+use Lucid\DI\Parameter\Value;
 
 /**
  * @class ReflectionResolver
@@ -57,17 +59,15 @@ class ReflectionResolver implements ResolverInterface
         }
 
         if ($service instanceof FactoryInterface) {
-            $instance = $this->callFactory($id, $service, $container);
+            $instance = $this->callFactory($id, $service, $container, $params);
         } else {
             if ($service->hasBluePrint()) {
                 $service->mergeFromBluePrint($this->getService($service->getBlueprint()->getId()));
             }
-
-            $instance = $this->resolveWithReflection($service);
+            $instance = $this->resolveWithReflection($service, $container, $params);
         }
 
-        $this->postResolveService($service, $instance);
-
+        $this->postResolveService($service, $instance, $container, $params);
         unset($this->resolving[$cid][$id]);
 
         return $instance;
@@ -117,15 +117,19 @@ class ReflectionResolver implements ResolverInterface
      *
      * @return void
      */
-    private function postResolveService(ServiceInterface $service, $instance)
-    {
+    private function postResolveService(
+        ServiceInterface $service,
+        $instance,
+        ContainerInterface $container,
+        ParameterInterface $params = null
+    ) {
         foreach ($service->getSetters() as $setter) {
             list ($method, $args) = $setter;
-            call_user_func_array([$instance, $method], $this->resolveArguments($args));
+            call_user_func_array([$instance, $method], $this->resolveArguments($args, $container, $params));
         }
 
         foreach ($service->getCallers() as $caller) {
-            $this->callCaller($instance, $caller);
+            $this->callCaller($caller, $container, $params);
         }
     }
 
@@ -137,9 +141,13 @@ class ReflectionResolver implements ResolverInterface
      *
      * @return void
      */
-    private function callFactory($id, FactoryInterface $factory)
-    {
-        $arguments = $this->resolveArguments($factory->getArguments());
+    private function callFactory(
+        $id,
+        FactoryInterface $factory,
+        ContainerInterface $container,
+        ParameterInterface $params = null
+    ) {
+        $arguments = $this->resolveArguments($factory->getArguments(), $container, $params);
 
         if (isset($this->factories[$id])) {
             $fn = $this->factories[$id];
@@ -162,17 +170,17 @@ class ReflectionResolver implements ResolverInterface
      *
      * @return array
      */
-    private function resolveArguments($instance, array $arguments, ParameterInterface $params = null)
+    private function resolveArguments(array $arg, ContainerInterface $container, ParameterInterface $params = null)
     {
         $args = [];
 
-        foreach ($arguments as $key => $argument) {
+        foreach ($arg as $key => $argument) {
             if ($argument instanceof ServiceReferenceInterface) {
-                $arg = $this->get($argument->getId());
+                $arg = $container->get($argument->getId());
             } elseif ($argument instanceof CallerReferenceInterface) {
                 $arg = $this->callCaller($argument);
             } elseif (is_array($argument)) {
-                $arg = $this->resolveArguments($argument, $params);
+                $arg = $this->resolveArguments($argument, $container, $params);
             } else {
                 $arg = $this->getParameter($argument, $params);
             }
@@ -188,15 +196,18 @@ class ReflectionResolver implements ResolverInterface
      *
      * @return mixed|null
      */
-    private function callCaller($instance, CallerReferenceInterface $caller, ParameterInterface $params = null)
-    {
-        if (!$this->hasService($id = $caller->getService()->getId())) {
+    private function callCaller(
+        CallerReferenceInterface $caller,
+        ContainerInterface $container,
+        ParameterInterface $params = null
+    ) {
+        if (!$container->hasService($id = $caller->getService()->getId())) {
             throw new ContainerException(sprintf('Caller service %d does not exist.', $id));
         }
 
         return call_user_func_array(
-            [$instance, $caller->getMethod()],
-            $this->resolveArguments($caller->getArguments(), $params)
+            [$container->get($caller->getService()->getId()), $caller->getMethod()],
+            $this->resolveArguments($caller->getArguments(), $container, $params)
         );
     }
 
@@ -207,13 +218,16 @@ class ReflectionResolver implements ResolverInterface
      *
      * @return Object
      */
-    private function resolveWithReflection(ServiceInterface $definition)
-    {
+    private function resolveWithReflection(
+        ServiceInterface $definition,
+        ContainerInterface $container,
+        ParameterInterface $params = null
+    ) {
         $reflection = new ReflectionClass($class = $definition->getClass());
 
         if ($reflectionConstructor = $reflection->getConstructor()) {
             $arguments = $definition->getArguments();
-            $instance = $reflection->newInstanceArgs($this->resolveArguments($arguments));
+            $instance = $reflection->newInstanceArgs($this->resolveArguments($arguments, $container, $params));
         } else {
             $instance = new $class;
         }
@@ -228,16 +242,16 @@ class ReflectionResolver implements ResolverInterface
      *
      * @return mixed
      */
-    private function getParameter($param, ParameterInterface $parameters = null)
+    private function getParameter($param, ParameterInterface $params = null)
     {
-        if (null === $parameters) {
+        if (null === $params) {
             return $param;
         }
 
-        if ($parameters instanceof ResolvableInterface) {
-            return $parameters->resolveParam($param);
+        if ($params instanceof ResolvableInterface) {
+            return $params->resolveParam($param);
         }
 
-        return $parameters->get($param);
+        return $params->has($param) ? $params->get($param) : $param;
     }
 }

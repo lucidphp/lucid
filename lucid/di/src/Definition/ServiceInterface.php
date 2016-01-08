@@ -11,6 +11,7 @@
 
 namespace Lucid\DI\Definition;
 
+use Lucid\DI\Scope;
 use Lucid\DI\Reference\CallerInterface as CallerReferenceInterface;
 use Lucid\DI\Reference\ServiceInterface as ServiceReferenceInterface;
 
@@ -86,7 +87,7 @@ interface ServiceInterface
      *
      * @return void
      */
-    public function setScope($scope);
+    public function setScope(Scope $scope);
 
     /**
      * getScope
@@ -211,7 +212,7 @@ interface ServiceInterface
     /**
      * Binds a service to another one, e.g for setter or constructor injection.
      *
-     * Bound services cannot be received by the DIC or from services thei're
+     * Bound services cannot be received by the DIC or from services they're
      * not bound to.
      *
      * @param ServiceReferenceInterface $binding

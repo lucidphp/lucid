@@ -100,12 +100,12 @@ class ServiceTest extends \PHPUnit_Framework_TestCase
     public function itShouldHaveOrHaveNotScope()
     {
         $s = new Service;
-        $s->setScope(Scope::SINGLETON);
+        $s->setScope(new Scope(Scope::SINGLETON));
 
         $this->assertTrue($s->hasScope(Scope::SINGLETON));
         $this->assertFalse($s->hasScope(Scope::PROTOTYPE));
 
-        $s->setScope(Scope::PROTOTYPE);
+        $s->setScope(new Scope(Scope::PROTOTYPE));
 
         $this->assertFalse($s->hasScope(Scope::SINGLETON));
         $this->assertTrue($s->hasScope(Scope::PROTOTYPE));

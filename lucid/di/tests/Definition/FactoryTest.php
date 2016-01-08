@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This File is part of the Lucid\DI\Tests package
+ * This File is part of the Lucid\DI package
  *
  * (c) iwyg <mail@thomas-appel.com>
  *
@@ -9,15 +9,15 @@
  * that was distributed with this package.
  */
 
-namespace Lucid\DI\Tests;
+namespace Lucid\DI\Tests\Definition;
 
-use Lucid\DI\Factory;
-use Lucid\DI\ScopeInterface;
+use Lucid\DI\Scope;
+use Lucid\DI\Definition\Factory;
 
 /**
  * @class FactoryTest
  *
- * @package Lucid\DI\Tests
+ * @package Lucid\DI
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */

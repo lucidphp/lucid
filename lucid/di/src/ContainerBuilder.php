@@ -11,6 +11,8 @@
 
 namespace Lucid\DI;
 
+use Lucid\DI\Definition\Service;
+use Lucid\DI\Definition\ServiceInterface;
 use Lucid\DI\Resolver\ResolverInterface;
 use Lucid\DI\Resolver\ReflectionResolver;
 use Lucid\DI\Exception\ResolverException;
@@ -30,10 +32,10 @@ class ContainerBuilder extends Container implements ContainerBuilderInterface
     /** @var callable[] */
     private $factories = [];
 
-    /** @var ServiceInteface[] */
+    /** @var \Lucid\DI\Definition\ServiceInterface[] */
     private $definitions = [];
 
-    /** @var Lucid\DI\Resolver\ResolverInterface */
+    /** @var \Lucid\DI\Resolver\ResolverInterface */
     private $resolver;
 
     /**
@@ -47,14 +49,12 @@ class ContainerBuilder extends Container implements ContainerBuilderInterface
      * @param array $synced
      */
     public function __construct(
-        ResolverInterafce $resolver = null,
+        ResolverInterface $resolver = null,
         ParameterInterface $params = null,
         array $aliases = [],
-        array $cmap = [],
-        array $icmap = [],
         array $synced = []
     ) {
-        parent::__construct(null, $params, $aliases, $cmap, $icmap, $synced);
+        parent::__construct(null, $params, $aliases, $synced);
         $this->resolver = $resolver ?: new ReflectionResolver;
     }
 
@@ -63,7 +63,8 @@ class ContainerBuilder extends Container implements ContainerBuilderInterface
      */
     public function define($id, $class = null, array $arguments = [], $scope = Scope::SINGLETON)
     {
-        $this->register($id, $servive = new Service($class, $arguments, $scope));
+        $scope = $scope instanceof Scope ? $scope : new Scope($scope);
+        $this->register($id, $service = new Service($class, $arguments, $scope));
 
         return $service;
     }
@@ -82,14 +83,6 @@ class ContainerBuilder extends Container implements ContainerBuilderInterface
     public function newService($class = null, array $arguments = [])
     {
         return new Service($class, $arguments);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function newFactory($class, $method, $static = true)
-    {
-        return new Factory($class, $method, $static);
     }
 
     /**
@@ -133,14 +126,14 @@ class ContainerBuilder extends Container implements ContainerBuilderInterface
         try {
             $instance = $this->resolver->resolve($id, $this, $this->parameters);
         } catch (ResolverException $e) {
-            throw new ContainerException($e->getMessage(), $e);
+            throw new ContainerException($e->getMessage(), $e->getCode(), $e);
         }
 
-        /** @var ServiceInteface */
+        /** @var ServiceInterface */
         $service = $this->getService($id);
 
-        if (Scope::SINGLETON === $service->getScope()) {
-            $this->instances[$id] = $instance;
+        if (Scope::SINGLETON === (string)$service->getScope()) {
+            $this->provider->setInstance($id, $instance);
         }
 
         return $instance;
@@ -148,8 +141,10 @@ class ContainerBuilder extends Container implements ContainerBuilderInterface
 
     /**
      * {@inheritdoc}
+     * @todo iwyg <mail@thomas-appel.com>; Di  5 Jan 16:13:00 2016 -->
+     * Implement building process.
      */
-    public function build(ContainerReflectorInterface $reflector, ContainerTargetInterface $target)
+    public function build(ContainerReflectorInterface $reflector = null, ContainerTargetInterface $target = null)
     {
     }
 }

@@ -11,6 +11,8 @@
 
 namespace Lucid\DI;
 
+use Lucid\DI\Definition\ServiceInterface;
+
 /**
  * @interface ContainerBuilderInterface
  *
@@ -30,7 +32,7 @@ interface ContainerBuilderInterface
      *
      * @return ServiceInterface
      */
-    public function define($id, $class, array $arguments = [], $scope = ScopeInterface::SINGLETON);
+    public function define($id, $class, array $arguments = [], $scope = Scope::SINGLETON);
 
     /**
      * Register a service object by id.
@@ -63,17 +65,17 @@ interface ContainerBuilderInterface
     /**
      * Get all services.
      *
-     * @return array
+     * @return array `Lucid\DI\Definition\ServiceInterface[]`
      */
     public function getServices();
 
     /**
-     * build
+     * Build the container.
      *
      * @param ContainerReflectorInterface $reflector
      * @param ContainerTargetInterface $target
      *
-     * @return void
+     * @return ContainerInterface
      */
-    public function build(ContainerReflectorInterface $reflector, ContainerTargetInterface $target);
+    public function build(ContainerReflectorInterface $reflector = null, ContainerTargetInterface $target = null);
 }

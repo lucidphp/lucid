@@ -12,25 +12,15 @@
 namespace Lucid\DI;
 
 /**
- * @interface FactoryInterface
+ * @class SimpleProvider
  *
  * @package Lucid\DI
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-interface FactoryInterface
+class SimpleProvider extends AbstractProvider
 {
-    /**
-     * getMethod
-     *
-     * @return string|calleble
-     */
-    public function getFactoryMethod();
-
-    /**
-     * isStatic
-     *
-     * @return boolean
-     */
-    public function isStatic();
+    public function __construct()
+    {
+    }
 }
