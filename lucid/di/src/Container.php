@@ -16,6 +16,7 @@ use Lucid\Config\Parameters;
 use Lucid\Config\ParameterInterface;
 use Lucid\DI\Exception\NotFoundException;
 use Lucid\DI\Exception\ContainerException;
+use Interop\Container\ContainerInterface as InteropContainer;
 
 /**
  * @class Container
@@ -43,6 +44,9 @@ class Container implements ContainerInterface
 
     /** @var array */
     protected $aliases;
+
+    /** @var array `InteropContainer[]` */
+    private $containers = [];
 
     /**
      * Constructor.
@@ -130,7 +134,11 @@ class Container implements ContainerInterface
             return $instance;
         }
 
-        return $this->provider->provide($id);
+        if ($instance = $this->provider->provide($id)) {
+            return $instance;
+        }
+
+        return $this->delegateGet($id);
     }
 
     /**
@@ -138,7 +146,15 @@ class Container implements ContainerInterface
      */
     public function has($id)
     {
-        return $this->provider->provides($this->getId($id));
+        return $this->provider->provides($id = $this->getId($id)) || $this->delegateHas($id);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function delegate(InteropContainer $container)
+    {
+        $this->containers[] = $container;
     }
 
     /**
@@ -189,6 +205,48 @@ class Container implements ContainerInterface
         }
 
         $this->provider->setInstance($id, $object);
+    }
+
+    /**
+     * delegateHas
+     *
+     * @param string $id
+     *
+     * @return bool
+     */
+    private function delegateHas($id)
+    {
+        if (empty($this->containers)) {
+            return false;
+        }
+
+        foreach ($this->containers as $container) {
+            if ($container->has($id)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * delegateGet
+     *
+     * @param string $id
+     *
+     * @return object
+     */
+    private function delegateGet($id)
+    {
+        if (empty($this->containers)) {
+            return;
+        }
+
+        foreach ($this->containers as $container) {
+            if ($thing = $container->get($id)) {
+                return $thing;
+            }
+        }
     }
 
     /**

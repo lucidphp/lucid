@@ -76,4 +76,13 @@ interface ContainerInterface extends InteropContainer
      * @return string
      */
     public function getId($alias);
+
+    /**
+     * Adds a delegating container.
+     *
+     * @param InteropContainer $container
+     *
+     * @return void
+     */
+    public function delegate(InteropContainer $container);
 }
