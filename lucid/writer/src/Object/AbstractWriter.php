@@ -71,6 +71,9 @@ abstract class AbstractWriter implements GeneratorInterface
     /** @var bool */
     private $noAutoGenerateTag;
 
+    /** @var callable */
+    private $usesort;
+
     /** @var array */
     private static $types = [
         T_CLASS     => 'class',
@@ -103,6 +106,18 @@ abstract class AbstractWriter implements GeneratorInterface
         $this->noAutoGenerateTag = false;
 
         $this->setDocType($docType);
+    }
+
+    /**
+     * Sets the sort function for use statements.
+     *
+     * @param callable $sort
+     *
+     * @return void
+     */
+    public function setUseSort(callable $sort)
+    {
+        $this->usesort = $sort;
     }
 
     /**
@@ -388,7 +403,11 @@ abstract class AbstractWriter implements GeneratorInterface
             $uses[] = $resolver->getImport($use);
         }
 
-        natsort($uses);
+        if (is_callable($this->usesort)) {
+            usort($uses, $this->usesort);
+        } else {
+            natsort($uses);
+        }
 
         foreach ($uses as $u) {
             $writer->writeln(sprintf('use %s;', $u));

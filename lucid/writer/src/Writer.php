@@ -146,7 +146,9 @@ class Writer implements WriterInterface
     public function appendln($str)
     {
         if ($buff = array_pop($this->lnbuff)) {
-            $this->addStr($buff.$str, count($this->lnbuff));
+            $lines = explode("\n", $str);
+            $this->lnbuff[] = $buff.array_shift($lines);
+            array_map([$this, 'writeln'], $lines);
         }
 
         return $this;
