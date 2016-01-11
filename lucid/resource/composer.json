@@ -1,5 +1,5 @@
 {
-  "name": "lucid/signal",
+  "name": "lucid/resource",
   "license": "MIT",
   "description": "Resource locator",
   "keywords": ["loading", "locator"],
