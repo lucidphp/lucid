@@ -9,7 +9,7 @@
  * that was distributed with this package.
  */
 
-namespace Lucid\Resource\Locator;
+namespace Lucid\Resource;
 
 use InvalidArgumentException;
 use Lucid\Resource\Loader\LoaderInterface;
@@ -47,20 +47,15 @@ class Locator implements LocatorInterface
      */
     public function locate($file, $collection = LoaderInterface::LOAD_ONE)
     {
-        /** @var array */
-        $files = [];
+        $resources = [];
 
         foreach ($this->paths as $path) {
-            if (null === ($resource = $this->locateResource($path, $file, $collection, $files))) {
-                continue;
-            }
-
-            if (LoaderInterface::LOAD_ONE === $collection) {
-                return $resource;
+            if (1 === $this->locateResource($path, $file, $collection, $resources)) {
+                break;
             }
         }
 
-        return empty($files) && !$collection ? null : $files;
+        return new Collection($resources);
     }
 
     /**
@@ -117,7 +112,7 @@ class Locator implements LocatorInterface
      * @param bool    $collect
      * @param array   $collection
      *
-     * @return string
+     * @return int
      */
     protected function locateResource($path, $file, $collect = LoaderInterface::LOAD_ONE, array &$collection = [])
     {
@@ -129,11 +124,13 @@ class Locator implements LocatorInterface
             return;
         }
 
+        $collection[]  = new FileResource($resource);
+
         if (LoaderInterface::LOAD_ONE === $collect) {
-            return $resource;
+            return 1;
         }
 
-        $collection[] = $resource;
+        return 0;
     }
 
     /**

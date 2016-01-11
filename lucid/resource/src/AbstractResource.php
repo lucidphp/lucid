@@ -20,8 +20,12 @@ namespace Lucid\Resource;
  */
 abstract class AbstractResource implements ResourceInterface
 {
+    /** @var string */
     protected $resource;
 
+    /**
+     * {@inheritdoc}
+     */
     public function getResource()
     {
         return $this->resource;

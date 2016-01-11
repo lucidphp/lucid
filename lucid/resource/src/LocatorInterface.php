@@ -9,7 +9,7 @@
  * that was distributed with this package.
  */
 
-namespace Lucid\Resource\Locator;
+namespace Lucid\Resource;
 
 /**
  * @interface LocatorInterface

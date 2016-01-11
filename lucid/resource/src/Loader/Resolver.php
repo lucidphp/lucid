@@ -9,7 +9,9 @@
  * that was distributed with this package.
  */
 
-namespace Lucid\Config\Loader;
+namespace Lucid\Resource\Loader;
+
+use Lucid\Resource\Exception\LoaderException;
 
 /**
  * @class Resolver
@@ -20,13 +22,13 @@ namespace Lucid\Config\Loader;
  */
 class Resolver implements ResolverInterface
 {
-    /** @var LoaderInterface[] */
+    /** @var array `LoaderInterface[]` */
     private $loaders;
 
     /**
      * Constructor.
      *
-     * @param LoaderInterface[] $loaders
+     * @param array $loaders `LoaderInterface[]`
      */
     public function __construct(array $loaders = [])
     {

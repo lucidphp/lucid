@@ -11,6 +11,8 @@
 
 namespace Lucid\Resource;
 
+use IteratorAggregate;
+
 /**
  * @class Collection
  *
@@ -20,6 +22,9 @@ namespace Lucid\Resource;
  */
 class Collection implements CollectionInterface
 {
+    /** @var int */
+    private $current = 0;
+
     /** @var ResourceInterface[] */
     private $resources;
 
@@ -94,5 +99,45 @@ class Collection implements CollectionInterface
         }
 
         return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function current()
+    {
+        return $this->resources[$this->current];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function key()
+    {
+        return $this->current;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function next()
+    {
+        $this->current++;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function rewind()
+    {
+        $this->current = 0;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function valid()
+    {
+        return $this->current < count($this->resources);
     }
 }

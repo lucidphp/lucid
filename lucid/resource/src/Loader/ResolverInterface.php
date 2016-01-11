@@ -34,15 +34,14 @@ interface ResolverInterface
      *
      * @param mixed $resource
      *
-     * @access public
-     * @return \Selene\Module\Config\Resource\LoaderInterface
+     * @return \Lucid\Resource\LoaderInterface
      */
     public function resolve($resource);
 
     /**
      * Returns an array of loaders.
      *
-     * @return array
+     * @return array `LoaderInterface[]`
      */
     public function all();
 }

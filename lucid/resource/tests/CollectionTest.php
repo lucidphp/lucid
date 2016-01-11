@@ -10,6 +10,7 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
     public function itShouldBeInstantiable()
     {
         $this->assertInstanceOf('Lucid\Resource\CollectionInterface', new Collection);
+        $this->assertInstanceOf('Traversable', new Collection);
     }
 
     /** @test */
@@ -26,6 +27,24 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($resources, $collection->all());
     }
 
+    /** @test */
+    public function itShouldBeTraversable()
+    {
+        $resources = [
+            $r1 = $this->mockResource(),
+            $r2 = $this->mockResource(),
+            $r3 = $this->mockResource(),
+        ];
+
+        $c = new Collection($resources);
+
+        $ret = [];
+        foreach ($c as $res) {
+            $ret[] = $res;
+        }
+
+        $this->assertSame($resources, $ret);
+    }
 
     /** @test */
     public function itSouldBeAbleToAddResources()

@@ -11,6 +11,8 @@
 
 namespace Lucid\Resource;
 
+use Iterator;
+
 /**
  * @interface CollectionInterface
  *
@@ -18,7 +20,7 @@ namespace Lucid\Resource;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-interface CollectionInterface
+interface CollectionInterface extends Iterator
 {
     /**
      * Adds a resource.

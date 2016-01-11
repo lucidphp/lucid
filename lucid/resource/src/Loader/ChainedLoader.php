@@ -11,6 +11,8 @@
 
 namespace Lucid\Resource\Loader;
 
+use Lucid\Resource\Exception\LoaderException;
+
 /**
  * @class LoaderChain
  *
@@ -18,23 +20,23 @@ namespace Lucid\Resource\Loader;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-class LoaderChain implements LoaderInterface
+class ChainedLoader implements LoaderInterface
 {
     /**
      * loaders
      *
-     * @var LoaderInterface[]
+     * @var ResolverInterface
      */
-    private $loaders;
+    private $resolver;
 
     /**
      * Constructor.
      *
      * @param array $loaders
      */
-    public function __construct(array $loaders)
+    public function __construct(ResolverInterface $resolver)
     {
-        $this->setLoaders($loaders);
+        $this->setResolver($resolver);
     }
 
     /**
@@ -46,41 +48,13 @@ class LoaderChain implements LoaderInterface
      */
     public function resolve($resource)
     {
-        foreach ($this->loaders as $loader) {
+        foreach ($this->loaders() as $loader) {
             if ($loader->supports($resource)) {
                 return $loader;
             }
         }
 
-        throw new \RuntimeException('No matching loader found.');
-    }
-
-    /**
-     * addLoader
-     *
-     * @param LoaderInterace $loader
-     *
-     * @return void
-     */
-    public function addLoader(LoaderInterace $loader)
-    {
-        $this->loaders[] = $loader;
-    }
-
-    /**
-     * setLoaders
-     *
-     * @param array $loaders
-     *
-     * @return void
-     */
-    public function setLoaders(array $loaders)
-    {
-        $this->loader = [];
-
-        foreach ($loaders as $loader) {
-            $this->addLoader($loader);
-        }
+        throw new LoaderException('No matching loader found.');
     }
 
     /**
@@ -88,7 +62,7 @@ class LoaderChain implements LoaderInterface
      */
     public function load($resource)
     {
-        return $this->resolve($loader)->load($resource);
+        return $this->resolve($resource)->load($resource);
     }
 
     /**
@@ -96,15 +70,15 @@ class LoaderChain implements LoaderInterface
      */
     public function import($resource)
     {
-        return $this->resolve($loader)->load($resource);
+        return $this->load($resource);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function suports($resource)
+    public function supports($resource)
     {
-        foreach ($this->loaders as $loader) {
+        foreach ($this->loaders() as $loader) {
             if ($loader->supports($resource)) {
                 return true;
             }
@@ -116,9 +90,9 @@ class LoaderChain implements LoaderInterface
     /**
      * {@inheritdoc}
      */
-    public function addListener(LoaderListenerInterface $listener)
+    public function addListener(ListenerInterface $listener)
     {
-        foreach ($this->loaders as $loader) {
+        foreach ($this->loaders() as $loader) {
             $loader->addListener($listener);
         }
     }
@@ -126,10 +100,40 @@ class LoaderChain implements LoaderInterface
     /**
      * {@inheritdoc}
      */
-    public function removeListener(LoaderListenerInterface $listener)
+    public function removeListener(ListenerInterface $listener)
     {
-        foreach ($this->loaders as $loader) {
+        foreach ($this->loaders() as $loader) {
             $loader->removeListener($listener);
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setResolver(ResolverInterface $resolver)
+    {
+        $this->resolver = $resolver;
+
+        foreach ($this->loaders() as $loader) {
+            $loader->setResolver($resolver);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getResolver()
+    {
+        return $this->resolver;
+    }
+
+    /**
+     * loaders
+     *
+     * @return array `LoaderInterface[]`
+     */
+    private function loaders()
+    {
+        return $this->resolver->all();
     }
 }

@@ -12,6 +12,8 @@
 namespace Lucid\Resource\Loader;
 
 use SplObjectStorage;
+use Lucid\Resource\ResourceInterface;
+use Lucid\Resource\Exception\LoaderException;
 
 /**
  * @class AbstractLoader
@@ -24,6 +26,36 @@ abstract class AbstractLoader implements LoaderInterface
 {
     /** @var SplObjectStorage */
     private $listeners;
+
+    /** @var ResourceInterface */
+    private $resolver;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function load($resource, $any = self::LOAD_ONE)
+    {
+        foreach ($this->findResource($resource, $any)->all() as $file) {
+            $this->loadResource($file);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     * @throws LoaderException
+     */
+    public function import($resource)
+    {
+        if ($this->supports($resource)) {
+            return $this->load($resource);
+        }
+
+        try {
+            $loader = $this->getResolver()->resolve($resource);
+        } catch (\Exception $e) {
+            throw LoaderException::missingLoader();
+        }
+    }
 
     /**
      * {@inheritdoc}
@@ -42,6 +74,22 @@ abstract class AbstractLoader implements LoaderInterface
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function setResolver(ResolverInterface $resolver)
+    {
+        $this->resolver = $resolver;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getResolver()
+    {
+        return $this->resolver;
+    }
+
+    /**
      * Calls 'onLoaded' on all listeners.
      *
      * @return void
@@ -53,6 +101,8 @@ abstract class AbstractLoader implements LoaderInterface
         }
     }
 
+    abstract protected function doLoad($resource);
+
     /**
      * Loads a resource.
      *
@@ -60,7 +110,7 @@ abstract class AbstractLoader implements LoaderInterface
      *
      * @return void
      */
-    protected function loadResource($resource)
+    protected function loadResource(ResourceInterface $resource)
     {
         $res = $this->doLoad($resource);
         $this->notify($resource);
