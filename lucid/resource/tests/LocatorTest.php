@@ -61,6 +61,61 @@ class LocatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /** @test */
+    public function itShouldAddPathsToPatharray()
+    {
+        $base = dirname(__FILE__).DIRECTORY_SEPARATOR.'Fixures'.DIRECTORY_SEPARATOR.'loc_';
+
+        $locator = new Locator([$baseA = $base.'a']);
+
+        $locator->addPaths([$baseB = $base.'b', $base.'a']);
+        $res = $locator->locate('file.txt', true);
+
+        $this->assertArrayHasKey(0, $res->all());
+        $this->assertArrayHasKey(1, $res->all());
+
+        $res = $res->all();
+
+        $this->assertSame($baseA.DIRECTORY_SEPARATOR.'file.txt', (string)$res[0]);
+        $this->assertSame($baseB.DIRECTORY_SEPARATOR.'file.txt', (string)$res[1]);
+    }
+
+    /** @test */
+    public function itShouldReturnEmptyCollectionIfPathIsNotADirectoryOrFileDoesNotExist()
+    {
+        $base = dirname(__FILE__).DIRECTORY_SEPARATOR.'Fixures'.DIRECTORY_SEPARATOR.'loc_';
+        $locator = new Locator(['/not/a/path', $base.'a']);
+
+        $this->assertSame([], $locator->locate('foo')->all());
+    }
+
+    /** @test */
+    public function itShouldThrowIfRootpathIsInvalid()
+    {
+        $locator = new Locator(['bar/foo']);
+        $locator->setRootPath('/not/a/path');
+        try {
+            $locator->locate('text.txt');
+        } catch (\InvalidArgumentException $e) {
+            $this->assertTrue(true);
+            return;
+        }
+
+        $this->fail('Foo');
+    }
+
+    /** @test */
+    public function itShouldExpandRelativePaths()
+    {
+        $locator = new Locator;
+        $locator->setRootPath(__DIR__.DIRECTORY_SEPARATOR.'Fixures');
+        $locator->addPath('loc_a');
+
+        $res = $locator->locate('file.txt');
+
+        $this->assertArrayHasKey(0, $res->all());
+    }
+
+    /** @test */
     public function itShouldReturnCollection()
     {
         $paths = [__DIR__];

@@ -58,6 +58,14 @@ class FileResourceTest extends \PHPUnit_Framework_TestCase
         $resource = new FileResource(__FILE__);
 
         $this->assertTrue($resource->isValid(time()));
+        $this->assertFalse($resource->isValid(0));
+    }
+
+    /** @test */
+    public function itShouldNotBeValidIfResourceIsMissing()
+    {
+        $resource = new FileResource(__FILE__.'.inc');
+        $this->assertFalse($resource->isValid(time()));
     }
 
     /** @test */

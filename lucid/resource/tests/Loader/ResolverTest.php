@@ -32,11 +32,11 @@ class ResolverTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function itShouldAddLoaders()
     {
-        $res = new Resolver;
+        $res = null;
         $loader = $this->mockLoader();
-        $loader->expects($this->once())->method('setResolver')->with($res);
+        $loader->expects($this->once())->method('setResolver');
 
-        $res->addLoader($loader);
+        $res = new Resolver([$loader]);
 
         $this->assertSame([$loader], $res->all());
     }

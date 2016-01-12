@@ -38,8 +38,8 @@ class Locator implements LocatorInterface
      */
     public function __construct(array $paths = [], $cwd = null)
     {
-        $this->paths = $paths;
-        $this->cwd   = $cwd ?: getcwd();
+        $this->setPaths($paths);
+        $this->setRootPath($cwd ?: getcwd());
     }
 
     /**
@@ -47,6 +47,10 @@ class Locator implements LocatorInterface
      */
     public function locate($file, $collection = LoaderInterface::LOAD_ONE)
     {
+        if (!is_dir($this->cwd)) {
+            throw new InvalidArgumentException(sprintf('%s is not a directory.', $this->cwd));
+        }
+
         $resources = [];
 
         foreach ($this->paths as $path) {
@@ -63,10 +67,6 @@ class Locator implements LocatorInterface
      */
     public function setRootPath($root)
     {
-        if (!is_dir($root)) {
-            throw new InvalidArgumentException(sprintf('%s is not a directory.', $root));
-        }
-
         $this->cwd = $root;
     }
 
@@ -124,7 +124,7 @@ class Locator implements LocatorInterface
             return;
         }
 
-        $collection[]  = new FileResource($resource);
+        $collection[] = new FileResource($resource);
 
         if (LoaderInterface::LOAD_ONE === $collect) {
             return 1;

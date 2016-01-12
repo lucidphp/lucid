@@ -71,4 +71,28 @@ class ObjectResourceTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame(get_class($resource), get_class($ret));
     }
+
+    /** @test */
+    public function itShouldThrowIfNotAnObject()
+    {
+        try {
+            $resource = new ObjectResource('not an object.');
+        } catch (\InvalidArgumentException $e) {
+            $this->assertTrue(true);
+            return;
+        }
+        $this->fail('InvalidArgumentException should be thrown.');
+    }
+
+    /** @test */
+    public function itShouldThrowIfInternalObject()
+    {
+        try {
+            $resource = new ObjectResource(new \stdClass);
+        } catch (\LogicException $e) {
+            $this->assertTrue(true);
+            return;
+        }
+        $this->fail('LogicException should be thrown.');
+    }
 }

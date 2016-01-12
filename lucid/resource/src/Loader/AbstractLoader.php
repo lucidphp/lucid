@@ -35,8 +35,8 @@ abstract class AbstractLoader implements LoaderInterface
      */
     public function load($resource, $any = self::LOAD_ONE)
     {
-        foreach ($this->findResource($resource, $any)->all() as $file) {
-            $this->loadResource($file);
+        foreach ($this->findResource($resource, $any) as $ret) {
+            $this->loadResource($ret);
         }
     }
 
@@ -50,11 +50,17 @@ abstract class AbstractLoader implements LoaderInterface
             return $this->load($resource);
         }
 
-        try {
-            $loader = $this->getResolver()->resolve($resource);
-        } catch (\Exception $e) {
-            throw LoaderException::missingLoader();
+        if (null === $res = $this->getResolver()) {
+            throw LoaderException::missingLoader($resource);
         }
+
+        try {
+            $loader = $res->resolve($resource);
+        } catch (LoaderException $e) {
+            throw new LoaderException($e->getMessage(), $e->getCode(), $e);
+        }
+
+        $loader->load($resource);
     }
 
     /**
@@ -101,6 +107,23 @@ abstract class AbstractLoader implements LoaderInterface
         }
     }
 
+    /**
+     * findResource
+     *
+     * @param mixed $resource
+     * @param mixed $any
+     *
+     * @return \Traversable
+     */
+    abstract protected function findResource($resource, $any = self::LOAD_ONE);
+
+    /**
+     * doLoad
+     *
+     * @param mixed $resource
+     *
+     * @return void
+     */
     abstract protected function doLoad($resource);
 
     /**

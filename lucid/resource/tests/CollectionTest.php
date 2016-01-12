@@ -39,11 +39,41 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $c = new Collection($resources);
 
         $ret = [];
-        foreach ($c as $res) {
+        foreach ($c as $i => $res) {
+            $this->assertSame($i, $c->key());
             $ret[] = $res;
         }
 
         $this->assertSame($resources, $ret);
+    }
+
+    /** @test */
+    public function itShouldTestValidity()
+    {
+        $time = time();
+
+        $resources = [
+            $r1 = $this->mockResource(),
+            $r2 = $this->mockResource()
+        ];
+
+        $r2->method('isValid')->with($time)->willReturn(false);
+        $r1->method('isValid')->with($time)->willReturn(true);
+
+        $collection = new Collection($resources);
+
+        $this->assertFalse($collection->isValid($time));
+
+        $resources = [
+            $r1 = $this->mockResource(),
+            $r2 = $this->mockResource()
+        ];
+
+        $r2->method('isValid')->with($time)->willReturn(true);
+        $r1->method('isValid')->with($time)->willReturn(true);
+
+        $collection = new Collection($resources);
+        $this->assertTrue($collection->isValid($time));
     }
 
     /** @test */
