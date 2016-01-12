@@ -4,9 +4,9 @@
 [![Source Code](http://img.shields.io/badge/source-lucid/resource-blue.svg?style=flat-square)](https://github.com/lucidphp/resource/tree/develop)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](https://github.com/lucidphp/resource/blob/develop/LICENSE.md)
 
-[![Build Status](https://img.shields.io/travis/iwyg/resource/develop.svg?style=flat-square)](https://travis-ci.org/lucidphp/resource)
-[![Code Coverage](https://img.shields.io/coveralls/iwyg/resource/develop.svg?style=flat-square)](https://coveralls.io/r/lucidphp/resource)
-[![HHVM](https://img.shields.io/hhvm/lucid/resource/develop.svg?style=flat-square)](http://hhvm.h4cc.de/package/lucid/resource)
+[![Build Status](https://img.shields.io/travis/lucidphp/resource/develop.svg?style=flat-square)](https://travis-ci.org/lucidphp/resource)
+[![Code Coverage](https://img.shields.io/coveralls/lucidphp/resource/develop.svg?style=flat-square)](https://coveralls.io/r/lucidphp/resource)
+[![HHVM](https://img.shields.io/hhvm/lucid/resource/dev-develop.svg?style=flat-square)](http://hhvm.h4cc.de/package/lucid/resource)
 
 ## Requirements
 
