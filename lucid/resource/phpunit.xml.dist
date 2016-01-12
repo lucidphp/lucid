@@ -9,15 +9,18 @@
     processIsolation="false"
     stopOnFailure="true"
     syntaxCheck="true">
+  <testsuites>
+    <testsuite name="Lucid Resource">
+      <directory>./tests</directory>
+    </testsuite>
+  </testsuites>
   <filter>
     <blacklist>
       <directory suffix=".php">./vendor</directory>
       <directory suffix=".php">./tests</directory>
     </blacklist>
+    <whitelist processUncoveredFilesFromWhitelist="true">
+      <directory suffix=".php">./src</directory>
+    </whitelist>
   </filter>
-  <testsuites>
-    <testsuite name="Resource">
-      <directory>./tests</directory>
-    </testsuite>
-  </testsuites>
 </phpunit>
