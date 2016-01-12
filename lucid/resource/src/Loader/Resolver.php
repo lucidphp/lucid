@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This File is part of the Lucid\Config package
+ * This File is part of the Lucid\Resource package
  *
  * (c) iwyg <mail@thomas-appel.com>
  *

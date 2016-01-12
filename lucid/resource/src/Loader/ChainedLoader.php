@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This File is part of the Lucid\Resource\Loader package
+ * This File is part of the Lucid\Resource package
  *
  * (c) iwyg <mail@thomas-appel.com>
  *
@@ -14,9 +14,9 @@ namespace Lucid\Resource\Loader;
 use Lucid\Resource\Exception\LoaderException;
 
 /**
- * @class LoaderChain
+ * @class ChainedLoader
  *
- * @package Lucid\Resource\Loader
+ * @package Lucid\Resource
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */

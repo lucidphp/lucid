@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This File is part of the Lucid\Resource\Tests\Subs package
+ * This File is part of the Lucid\Resource package
  *
  * (c) iwyg <mail@thomas-appel.com>
  *
@@ -16,7 +16,7 @@ use Lucid\Resource\Loader\AbstractFileLoader;
 /**
  * @class PhpFileLoader
  *
- * @package Lucid\Resource\Tests\Subs
+ * @package Lucid\Resource
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */

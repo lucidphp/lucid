@@ -1,11 +1,27 @@
 <?php
 
+/*
+ * This File is part of the Lucid\Resource package
+ *
+ * (c) iwyg <mail@thomas-appel.com>
+ *
+ * For full copyright and license information, please refer to the LICENSE file
+ * that was distributed with this package.
+ */
+
 namespace Lucid\Resource\Tests\Loader;
 
 use Lucid\Resource\Tests\Stubs\PhpFileLoader;
 use Lucid\Resource\Loader\AbstractFileLoader;
 use Lucid\Resource\Exception\LoaderException;
 
+/**
+ * @class AbstractFileLoaderTest
+ *
+ * @package Lucid\Resource
+ * @version $Id$
+ * @author iwyg <mail@thomas-appel.com>
+ */
 class AbstractFileLoaderTest extends \PHPUnit_Framework_TestCase
 {
     /** @test */
