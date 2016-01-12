@@ -31,7 +31,7 @@ $writer
 	->writeln('foo')
 	->writeln('bar');
 
-echo $writer->dump();  //"foo\n    bar"  
+echo $writer->dump();  //"foo\nbar"  
 ```
 
 
@@ -67,6 +67,7 @@ $writer = new Writer(2);
 
 $writer
 	->writeln('foo')
+	->indent()
 	->writeln('bar');
 
 echo $writer->dump(); //"foo\n  bar"   
