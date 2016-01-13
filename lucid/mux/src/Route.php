@@ -65,7 +65,7 @@ class Route implements RouteInterface
     public function __construct(
         $pattern,
         $handler,
-        array $methods = ['GET'],
+        array $methods = null,
         $host = null,
         array $defaults = [],
         array $constraints = [],
@@ -74,7 +74,7 @@ class Route implements RouteInterface
         $this->pattern = $pattern;
         $this->handler = $handler;
 
-        $this->setMethods($methods);
+        $this->setMethods($methods ?: ['GET']);
         $this->setSchemes($schemes);
 
         $this->host        = $host;

@@ -27,6 +27,6 @@ class Parser implements ParserInterface
      */
     public function parse(RouteInterface $route)
     {
-        return DefaultParser::parse($route);
+        return Standard::parse($route);
     }
 }

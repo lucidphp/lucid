@@ -12,6 +12,7 @@
 namespace Lucid\Mux;
 
 use Serializable;
+use Lucid\Mux\Parser\ParserInterface;
 
 /**
  * @class RouteExpression
@@ -43,31 +44,22 @@ class RouteContext implements RouteContextInterface, Serializable
      *
      * @return void
      */
-    public function __construct(
-        $sPath,
-        $regexp,
-        array $params,
-        array $tokens,
-        $hostExp = null,
-        array $hostParams = [],
-        array $hostTokens = []
-    ) {
+    public function __construct($sPath, $regexp, array $params, array $tokens, array $host = [])
+    {
         $this->staticPath = $sPath;
         $this->regexp = $regexp;
         $this->parameters = $params;
         $this->tokens = $tokens;
 
-        $this->hostExp = $hostExp;
-        $this->hostParams = $hostParams;
-        $this->hostTokens = $hostTokens;
+        $this->setHost($host);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getRegexp()
+    public function getRegexp($raw = false)
     {
-        return $this->regexp;
+        return $raw ? $this->regexp : self::wrapRegexp($this->regexp);
     }
 
     /**
@@ -97,9 +89,9 @@ class RouteContext implements RouteContextInterface, Serializable
     /**
      * {@inheritdoc}
      */
-    public function getHostRegexp()
+    public function getHostRegexp($raw = false)
     {
-        return $this->hostExp;
+        return $raw ? $this->hostExp : self::wrapRegexp($this->hostExp);
     }
 
     /**
@@ -153,5 +145,26 @@ class RouteContext implements RouteContextInterface, Serializable
         $this->hostExp     = $data['host_exp'];
         $this->hostParams  = $data['host_params'];
         $this->hostTokens  = $data['host_tokens'];
+    }
+
+    private function setHost(array $host)
+    {
+        $host = array_merge(['parameters' => [], 'expression' => null, 'tokens' => []], $host);
+
+        $this->hostParams = $host['parameters'];
+        $this->hostExp    = $host['expression'];
+        $this->hostTokens = $host['tokens'];
+    }
+
+    /**
+     * wrapRegexp
+     *
+     * @param string $regexp
+     *
+     * @return string
+     */
+    private static function wrapRegexp($regexp)
+    {
+        return sprintf('%1$s^%2$s$%1$ss', ParserInterface::EXP_DELIM, $exp);
     }
 }

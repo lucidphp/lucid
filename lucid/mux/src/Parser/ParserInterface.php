@@ -12,7 +12,7 @@
 namespace Lucid\Mux\Parser;
 
 use Lucid\Mux\RouteInterface;
-use Lucid\Mux\ContextInterface;
+use Lucid\Mux\RouteContextInterface as ContextInterface;
 
 /**
  * @interface ParserInterface
@@ -23,6 +23,12 @@ use Lucid\Mux\ContextInterface;
  */
 interface ParserInterface
 {
+    /** @var string */
+    const SEPARATORS   = '/.;:-_~+*=|';
+
+    /** @var string */
+    const EXP_DELIM    = '~';
+
     /**
      * parse
      *
@@ -30,5 +36,5 @@ interface ParserInterface
      *
      * @return ContextInterface
      */
-    public function parse(RouteInterface $route);
+    public static function parse(RouteInterface $route);
 }

@@ -20,11 +20,7 @@ namespace Lucid\Mux\Parser;
  */
 class Token implements TokenInterface
 {
-    /**
-     * params
-     *
-     * @var array
-     */
+    /** @var array */
     private $params;
 
     /**
@@ -58,7 +54,7 @@ class Token implements TokenInterface
      */
     public function isRequired()
     {
-        return $this->isVariable() ? !$this->params[4] : true;
+        return $this->isVariable() ? $this->params[4] : true;
     }
 
     /**

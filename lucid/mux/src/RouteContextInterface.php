@@ -26,7 +26,7 @@ interface RouteContextInterface
      *
      * @return void
      */
-    public function getRegexp();
+    public function getRegexp($raw = false);
 
     /**
      * getStaticPath
@@ -58,7 +58,7 @@ interface RouteContextInterface
      *
      * @return void
      */
-    public function getHostRegexp();
+    public function getHostRegexp($raw = false);
 
     /**
      * getHostParameters

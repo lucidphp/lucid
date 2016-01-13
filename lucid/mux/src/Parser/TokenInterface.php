@@ -22,31 +22,23 @@ use ArrayAccess;
  */
 interface TokenInterface extends ArrayAccess
 {
-    /**
-     * Token type text.
-     *
-     * @var int
-     */
+    /** @var int */
     const T_TEXT     = 10;
 
-    /**
-     * Token type variable.
-     *
-     * @var int
-     */
+    /** @var int */
     const T_VARIABLE = 22;
 
     /**
      * Token is variable.
      *
-     * @return boolean `TRUE` or `FALSE`
+     * @return bool
      */
     public function isVariable();
 
     /**
      * Token is text.
      *
-     * @return boolean `TRUE` or `FALSE`
+     * @return bool
      */
     public function isText();
 
@@ -60,7 +52,7 @@ interface TokenInterface extends ArrayAccess
     /**
      * Get the variable regular expression.
      *
-     * @return string the variable regexp, `NULL` if token is text.
+     * @return string the variable regexp, `null` if token is text.
      */
     public function getRegexp();
 
@@ -74,8 +66,8 @@ interface TokenInterface extends ArrayAccess
     /**
      * Get the required state if token is a variable.
      *
-     * @return boolean `TRUE` if required, if token is not required or not
-     * a variable `FALSE`.
+     * @return bool `true` if required, if token is not required or not
+     * a variable `false`.
      */
     public function isRequired();
 }

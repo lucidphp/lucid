@@ -31,46 +31,22 @@ use Lucid\Mux\Request\Context as RequestContext;
  */
 class Router implements MultiplexerInterface
 {
-    /**
-     * routes
-     *
-     * @var RouteCollectionInterface
-     */
+    /** @var RouteCollectionInterface */
     private $routes;
 
-    /**
-     * builder
-     *
-     * @var mixed
-     */
+    /** @var mixed */
     private $matcher;
 
-    /**
-     * dispatcher
-     *
-     * @var HandlerDispatcherInterface
-     */
+    /** @var HandlerDispatcherInterface */
     private $dispatcher;
 
-    /**
-     * mapper
-     *
-     * @var ResponseMapperInterface
-     */
+    /** @var ResponseMapperInterface */
     private $mapper;
 
-    /**
-     * url
-     *
-     * @var UrlGeneratorInterface
-     */
+    /** @var UrlGeneratorInterface */
     private $url;
 
-    /**
-     * routeStack
-     *
-     * @var SplStack
-     */
+    /** @var SplStack */
     private $routeStack;
 
     /**
@@ -89,11 +65,11 @@ class Router implements MultiplexerInterface
         ResponseMapperInterface $mapper = null,
         UrlGeneratorInterface $url = null
     ) {
-        $this->routes = $routes;
-        $this->matcher = $matcher ?: new RequestMatcher;
+        $this->routes     = $routes;
+        $this->matcher    = $matcher ?: new RequestMatcher;
         $this->dispatcher = $dispatcher ?: new HandlerDispatcher;
-        $this->mapper = $mapper ?: new PassResponseMapper;
-        $this->url = $url ?: new UrlGenerator;
+        $this->mapper     = $mapper ?: new PassResponseMapper;
+        $this->url        = $url ?: new UrlGenerator;
         $this->routeStack = new SplStack;
     }
 
