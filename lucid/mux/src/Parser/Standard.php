@@ -27,7 +27,7 @@ use Lucid\Mux\Parser\ParserInterface as Ps;
 abstract class Standard implements ParserInterface
 {
     /** @var string */
-    const VAR_REGEXP = <<<'REGEXP'
+    const VAR_REGEXP = <<<'REGEX'
 # start first alternative, none-capturing group
 (?: \{
 # Named capturing group for matching optionals
@@ -39,7 +39,7 @@ abstract class Standard implements ParserInterface
 # Named capturing group for matching required variables
     (?P<%s>\w+)
 \} )
-REGEXP;
+REGEX;
 
     /** @var string */
     const SPLIT_REGEXP = '\{(.*?)\}';
