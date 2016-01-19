@@ -163,8 +163,8 @@ class RouteContext implements RouteContextInterface, Serializable
      *
      * @return string
      */
-    private static function wrapRegexp($regexp)
+    private static function wrapRegexp($regex)
     {
-        return sprintf('%1$s^%2$s$%1$ss', ParserInterface::EXP_DELIM, $exp);
+        return sprintf('%1$s^%2$s$%1$ss', ParserInterface::EXP_DELIM, $regex);
     }
 }

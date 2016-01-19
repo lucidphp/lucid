@@ -27,7 +27,7 @@ interface ParserInterface
     const SEPARATORS   = '/.;:-_~+*=|';
 
     /** @var string */
-    const EXP_DELIM    = '~';
+    const EXP_DELIM    = '#';
 
     /**
      * parse

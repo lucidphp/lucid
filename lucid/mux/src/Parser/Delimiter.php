@@ -11,14 +11,15 @@
 
 namespace Lucid\Mux\Parser;
 
+use Lucid\Mux\Parser\TokenInterface as TI;
+
 /**
- * @interface TokenInterface
+ * @class Delimiter
  *
- * @package Lucid\Routing
+ * @package Lucid\Mux
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-interface TokenInterface
+class Delimiter extends Token
 {
-    public function __toString();
 }

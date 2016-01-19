@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This File is part of the Lucid\Mux package
+ * This File is part of the Lucid\Mux\Parser package
  *
  * (c) iwyg <mail@thomas-appel.com>
  *
@@ -11,14 +11,15 @@
 
 namespace Lucid\Mux\Parser;
 
+use Lucid\Mux\Parser\TokenInterface as TI;
+
 /**
- * @interface TokenInterface
+ * @class Text
  *
- * @package Lucid\Routing
+ * @package Lucid\Mux\Parser
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-interface TokenInterface
+class Text extends Token
 {
-    public function __toString();
 }

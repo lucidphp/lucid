@@ -18,98 +18,36 @@ namespace Lucid\Mux\Parser;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-class Token implements TokenInterface
+abstract class Token implements TokenInterface
 {
-    /** @var array */
-    private $params;
+    /** @var string */
+    public $value;
+
+    /** @var TI */
+    public $prev;
+
+    /** @var TI */
+    public $next;
 
     /**
-     * Constructor.
+     * __construct
      *
-     * @param array $params token values.
+     * @param mixed $value
+     * @param TI $prev
+     * @param TI $next
      */
-    public function __construct(array $params)
+    public function __construct($value, TokenInterface $prev = null, TokenInterface $next = null)
     {
-        $this->params = $params;
+        $this->value = $value;
+        $this->prev = $prev;
+        $this->next = $next;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function isVariable()
+    public function __toString()
     {
-        return self::T_VARIABLE === $this->params[0];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function isText()
-    {
-        return self::T_TEXT === $this->params[0];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function isRequired()
-    {
-        return $this->isVariable() ? $this->params[4] : true;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getSeparator()
-    {
-        return $this->isVariable() ? $this->params[1] : '';
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getRegexp()
-    {
-        return $this->isVariable() ? $this->params[2] : null;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getValue()
-    {
-        return $this->isText() ? $this->params[1] : $this->params[3];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function offsetExists($offset)
-    {
-        return isset($this->params[$offset]);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function offsetGet($offset)
-    {
-        return $this->params[$offset];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function offsetSet($offset, $value)
-    {
-        $this->params[$offset] = $value;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function offsetUnset($offset)
-    {
-        unset($this->params[$offset]);
+        return preg_quote($this->value, ParserInterface::EXP_DELIM);
     }
 }
