@@ -30,11 +30,11 @@ abstract class Standard implements ParserInterface
     /** @var string */
     const VAR_REGEXP = <<<'REGEX'
 (?:
-        (?P<ldel>%1$s)?
-    \{
-        (?P<var>\w+)
-    \??\}
-        (?P<rdel>%1$s)?
+    (?P<ldel>%1$s)?
+    %2$s
+    (?P<var>\w+)
+    \??%3$s
+    (?P<rdel>%1$s)?
 )
 REGEX;
 
@@ -43,21 +43,6 @@ REGEX;
 
     /** @var string */
     const R_DELIM = '}';
-
-    /** @var string */
-    const OPTQ    = '?';
-
-    /** @var string */
-    const K_VAR   = 'var';
-
-    /** @var string */
-    const K_OPT   = 'opt';
-
-    /** @var string */
-    const N_MGRP  = '(?P<%s>%s)';
-
-    /** @var string */
-    const U_MGRP  = '(?:%s%s)';
 
     /**
      * Parses a route object.
@@ -74,7 +59,7 @@ REGEX;
     }
 
     /**
-     * compilePatter
+     * Transpiles the the given pattern into a useful format.
      *
      * @param RouteInterface $route
      * @param string $pattern
@@ -86,12 +71,12 @@ REGEX;
     {
         $tokens = self::tokenizePattern($pattern, $host, $requirements, $defaults);
 
-        $staticPath = $tokens[0]->isText() ? $tokens[0]->getValue() : '';
+        $staticPath = $tokens[0] instanceof Text ? $tokens[0] : '';
 
-        $vars = array_map(function (TokenInterface $token) {
-            return $token->getValue();
+        $vars = array_map(function (Variable $token) {
+            return $token->value;
         }, array_filter($tokens, function (TokenInterface $token) {
-            return $token->isVariable();
+            return $token instanceof Variable;
         }));
 
         $regex = self::transpileMatchRegex($tokens);
@@ -99,25 +84,34 @@ REGEX;
         return self::getCompact($staticPath, $regex, $vars, $tokens);
     }
 
+    /**
+     * tokenizePattern
+     *
+     * @param mixed $pattern
+     * @param mixed $isHost
+     * @param array $requirements
+     * @param array $defaults
+     *
+     * @return array
+     */
     public static function tokenizePattern($pattern, $isHost = false, array $requirements = [], array $defaults = [])
     {
         // left pad pattern with separator
-        if (!$isHost && false === self::isSeparator(mb_substr($pattern, 0, 1))) {
+        if (!$isHost && false === self::isSeparator(substr($pattern, 0, 1))) {
             $pattern = '/'.$pattern;
         }
 
-        list ($staticPath,) = $splt = array_filter(preg_split(
-            '~(\{(.*?)\})~',
-            $pattern
-        ), function ($str) {
-            return 0 !== strlen($str);
-        });
+        $separator = $isHost ? '.' : '/';
+        $matchDel = join('|', array_map('preg_quote', str_split(Ps::SEPARATORS), str_split(
+            str_repeat(Ps::EXP_DELIM, strlen(Ps::SEPARATORS))
+        )));
 
-        $match_del = join('|', array_map(function ($sign) {
-            return preg_quote($sign, Ps::EXP_DELIM);
-        }, str_split(Ps::SEPARATORS)));
-
-        $expr = Ps::EXP_DELIM.sprintf(self::VAR_REGEXP, $match_del).Ps::EXP_DELIM.'x';
+        $expr = Ps::EXP_DELIM.sprintf(
+            self::VAR_REGEXP,
+            $matchDel,
+            preg_quote(self::L_DELIM, Ps::EXP_DELIM),
+            preg_quote(self::R_DELIM, Ps::EXP_DELIM)
+        ).Ps::EXP_DELIM.'x';
 
         preg_match_all($expr, $pattern, $matches, PREG_OFFSET_CAPTURE | PREG_SET_ORDER);
 
@@ -126,49 +120,41 @@ REGEX;
         $nlen   = count($matches) - 1;
         $tokens = [];
 
-        //var_dump($matches);
-        //die;
-
         foreach ($matches as $i => $match) {
-            $ldel       = -1 === $match['ldel'][1] ? null : $match['ldel'];
-            $var        = -1 === $match['var'][1] ? null : $match['var'];
-            $opt        = 0 === strcmp('?', substr($match[0][0], -2, 1));
-
-            if (isset($match['rdel'])) { 
-                $rdel       = -1 === $match['rdel'][1] ? null : $match['rdel'];
-            } else {
-                $rdel = null;
-            }
-
-            $offset     = $match[0][1];
+            // right hand delimiter, not always present
+            $rdel = (!isset($match['rdel']) || -1 === $match['rdel'][1]) ? null : $match['rdel'];
+            $ldel = -1 === $match['ldel'][1] ? null : $match['ldel'];
+            $var  = -1 === $match['var'][1] ? null : $match['var'];
+            $opt  = 0 === strcmp('?', substr($match[0][0], -2, 1));
 
             $default    = isset($defaults[$var[0]]) ? $defaults[$var[0]] : null;
             $constraint = isset($requirements[$var[0]]) ? $requirements[$var[0]] : null;
 
-            // if an optional variable is followed by something and the
-            // variable has no default value assigned, throw and exception:
-            //if ($pos < $plen && $opt && (null === $default && null === $constraint)) {
-            //    throw ParserException::nestedOptional($var[0]);
-            //}
+            $offset     = $match[0][1];
 
+            // add preceeding text
             if (0 !== strlen($str = substr($pattern, $pos, $offset - $pos))) {
                 $text = new Text($str, $lt = self::lastToken($tokens));
                 self::pushTokens($text, $lt, $tokens);
             }
 
+            // add left hand delimiter
             if (null !== $ldel) {
                 $delim = new Delimiter($ldel[0], $lt = self::lastToken($tokens));
                 self::pushTokens($delim, $lt, $tokens);
             }
 
-            $tVar = new Variable($var[0], !$opt, null, $lt = self::lastToken($tokens));
+            // add variable
+            $tVar = new Variable($var[0], !$opt, $constraint, $lt = self::lastToken($tokens), null, $separator);
             self::pushTokens($tVar, $lt, $tokens);
 
+            // add right hand delimiter
             if (null !== $rdel) {
                 $delim = new Delimiter($rdel[0], $lt = self::lastToken($tokens));
                 self::pushTokens($delim, $lt, $tokens);
             }
 
+            // update current position
             $pos = $offset + strlen($match[0][0]);
 
             if ($nlen === $i && $plen !== $pos) {
@@ -192,7 +178,7 @@ REGEX;
     }
 
     /**
-     * isSeparator
+     * Checks if given string is a url delimiter.
      *
      * @param string $test
      *
@@ -229,44 +215,34 @@ REGEX;
     }
 
     /**
+     * Recursively iterates over tailing optional variables.
+     *
      * @param Variable $var
      *
-     * @return string|null
+     * @return string will reuturn `null` if no matches are found.
      */
     private static function makeOptGrp(Variable $var)
     {
-        $opt = false;
-
-        if ($var->required || $var->next instanceof Text) {
-            return null;
-        }
-
-        if (null === $var->next) {
-            $optgrp = '';
-        } elseif ($vn = self::findNext($var)) {
-            $optgrp = self::makeOptGrp($vn);
-        } else {
-            return null;
-        }
-
-        $p = $var->prev instanceof Delimiter ? $var->prev : '';
-
-        return sprintf('(?:%s%s%s)?', $p, $var, $optgrp); 
-    }
-
-    /**
-     * @param Variable $t
-     *
-     * @return Variable|null
-     */
-    private static function findNext(Variable $t) {
-        if (null === ($n = $t->next) || !($n instanceof Variable)) {
+        if ($var->required || (null !== $var->next && !$var->next instanceof Variable)) {
             return;
         }
 
-        return $n;
+        $optgrp = null !== $var->next ? self::makeOptGrp($var->next) : '';
+
+        $p = $var->prev instanceof Delimiter ? $var->prev : '';
+
+        return sprintf('(?:%s%s%s)?', $p, $var, $optgrp);
     }
 
+    /**
+     * pushTokens
+     *
+     * @param TokenInterface $token
+     * @param TokenInterface $prev
+     * @param array $tokens
+     *
+     * @return void
+     */
     private static function pushTokens(TokenInterface $token, TokenInterface $prev = null, array &$tokens = [])
     {
         if (null !== $prev) {
@@ -277,7 +253,6 @@ REGEX;
 
         $tokens[] = $token;
     }
-
 
     /**
      * lastToken

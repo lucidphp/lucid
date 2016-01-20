@@ -4,20 +4,73 @@ namespace Lucid\Mux\Tests\Parser;
 
 use Lucid\Mux\Route;
 use Lucid\Mux\Parser\Standard as Parser;
+use Lucid\Mux\Parser\DefaultParser;
+use Lucid\Mux\Parser\ParserInterface;
+use Lucid\Mux\Exception\ParserException;
 
 class StandardTest extends \PHPUnit_Framework_TestCase
 {
     /** @test */
-    public function itShouldTranspileRouteExpression()
+    public function itShouldTokenizePattern()
     {
-        $r1 = 'foo/bar/{user}/{id?}/{area}/restofstr';
+        $r = $this->mockRoute();
+        $r->method('getPattern')->willReturn('/foo/bar/{a}~bar;{b?}');
 
-        $route = $this->mockRoute();
-        $route->method('getPattern')->willReturn($r1);
-        $route->method('getConstraints')->willReturn(['id' => '(\d+)']);
-        $route->method('getDefault')->will($this->returnValueMap([['id', '(\d+)']]));
+        $t = Parser::tokenizePattern($r->getPattern(), false);
 
-        $context = Parser::parse($route);
+        $this->assertSameSize(7, $t);
+
+        array_map(function ($thing) {
+            $this->assertInstanceOf('Lucid\Mux\Parser\TokenInterface', $thing);
+        }, $t);
+    }
+
+    /** @test */
+    public function parseShouldReturnRouteContext()
+    {
+        $r = $this->mockRoute();
+        $r->method('getPattern')->willReturn('/foo/bar/{a?}');
+        $this->prepareRoute($r, [], ['a' => '(\d+)']);
+
+        $ctx = Parser::parse($r);
+        $this->assertInstanceOf('Lucid\Mux\RouteContextInterface', $ctx);
+    }
+
+    /**
+     * @test
+     * @dataProvider patternMatchProvider
+     */
+    public function transpiledExpressionsShouldMatch($pattern, $host, array $matches, array $cns = [], array $def = [])
+    {
+        extract(Parser::transpilePattern($pattern, $host, $cns, $def));
+        $delim = ParserInterface::EXP_DELIM;
+        $regex = sprintf('%1$s^%2$s$%1$s', $delim, $expression);
+
+        foreach ($matches as $m) {
+            list($path, $match)  = array_pad((array)$m, 2, true);
+
+            $this->assertSame($match, (bool)preg_match_all($regex, $path), $regex . ': ' .$match);
+        }
+    }
+
+    public function patternMatchProvider()
+    {
+        return [
+            [
+                '/foo/{bar}', false,
+                [['/foo/bar', true], ['/foo/baz', true], ['/foo/bar/str', false]]
+            ],
+            [
+                '/foo/{bar?}', false,
+                [['/foo/bar', false], ['/foo/12', true]],
+                ['bar' => '\d+']
+            ],
+            [
+                '/foo/{bar?}{baz?}', false,
+                [['/foo/bar', false], ['/foo/12', true], ['/foo/12a', true]],
+                ['bar' => '\d+', 'baz' => '\w+']
+            ]
+        ];
     }
 
     private function mockRoute()
@@ -25,5 +78,38 @@ class StandardTest extends \PHPUnit_Framework_TestCase
         return $this->getMockbuilder(Route::class)
             ->disableOriginalConstructor()
             ->getMock();
+    }
+
+
+    /**
+     * prepareRoute
+     *
+     * @param Mock  $route
+     * @param array $def
+     * @param array $const
+     *
+     * @return void
+     */
+    private function prepareRoute($route, array $def = null, array $const = null)
+    {
+        if (null !== $def) {
+            $route->method('getDefaults')->willReturn($def);
+            $dmap = [];
+            foreach ($def as $key => $value) {
+                $dmap[] = [$key, $value];
+            }
+
+            $route->method('getDefault')->will($this->returnValueMap($dmap));
+        }
+
+        if (null !== $const) {
+            $route->method('getConstraints')->willReturn($const);
+            $cmap = [];
+            foreach ($const as $key => $value) {
+                $cmap[] = [$key, $value];
+            }
+
+            $route->method('getConstraint')->will($this->returnValueMap($cmap));
+        }
     }
 }

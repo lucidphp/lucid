@@ -31,19 +31,23 @@ class Variable extends Token
     /** @var string */
     private $constraint;
 
+    /** @var string */
+    private $default;
+
     /**
      * Constructor.
      *
      * @param string $name       the variable name
      * @param bool   $required   the variable is requiered
      * @param string $constraint a regex constraint.
-     * @param TI     $prev       the previous token
-     * @param TI     $next       the next token
+     * @param TokenInterface     $prev       the previous token
+     * @param TokenInterface     $next       the next token
      */
-    public function __construct($name, $required = true, $constraint = null, TI $prev = null, TI $next = null)
+    public function __construct($name, $required = true, $constr = null, TI $prev = null, TI $next = null, $def = '/')
     {
-        $this->required = $required;
-        $this->constraint = $constraint;
+        $this->required   = $required;
+        $this->constraint = $constr;
+        $this->default    = $def;
 
         parent::__construct($name, $prev, $next);
     }
@@ -65,7 +69,7 @@ class Variable extends Token
     {
         if (null === $this->constraint) {
             $delim = $this->next instanceof Delimiter ? (string)$this->next : '';
-            $this->constraint = sprintf('[^%s%s]++', preg_quote('/', ParserInterface::EXP_DELIM), $delim);
+            $this->constraint = sprintf('[^%s%s]++', preg_quote($this->default, ParserInterface::EXP_DELIM), $delim);
         }
 
         return $this->regex = sprintf('(?P<%s>%s)', $this->value, $this->constraint);

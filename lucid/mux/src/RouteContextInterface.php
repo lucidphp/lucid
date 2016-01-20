@@ -22,25 +22,24 @@ interface RouteContextInterface
 {
     /**
      * getRegexp
+	 *
+	 * @var bool $raw
      *
-     *
-     * @return void
+     * @return string
      */
-    public function getRegexp($raw = false);
+	public function getRegex($raw = false);
 
     /**
      * getStaticPath
      *
-     *
-     * @return void
+	 * @return string
      */
     public function getStaticPath();
 
     /**
      * getParameters
      *
-     *
-     * @return void
+     * @return array
      */
     public function getParameters();
 
@@ -48,7 +47,7 @@ interface RouteContextInterface
      * getTokens
      *
      *
-     * @return void
+	 * @return array `Lucid\Mux\Parser\TokenInterface[]`
      */
     public function getTokens();
 
@@ -56,21 +55,23 @@ interface RouteContextInterface
      * getHostRegexp
      *
      *
-     * @return void
+	 * @var bool $raw
+     *
+	 * @return string
      */
-    public function getHostRegexp($raw = false);
+	public function getHostRegex($raw = false);
 
     /**
      * getHostParameters
-     *
-     * @return void
+	 *
+     * @return array
      */
     public function getHostParameters();
 
     /**
      * getHostTokens
      *
-     * @return void
+	 * @return array `Lucid\Mux\Parser\TokenInterface[]`
      */
     public function getHostTokens();
 }

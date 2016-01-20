@@ -26,7 +26,7 @@ class RouteContext implements RouteContextInterface, Serializable
     private $staticPath;
     private $parameters;
     private $tokens;
-    private $regexp;
+    private $regex;
     private $hostExp;
     private $hostParams;
     private $hostTokens;
@@ -35,7 +35,7 @@ class RouteContext implements RouteContextInterface, Serializable
      * Constructor
      *
      * @param string $sPath
-     * @param string $regexp
+     * @param string $regex
      * @param array $params
      * @param array $tokens
      * @param string $hostExp
@@ -44,10 +44,10 @@ class RouteContext implements RouteContextInterface, Serializable
      *
      * @return void
      */
-    public function __construct($sPath, $regexp, array $params, array $tokens, array $host = [])
+    public function __construct($sPath, $regex, array $params, array $tokens, array $host = [])
     {
         $this->staticPath = $sPath;
-        $this->regexp = $regexp;
+        $this->regex = $regex;
         $this->parameters = $params;
         $this->tokens = $tokens;
 
@@ -57,9 +57,9 @@ class RouteContext implements RouteContextInterface, Serializable
     /**
      * {@inheritdoc}
      */
-    public function getRegexp($raw = false)
+    public function getRegex($raw = false)
     {
-        return $raw ? $this->regexp : self::wrapRegexp($this->regexp);
+        return $raw ? $this->regex : self::wrapRegex($this->regex);
     }
 
     /**
@@ -89,9 +89,9 @@ class RouteContext implements RouteContextInterface, Serializable
     /**
      * {@inheritdoc}
      */
-    public function getHostRegexp($raw = false)
+	public function getHostRegex($raw = false)
     {
-        return $raw ? $this->hostExp : self::wrapRegexp($this->hostExp);
+        return $raw ? $this->hostExp : self::wrapRegex($this->hostExp);
     }
 
     /**
@@ -119,7 +119,7 @@ class RouteContext implements RouteContextInterface, Serializable
     {
         return serialize([
             'static_path' => $this->staticPath,
-            'regexp'      => $this->regexp,
+            'regex'      => $this->regex,
             'parameters'  => $this->parameters,
             'tokens'      => $this->tokens,
             'host_exp'    => $this->hostExp,
@@ -139,7 +139,7 @@ class RouteContext implements RouteContextInterface, Serializable
     {
         $data = unserialize($data);
         $this->staticPath  = $data['static_path'];
-        $this->regexp      = $data['regexp'];
+        $this->regex      = $data['regex'];
         $this->parameters  = $data['parameters'];
         $this->tokens      = $data['tokens'];
         $this->hostExp     = $data['host_exp'];
@@ -157,13 +157,13 @@ class RouteContext implements RouteContextInterface, Serializable
     }
 
     /**
-     * wrapRegexp
+     * wrapRegex
      *
-     * @param string $regexp
+     * @param string $regex
      *
      * @return string
      */
-    private static function wrapRegexp($regex)
+    private static function wrapRegex($regex)
     {
         return sprintf('%1$s^%2$s$%1$ss', ParserInterface::EXP_DELIM, $regex);
     }
