@@ -6,8 +6,8 @@ key=
 
 # clean up subsplit files
 cleanUp() {
-	rm -rf ./.subsplit
-	rm -rf ./tmp
+    rm -rf ./.subsplit
+    rm -rf ./tmp
     unset GIT
     unset DIRS
     unset BRANCH
@@ -39,12 +39,12 @@ done
 
 # abort if error and clean up subsplit files
 abortIf() {
-	if [[ ! "$1" == 0 ]]; then
-		cleanUp
-		echo "\e[31m%s\e[m\n" "$2"
-		exit $1
-	fi
-	return 0
+    if [[ ! "$1" == 0 ]]; then
+        cleanUp
+        echo "\e[31m%s\e[m\n" "$2"
+        exit $1
+    fi
+    return 0
 }
 
 GIT=`which git`
