@@ -13,19 +13,19 @@ namespace Lucid\Mux\Parser;
 
 use Lucid\Mux\RouteContext;
 use Lucid\Mux\RouteInterface;
-use Lucid\Mux\RouteContextInterface as ContextInterface;
-use Lucid\Mux\Exception\ParserException;
 use InvalidArgumentException;
+use Lucid\Mux\Exception\ParserException;
 use Lucid\Mux\Parser\ParserInterface as Ps;
+use Lucid\Mux\RouteContextInterface as ContextInterface;
 
 /**
- * @class Default
+ * @class Standard
  *
  * @package Lucid\Mux
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-abstract class Standard implements ParserInterface
+abstract class Standard
 {
     /** @var string */
     const VAR_REGEXP = <<<'REGEX'
