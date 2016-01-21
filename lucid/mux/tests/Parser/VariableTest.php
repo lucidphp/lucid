@@ -13,6 +13,6 @@ class VariableTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('(?P<foo>[^/]++)', (string)$var);
 
         $var = new Variable('foo', true, '(\d+)');
-        $this->assertSame('(?P<foo>(\d+)', (string)$var);
+        $this->assertSame('(?P<foo>(\d+))', (string)$var);
     }
 }

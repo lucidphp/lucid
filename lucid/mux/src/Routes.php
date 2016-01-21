@@ -20,37 +20,30 @@ namespace Lucid\Mux;
  */
 class Routes implements RouteCollectionInterface
 {
-    /**
-     * routes
-     *
-     * @var array
-     */
+    /** @var array */
     private $routes;
 
-    /**
-     * methodIndex
-     *
-     * @var array
-     */
+    /** @var array */
     private $methodIndex;
 
-    /**
-     * schemeIndex
-     *
-     * @var array
-     */
+    /** @var array */
     private $schemeIndex;
 
     /**
      * Constructor.
      *
-     * @param [string => RouteInterface] $routes
+     * @param array $routes `string[RouteInterface[]]`
      */
-    public function __construct(array $routes)
+    public function __construct(array $routes = [])
     {
         $this->methodIndex = [];
         $this->schemeIndex = [];
         $this->setRoutes($routes);
+    }
+
+    public function all()
+    {
+        return $this->routes;
     }
 
     /**
@@ -64,7 +57,7 @@ class Routes implements RouteCollectionInterface
             $this->schemeIndex[$scheme][] = $routeName;
         }
 
-        foreach ($route->getMethods as $method) {
+        foreach ($route->getMethods() as $method) {
             $this->methodIndex[$method][] = $routeName;
         }
     }
@@ -94,7 +87,7 @@ class Routes implements RouteCollectionInterface
     /**
      * {@inheritdoc}
      */
-    public function has($routeName)
+    public function has($name)
     {
         return isset($this->routes[$name]);
     }

@@ -54,8 +54,9 @@ REGEX;
     public static function parse(RouteInterface $route)
     {
         extract(self::transpilePattern($route->getPattern(), false, $route->getConstraints(), $route->getDefaults()));
+        $host = self::parseHostVars($route);
 
-        return new RouteContext($staticPath, $expression, $vars, $tokens, self::parseHostVars($route));
+        return new RouteContext($staticPath, $expression, $vars, $host['expression'], $host['vars']);
     }
 
     /**
@@ -71,7 +72,7 @@ REGEX;
     {
         $tokens = self::tokenizePattern($pattern, $host, $requirements, $defaults);
 
-        $staticPath = $tokens[0] instanceof Text ? $tokens[0] : '';
+        $staticPath = $tokens[0] instanceof Text ? $tokens[0]->value : '';
 
         $vars = array_map(function (Variable $token) {
             return $token->value;
@@ -99,6 +100,12 @@ REGEX;
         // left pad pattern with separator
         if (!$isHost && false === self::isSeparator(substr($pattern, 0, 1))) {
             $pattern = '/'.$pattern;
+        }
+
+        list ($path, ) = $splt = array_pad(preg_split('#\{\w+\??\}#', $pattern), 1, '/');
+
+        if (2 > count($splt)) {
+            return [new Text($path)];
         }
 
         $separator = $isHost ? '.' : '/';
@@ -157,15 +164,9 @@ REGEX;
             // update current position
             $pos = $offset + strlen($match[0][0]);
 
+            // add trailing text.
             if ($nlen === $i && $plen !== $pos) {
                 $tail = substr($pattern, -($plen - $pos));
-
-                if (self::isSeparator($edl = substr($tail, 0, 1))) {
-                    $tail = substr($tail, 1);
-
-                    $d = new Delimiter($edl, $lt = self::lastToken($tokens));
-                    self::pushTokens($d, $lt, $tokens);
-                }
 
                 if (0 !== strlen($tail)) {
                     $t = new Text($tail, $lt = self::lastToken($tokens));
@@ -280,7 +281,7 @@ REGEX;
     private static function parseHostVars(RouteInterface $route)
     {
         if (null === $host = $route->getHost()) {
-            return [];
+            return ['expression' => null, 'vars' => []];
         }
 
         return self::transpilePattern($host, true, $route->getConstraints(), $route->getDefaults());

@@ -223,7 +223,7 @@ class Route implements RouteInterface
      */
     protected function getParserFunc()
     {
-        return __NAMESPACE__.'\Parser\DefaultParser::parse';
+        return __NAMESPACE__.'\Parser\Standard::parse';
     }
 
     /**

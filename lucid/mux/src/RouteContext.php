@@ -12,46 +12,51 @@
 namespace Lucid\Mux;
 
 use Serializable;
+use Lucid\Mux\Parser\Variable;
+use Lucid\Mux\Parser\TokenInterface;
 use Lucid\Mux\Parser\ParserInterface;
+use Lucid\Mux\Parser\Text;
 
 /**
- * @class RouteExpression
+ * @class RouteContext
  *
- * @package lucid/routing
+ * @package Lucid\Mux
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
 class RouteContext implements RouteContextInterface, Serializable
 {
+    /** @var string */
     private $staticPath;
-    private $parameters;
-    private $tokens;
+
+    /** @var string */
     private $regex;
-    private $hostExp;
-    private $hostParams;
-    private $hostTokens;
+
+    /** @var array */
+    private $vars;
+
+    /** @var string */
+    private $hostRegex;
+
+    /** @var array */
+    private $hostVars;
 
     /**
-     * Constructor
+     * Construtor.
      *
-     * @param string $sPath
+     * @param string $staticPath
      * @param string $regex
-     * @param array $params
-     * @param array $tokens
-     * @param string $hostExp
-     * @param array $hostParmas
-     * @param array $hostTokens
-     *
-     * @return void
+     * @param array  $vars
+     * @param string $hostRegex
+     * @param array  $hostVars
      */
-    public function __construct($sPath, $regex, array $params, array $tokens, array $host = [])
+    public function __construct($staticPath, $regex, array $vars = [], $hostRegex = null, array $hostVars = [])
     {
-        $this->staticPath = $sPath;
-        $this->regex = $regex;
-        $this->parameters = $params;
-        $this->tokens = $tokens;
-
-        $this->setHost($host);
+        $this->staticPath = $staticPath;
+        $this->regex      = $regex;
+        $this->vars       = $vars;
+        $this->hostVars   = $hostVars;
+        $this->hostRegex  = $hostRegex;
     }
 
     /**
@@ -65,22 +70,6 @@ class RouteContext implements RouteContextInterface, Serializable
     /**
      * {@inheritdoc}
      */
-    public function getParameters()
-    {
-        return $this->parameters;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getTokens()
-    {
-        return $this->tokens;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getStaticPath()
     {
         return $this->staticPath;
@@ -89,7 +78,15 @@ class RouteContext implements RouteContextInterface, Serializable
     /**
      * {@inheritdoc}
      */
-	public function getHostRegex($raw = false)
+    public function getVars()
+    {
+        return $this->vars;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getHostRegex($raw = false)
     {
         return $raw ? $this->hostExp : self::wrapRegex($this->hostExp);
     }
@@ -97,17 +94,9 @@ class RouteContext implements RouteContextInterface, Serializable
     /**
      * {@inheritdoc}
      */
-    public function getHostParameters()
+    public function getHostVars()
     {
         return $this->hostParams;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getHostTokens()
-    {
-        return $this->hostTokens;
     }
 
     /**
@@ -119,12 +108,10 @@ class RouteContext implements RouteContextInterface, Serializable
     {
         return serialize([
             'static_path' => $this->staticPath,
-            'regex'      => $this->regex,
-            'parameters'  => $this->parameters,
-            'tokens'      => $this->tokens,
-            'host_exp'    => $this->hostExp,
-            'host_params' => $this->hostParams,
-            'host_tokens' => $this->hostTokens
+            'regex'       => $this->regex,
+            'vars'        => $this->vars,
+            'host_regex'  => $this->hostRegex,
+            'host_vars'   => $this->hostVars
         ]);
     }
 
@@ -138,22 +125,12 @@ class RouteContext implements RouteContextInterface, Serializable
     public function unserialize($data)
     {
         $data = unserialize($data);
-        $this->staticPath  = $data['static_path'];
+
+        $this->staticPath = $data['static_path'];
         $this->regex      = $data['regex'];
-        $this->parameters  = $data['parameters'];
-        $this->tokens      = $data['tokens'];
-        $this->hostExp     = $data['host_exp'];
-        $this->hostParams  = $data['host_params'];
-        $this->hostTokens  = $data['host_tokens'];
-    }
-
-    private function setHost(array $host)
-    {
-        $host = array_merge(['parameters' => [], 'expression' => null, 'tokens' => []], $host);
-
-        $this->hostParams = $host['parameters'];
-        $this->hostExp    = $host['expression'];
-        $this->hostTokens = $host['tokens'];
+        $this->parameters = $data['vars'];
+        $this->hostRegex  = $data['host_regex'];
+        $this->hostVars   = $data['host_vars'];
     }
 
     /**

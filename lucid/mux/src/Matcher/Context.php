@@ -53,7 +53,7 @@ class Context implements ContextInterface
      *
      * @var array
      */
-    private $parameters;
+    private $vars;
 
     /**
      * Constructor.
@@ -61,15 +61,15 @@ class Context implements ContextInterface
      * @param mixed $name
      * @param mixed $url
      * @param mixed $handler
-     * @param array $params
+     * @param array $vars
      */
-    public function __construct($type, $name, $url, $handler, array $params = [])
+    public function __construct($type, $name, $url, $handler, array $vars = [])
     {
-        $this->type       = $type;
-        $this->name       = $name;
-        $this->path       = $url;
-        $this->handler    = $handler;
-        $this->parameters = $params;
+        $this->type    = $type;
+        $this->name    = $name;
+        $this->path    = $url;
+        $this->handler = $handler;
+        $this->vars    = $vars;
     }
 
     /**
@@ -107,8 +107,8 @@ class Context implements ContextInterface
     /**
      * {@inheritdoc}
      */
-    public function getParameters()
+    public function getVars()
     {
-        return $this->parameters;
+        return $this->vars;
     }
 }

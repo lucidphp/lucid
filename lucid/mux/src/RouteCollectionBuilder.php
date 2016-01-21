@@ -12,6 +12,7 @@
 namespace Lucid\Mux;
 
 use SplStack;
+use LogicException;
 
 /**
  * @class RouteCollectionBuilder
@@ -22,18 +23,22 @@ use SplStack;
  */
 class RouteCollectionBuilder
 {
-    /**
-     * groups
-     *
-     * @var mixed
-     */
+    /** @var string */
+    const K_NAME = 'route';
+
+    /** @var string */
+    const K_HOST = 'host';
+
+    /** @var string */
+    const K_SCHEME = 'schemes';
+
+    /** @var array */
+    private static $keys = [self::K_NAME, self::K_HOST, self::K_SCHEME];
+
+    /** @var array */
     private $groups;
 
-    /**
-     * routes
-     *
-     * @var mixed
-     */
+    /** @var RouteContextInterface */
     private $routes;
 
     /**
@@ -42,7 +47,7 @@ class RouteCollectionBuilder
     public function __construct(RouteCollectionInterface $routes = null)
     {
         $this->routes = $routes ?: $this->newRouteCollection();
-        $this->initGroups();
+        $this->groups = new SplStack;
     }
 
     /**
@@ -153,7 +158,7 @@ class RouteCollectionBuilder
         $route = new Route(
             $this->prefixPattern($pattern),
             $handler,
-            $methods,
+            explode('|', $methods),
             $host,
             $defaults,
             $constraints,
@@ -171,16 +176,11 @@ class RouteCollectionBuilder
      *
      * @return void
      */
-    public function group($prefix, $requirements = [], $groupConstructor = null)
+    public function group($prefix, array $requirements = [], callable $groupConstructor = null)
     {
-        if (is_callable($requirements)) {
-            $groupConstructor = $requirements;
-            $requirements = [];
-        }
-
         $this->enterGroup($prefix, $requirements);
 
-        if (is_callable($groupConstructor)) {
+        if (null !== $groupConstructor) {
             call_user_func($groupConstructor, $this);
             $this->leaveGroup();
         }
@@ -193,9 +193,7 @@ class RouteCollectionBuilder
      */
     public function endGroup()
     {
-        if ($this->hasGroups()) {
-            $this->leaveGroup();
-        }
+        $this->leaveGroup();
     }
 
     /**
@@ -206,17 +204,35 @@ class RouteCollectionBuilder
      *
      * @return array
      */
-    protected function parseRequirements(array $requirements, $methods)
+    private function parseRequirements(array $rq, $methods)
     {
-        $name    = isset($requirements['name']) ? $requirements['name'] : $this->generateName($methods);
-        $host    = isset($requirements['host']) ? $requirements['host'] : null;
-        $schemes = isset($requirements['schemes']) ? $requirements['schemes'] : null;
+        $keys = [];
+        $constr = array_filter($this->mergeDefaults($rq), function ($val, $key) use (&$keys, $methods) {
+            if (!in_array($key, self::$keys)) {
+                return true;
+            }
+            if (self::K_NAME === $key && null === $val) {
+                $val = $this->generateName($methods);
+            }
+            $keys[$key] = $val;
+            return false;
+        }, ARRAY_FILTER_USE_BOTH);
 
-        unset($requirements['name']);
-        unset($requirements['host']);
-        unset($requirements['schemes']);
+        extract($keys);
 
-        return [$name, $host, $schemes, $requirements];
+        return [${self::K_NAME}, ${self::K_HOST}, ${self::K_SCHEME}, $constr];
+    }
+
+    /**
+     * mergeDefaults
+     *
+     * @param array $given
+     *
+     * @return array
+     */
+    private function mergeDefaults(array $given)
+    {
+        return array_merge(array_combine(self::$keys, array_pad([], count(self::$keys), null)), $given);
     }
 
     /**
@@ -226,7 +242,7 @@ class RouteCollectionBuilder
      *
      * @return string
      */
-    protected function generateName($methods)
+    private function generateName($methods)
     {
         return uniqid('route_' . strtr($methods, ['|' => '_']) . '_');
     }
@@ -236,12 +252,12 @@ class RouteCollectionBuilder
      *
      * @return RouteCollectionInterface
      */
-    protected function newRouteCollection()
+    private function newRouteCollection()
     {
         $class = $this->getCollectionClass();
 
-        if (!is_subclass_of($class, $i = 'Lucid\Routing\RouteCollectionInterface')) {
-            throw new \LogicException("Routecollection class must implement $i.");
+        if (!is_subclass_of($class, $i = __NAMESPACE__.'\RouteCollectionInterface')) {
+            throw new LogicException("Routecollection class must implement $i.");
         }
 
         return new $class;
@@ -252,7 +268,7 @@ class RouteCollectionBuilder
      *
      * @return void
      */
-    protected function getCollectionClass()
+    private function getCollectionClass()
     {
         return Routes::class;
     }
@@ -264,7 +280,7 @@ class RouteCollectionBuilder
      *
      * @return string
      */
-    protected function prefixPattern($pattern)
+    private function prefixPattern($pattern)
     {
         $d = '/';
 
@@ -284,7 +300,7 @@ class RouteCollectionBuilder
      *
      * @return void
      */
-    protected function extendRequirements(array $requirements)
+    private function extendRequirements(array $requirements)
     {
         if (!$this->hasGroups()) {
             return $requirements;
@@ -298,7 +314,7 @@ class RouteCollectionBuilder
      *
      * @return RouteBuilder
      */
-    protected function enterGroup($prefix, array $requirements)
+    private function enterGroup($prefix, array $requirements)
     {
         $group = new RouteGroup($prefix, $requirements, $this->getParentGroup());
         $this->pushGroup($group);
@@ -311,7 +327,7 @@ class RouteCollectionBuilder
      *
      * @return null|GroupDefinition
      */
-    protected function getParentGroup()
+    private function getParentGroup()
     {
         if ($this->hasGroups()) {
             return $this->groups->top();
@@ -323,7 +339,7 @@ class RouteCollectionBuilder
      *
      * @return RouteBuilder
      */
-    protected function leaveGroup()
+    private function leaveGroup()
     {
         if ($this->hasGroups()) {
             $this->popGroup();
@@ -333,21 +349,13 @@ class RouteCollectionBuilder
     }
 
     /**
-     * @return mixed
-     */
-    protected function initGroups()
-    {
-        $this->groups = new SplStack;
-    }
-
-    /**
      * pushGroup
      *
      * @param array $group
      *
      * @return void
      */
-    protected function pushGroup(RouteGroup $group)
+    private function pushGroup(RouteGroup $group)
     {
         $this->groups->push($group);
     }
@@ -355,9 +363,9 @@ class RouteCollectionBuilder
     /**
      * popGroup
      *
-     * @return array
+     * @return RouteGroup
      */
-    protected function popGroup()
+    private function popGroup()
     {
         return $this->groups->pop();
     }
@@ -365,9 +373,9 @@ class RouteCollectionBuilder
     /**
      * getCurrentGroup
      *
-     * @return mixed
+     * @return RouteGroup
      */
-    protected function getCurrentGroup()
+    private function getCurrentGroup()
     {
         return $this->groups->top();
     }
@@ -375,9 +383,9 @@ class RouteCollectionBuilder
     /**
      * hasGroups
      *
-     * @return boolean
+     * @return bool
      */
-    protected function hasGroups()
+    private function hasGroups()
     {
         return $this->groups->count() > 0;
     }

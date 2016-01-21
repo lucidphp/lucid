@@ -53,5 +53,5 @@ interface ContextInterface
      *
      * @return array
      */
-    public function getParameters();
+    public function getVars();
 }

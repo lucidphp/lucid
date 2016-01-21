@@ -12,8 +12,8 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('Lucid\Mux\RouteInterface', $this->newRoute());
     }
 
-    private function newRoute()
+    private function newRoute($path = '/', $handler = 'action')
     {
-        return new Route;
+        return new Route($path, $handler);
     }
 }

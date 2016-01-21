@@ -11,8 +11,8 @@
 
 namespace Lucid\Mux\Matcher;
 
-use Lucid\Routing\RouteCollectionInterface;
-use Lucid\Routing\Http\RequestContextInterface;
+use Lucid\Mux\Request\ContextInterface;
+use Lucid\Mux\RouteCollectionInterface;
 
 /**
  * RequestMatcherInterface
@@ -34,5 +34,5 @@ interface RequestMatcherInterface
      *
      * @return array
      */
-    public function matchRequest(RequestContextInterface $context, RouteCollectionInterface $routes);
+    public function matchRequest(ContextInterface $context, RouteCollectionInterface $routes);
 }

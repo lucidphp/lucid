@@ -13,8 +13,9 @@ namespace Lucid\Mux\Matcher;
 
 use Lucid\Mux\RouteInterface;
 use Lucid\Mux\RouteCollectionInterface;
-use Lucid\Mux\Http\RequestContextInterface;
+use Lucid\Mux\Request\ContextInterface as Request;
 use Lucid\Mux\Cache\CachedCollectionInterface;
+use Lucid\Mux\Matcher\Context as MatchContext;
 
 /**
  * @class RequestMatcher
@@ -25,75 +26,49 @@ use Lucid\Mux\Cache\CachedCollectionInterface;
  */
 class RequestMatcher implements RequestMatcherInterface
 {
+    use MatcherTrait;
+
     /**
      * matchRequest
      *
      * @param Request $request
      *
-     * @return void
+     * @return MatchContext
      */
-    public function matchRequest(RequestContext $context, RouteCollectionInterface $routes)
+    public function matchRequest(Request $request, RouteCollectionInterface $routes)
     {
-        $routes = $this->reduce($routes, $context);
-
-        $path = $context->getPath();
+        $path   = $request->getPath();
+        $routes = $this->filterByMethodAndScheme($routes, $request);
 
         if ($routes instanceof CachedCollectionInterface && 0 !== count($r = $route->findByStaticPath($path))) {
             $routes = $r;
         }
 
         foreach ($routes->all() as $name => $route) {
+
+            $rctx = $route->getContext();
+
+            // does it match host?
             if (null !== ($host = $route->getHost())
-                && !preg_match($route->getContext()->getHostRegexp(), $request->getHost())
+                && !(bool)preg_match_all($rctx->getHostRegex(), $request->getHost(), PREG_SET_ORDER)
             ) {
                 continue;
             }
 
-            $context = $route->getContext();
-
-            if (0 !== strpos($path, $context->getStaticPath())) {
+            // does it match static path?
+            if (0 !== strpos($path, $rctx->getStaticPath())) {
                 continue;
             }
 
-            if (preg_match($context->getRegexp(), $path, $matches)) {
-                return new MatchContext(
-                    self::MATCH,
-                    $name,
-                    $path,
-                    $route->getHandler(),
-                    $this->getMatchedParams($route, $matches)
-                );
+            // does it match pattern described on the route?
+            if ((bool)preg_match_all($rctx->getRegex(), $path, $matches)) {
+                $vars    = $this->getMatchedVars($route, $matches);
+                $handler = $route->getHandler();
+
+                return new MatchContext(self::MATCH, $name, $path, $handler, $vars);
             }
         }
 
         return new MatchContext(self::NOMATCH, null, null, null);
-    }
-
-    /**
-     * reduce
-     *
-     * @param RouteCollectionInterface $routes
-     * @param RequestContext $context
-     *
-     * @return RouteCollectionInterface
-     */
-    private function reduce(RouteCollectionInterface $routes, RequestContext $context)
-    {
-        return $routes->findByMethod($context->getMethod())->findByScheme($context->getScheme());
-    }
-
-    /**
-     * getMatchedParams
-     *
-     * @param RouteInterface $route
-     * @param array $matches
-     *
-     * @return array
-     */
-    private function getMatchedParams(RouteInterface $route, array $matches)
-    {
-        $params = array_merge($route->getDefaults(), $matches);
-
-        return array_intersect_key($params, array_flip($route->getContext()->getParameters()));
     }
 }

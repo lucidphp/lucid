@@ -22,26 +22,14 @@ namespace Lucid\Mux;
  */
 class RouteGroup
 {
-    /**
-     * prefix
-     *
-     * @var string
-     */
-    protected $prefix;
+    /** @var string */
+    private $prefix;
 
-    /**
-     * parent
-     *
-     * @var parent
-     */
-    protected $parent;
+    /** @var parent */
+    private $parent;
 
-    /**
-     * requirements
-     *
-     * @var array
-     */
-    protected $requirements;
+    /** @var array */
+    private $requirements;
 
     /**
      * Constructor.
