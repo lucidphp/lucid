@@ -11,7 +11,7 @@
 
 namespace Lucid\Mux\Request;
 
-use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * @class Context
@@ -22,9 +22,6 @@ use Psr\Http\Message\RequestInterface;
  */
 class Context implements ContextInterface
 {
-    /** @var string */
-    private $base;
-
     /** @var string */
     private $path;
 
@@ -55,7 +52,6 @@ class Context implements ContextInterface
      * @param int $port
      */
     public function __construct(
-        $base = '',
         $path = '/',
         $method = 'GET',
         $query = '',
@@ -63,8 +59,7 @@ class Context implements ContextInterface
         $scheme = 'http',
         $port = 80
     ) {
-        $this->base       = $base;
-        $this->uri        = $path;
+        $this->path       = $path;
         $this->method     = $method;
         $this->query      = ltrim($query ?: '', '?&');
         $this->host       = trim($host, '/');
@@ -75,17 +70,9 @@ class Context implements ContextInterface
     /**
      * {@inheritdoc}
      */
-    public function getBaseUrl()
-    {
-        return $this->base;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getPath()
     {
-        return $this->uri;
+        return $this->path;
     }
 
     /**
@@ -128,5 +115,27 @@ class Context implements ContextInterface
     public function getHttpPort()
     {
         return $this->port;
+    }
+
+    /**
+     * fromPsrRequest
+     *
+     * @param ServerRequestInterface $request
+     *
+     * @return ServerRequestInterface
+     */
+    public static function fromPsrRequest(ServerRequestInterface $request)
+    {
+        $uri    = $request->getUri();
+        $server = $request->getServerParams();
+
+        return new self(
+            $uri->getPath(),
+            $request->getMethod(),
+            $uri->getQuery(),
+            $uri->getHost(),
+            $uri->getScheme(),
+            $uri->getPort() ?: (isset($server['SERVER_PORT']) ? $server['SERVER_PORT'] : 80)
+        );
     }
 }

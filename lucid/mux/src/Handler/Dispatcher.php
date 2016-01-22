@@ -11,7 +11,7 @@
 
 namespace Lucid\Mux\Handler;
 
-use Lucid\Mux\Matcher\ContextInterface;
+use Lucid\Mux\Matcher\ContextInterface as Match;
 
 /**
  * @class Dispatcher
@@ -22,8 +22,8 @@ use Lucid\Mux\Matcher\ContextInterface;
  */
 class Dispatcher implements DispatcherInterface
 {
-
     private $parser;
+
     private $mapper;
 
     /**
@@ -43,7 +43,7 @@ class Dispatcher implements DispatcherInterface
     /**
      * {@inheritdoc}
      */
-    public function dispatch(ContextInterface $context)
+    public function dispatch(Match $context)
     {
         $args = $this->mapper->map(
             $handler = $this->parser->parse($context->getHandler()),

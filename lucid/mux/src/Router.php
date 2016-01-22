@@ -29,7 +29,7 @@ use Lucid\Mux\Request\Context as RequestContext;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-class Router implements MultiplexerInterface
+class Router implements RouterInterface
 {
     /** @var RouteCollectionInterface */
     private $routes;

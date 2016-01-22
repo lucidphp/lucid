@@ -12,21 +12,21 @@
 namespace Lucid\Mux\Handler;
 
 /**
- * @interface ResolverInterface
+ * @class ParameterMapperInterface
  *
  * @package Lucid\Mux
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-interface ResolverInterface
+interface ParameterMapperInterface
 {
     /**
-     * resolve
+     * map
      *
-     * @param mixed $handler
-     * @param array $args
+     * @param callable $handler
+     * @param array $parameters
      *
-     * @return callable
+     * @return array
      */
-    public function resolve($handler, array $args = []);
+    public function map(Reflector $handler, array $parameters);
 }
