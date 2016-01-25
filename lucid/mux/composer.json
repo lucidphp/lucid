@@ -1,7 +1,7 @@
 {
   "name": "lucid/mux",
   "license": "MIT",
-  "description": "Psr7 compliant Http Routing Library",
+  "description": "Psr7 compatible http Routing Library",
   "keywords": ["http", "prs7", "routing"],
   "authors": [
     {
