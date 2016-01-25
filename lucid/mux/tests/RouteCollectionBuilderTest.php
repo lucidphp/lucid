@@ -99,4 +99,11 @@ class RouteCollectionBuilderTest extends \PHPUnit_Framework_TestCase
     {
         return new Builder;
     }
+
+    protected function setUp()
+    {
+        if (defined('HHVM_VERSION') && version_compare(HHVM_VERSION, '3.8.1', '<')) {
+            $this->markTestSkipped(sprintf('Unsupported HHVM version %s', HHVM_VERSION));
+        }
+    }
 }
