@@ -58,6 +58,20 @@ class Resolver implements ContainerAwareResolverInterface
     }
 
     /**
+     * resolveHandlerAndMethod
+     *
+     * @param string $handler
+     *
+     * @return array
+     */
+    protected function resolveHandlerAndMethod($handler)
+    {
+        list ($handler, $method) = array_pad(explode('@', $handler), 2, null);
+
+        return [$handler, $method];
+    }
+
+    /**
      * findHandler
      *
      * @param mixed $handler
@@ -71,8 +85,11 @@ class Resolver implements ContainerAwareResolverInterface
             return $handler;
         }
 
-        list ($handler, $method) = array_pad(explode('@', $handler), 2, null);
+        if (!is_string($handler)) {
+            throw new ResolverException(sprintf('Cannot resolver handler of type "%s".', gettype($handler)));
+        }
 
+        list ($handler, $method) = $this->resolveHandlerAndMethod($handler);
 
         // if the service parameter is registererd as service, return the
         // service object and its method as callable:
