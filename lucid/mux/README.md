@@ -1,4 +1,4 @@
-# A PSR-7 compliant HTTP router
+# A PSR-7 compatible HTTP router
 
 [![Author](http://img.shields.io/badge/author-iwyg-blue.svg?style=flat-square)](https://github.com/iwyg)
 [![Source Code](http://img.shields.io/badge/source-lucid/mux-blue.svg?style=flat-square)](https://github.com/lucidphp/mux/tree/develop)
@@ -53,6 +53,32 @@ $builder->delete('/user/{id}', 'Acme\UserController@deleteUser');
 
 ```
 
+### Dispatching routes
+
+The router component takes a request context object to dispatch the
+corresponding routing action.
+
+```php
+<?php
+use Lucid\Mux\Router;
+use Lucid\Mux\Request\Context as RequestContext;
+
+$router = new Router($builder->getCollection());
+
+$request = new RequestContext(
+    current(explode('?', $_SERVER['REQUEST_URI'])),
+    $_SERVER['REQUEST_METHOD']
+);
+
+$response = $router->dispatch($request);
+
+```
+
+#### Working with PSR-7 requests
+
+You can easily create a requestcontext from an existing psr7 compatible
+server request by using the `Context::fromPsrRequest()` method.
+
 ```php
 <?php
 use Lucid\Mux\Request\Context as RequestContext;
@@ -65,18 +91,7 @@ $request = new RequestContext('/', 'GET');
 $request = new RequestContext::fromPsrRequest($psrRequest);
 ```
 
-```php
-<?php
-use Lucid\Mux\Router;
-use Lucid\Mux\Request\Context as RequestContext;
-
-$router = new Router($builder->getCollection());
-
-$request = new RequestContext('/', 'GET');
-
-$response = $router->dispatch($request);
-
-```
+#### Dispatching named routes
 
 ```php
 <?php
@@ -86,4 +101,55 @@ $options = [
 ];
 
 $response = $router->route('user.delete', $options);
+```
+
+### Advanced Router configuration
+
+The router mostly relies on two main components:
+
+ 1. a handler dispatcher, which is responsible for finding and executing the
+     given action (defined on the route object)
+ - a response mapper, which is capable of mapping the responsens to a desired
+    type
+
+#### The handler dispatcher
+
+By default, the handler dispatcher/resolver will check if the given handler is
+callable. If the handler is a string containing an @ symbol, it is assumed that
+the left hand side represents a classname and the right hand site a method.
+
+##### Dependency Injection
+
+If the handler dipatcher/resolver is constructed with an instance of
+`Interop\Container\ContainerInterface` it will also check if the left hand side
+is a service registered by the di container.
+
+```php
+<?php
+
+use Lucid\Mux\Handler\Resolver;
+use Lucid\Mux\Handler\Dispatcher;
+
+$resolver = new Resolver($container)
+$dispatcher = new Dispatcher($resolver);
+```
+
+#### The response mapper
+
+By default, the mapper is a simple passthroug mapper. However it's easy to
+create a custom mapper that suites your specific needs.
+
+```php
+<?php
+
+use Zend\Diactoros\Response;
+use Lucid\Mux\Request\ResponseMapperInterface.php;
+
+class PsrResponseMapper implements ResponseMapperInterface
+{
+    public function mapResponse($response)
+    {
+        return new Response($response);
+    }
+}
 ```

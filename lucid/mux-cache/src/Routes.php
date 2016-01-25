@@ -69,7 +69,7 @@ class Routes extends RouteCollection implements CachedCollectionInterface
      */
     public function findByMethod($method)
     {
-        return new RouteCollection(isset($this->mMap[$method]) ? $this->slice($this->mMap[$method]) : []);
+        return new self(isset($this->mMap[$method]) ? $this->slice($this->mMap[$method]) : []);
     }
 
     /**
@@ -77,7 +77,7 @@ class Routes extends RouteCollection implements CachedCollectionInterface
      */
     public function findByScheme($scheme)
     {
-        return new RouteCollection(isset($this->scMap[$scheme]) ? $this->slice($this->scMap[$scheme]) : []);
+        return new self(isset($this->scMap[$scheme]) ? $this->slice($this->scMap[$scheme]) : []);
     }
 
     /**
@@ -85,7 +85,7 @@ class Routes extends RouteCollection implements CachedCollectionInterface
      */
     public function findByStaticPath($path)
     {
-        return new RouteCollection(isset($this->spMap[$path]) ? $this->slice($this->spMap[$path]) : []);
+        return new self(isset($this->spMap[$path]) ? $this->slice($this->spMap[$path]) : []);
     }
 
     /**
