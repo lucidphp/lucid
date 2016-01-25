@@ -35,7 +35,8 @@ $routes->add('index', new Route('/', 'Acme\FrontController@getIndex'));
 
 ```php
 <?php
-use Lucid\Mux\Builder;
+
+use Lucid\Mux\RouteCollectionBuilder as Builder;
 
 $builder = new Builder;
 
