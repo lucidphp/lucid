@@ -12,7 +12,7 @@
 namespace Lucid\Mux;
 
 use Closure;
-use RuntimeException;
+use LogicException;
 
 /**
  * @class
@@ -21,12 +21,6 @@ use RuntimeException;
  */
 class Route implements RouteInterface
 {
-    /** @var array */
-    private static $keys = [
-        'pattern', 'handler', 'methods', 'host',
-        'defaults', 'constraints', 'schemes', 'context',
-    ];
-
     /** @var string */
     private $pattern;
 
@@ -51,6 +45,12 @@ class Route implements RouteInterface
     /** @var RouteContextInterface */
     private $context;
 
+    /** @var array */
+    private static $keys = [
+        'pattern',  'handler',     'methods', 'host',
+        'defaults', 'constraints', 'schemes', 'context',
+    ];
+
     /**
      * Constructor.
      *
@@ -67,19 +67,18 @@ class Route implements RouteInterface
         $handler,
         array $methods = null,
         $host = null,
-        array $defaults = [],
-        array $constraints = [],
-        $schemes = null
+        array $defaults = null,
+        array $constraints = null,
+        array $schemes = null
     ) {
-        $this->pattern = $pattern;
-        $this->handler = $handler;
+        $this->pattern     = $pattern;
+        $this->handler     = $handler;
+        $this->host        = $host;
+        $this->defaults    = $defaults ?: [];
+        $this->constraints = $constraints ?: [];
 
         $this->setMethods($methods ?: ['GET']);
-        $this->setSchemes($schemes);
-
-        $this->host        = $host;
-        $this->defaults    = $defaults;
-        $this->constraints = $constraints;
+        $this->setSchemes($schemes ?: ['http', 'https']);
     }
 
     /**
@@ -189,15 +188,13 @@ class Route implements RouteInterface
      */
     public function serialize()
     {
-        if (!$this->isSerializableHandler($this->getHandler())) {
-            throw new RuntimeException('Cannot serialize handler.');
+        if ($this->getHandler() instanceof Closure) {
+            throw new LogicException('Cannot serialize handler.');
         }
 
-        return array_map(static::$keys, function ($key) {
-            $method = 'get'.ucfirst($key);
-
-            return call_user_func([$this, $method]);
-        });
+        return serialize(array_combine(static::$keys, array_map(function ($key) {
+            return call_user_func([$this, 'get'.ucfirst($key)]);
+        }, static::$keys)));
     }
 
     /**
@@ -212,7 +209,7 @@ class Route implements RouteInterface
         $data = unserialize($data);
 
         foreach (static::$keys as $key) {
-            $this->${$key} = $data[$key];
+            $this->{$key} = $data[$key];
         }
     }
 
@@ -234,13 +231,9 @@ class Route implements RouteInterface
      *
      * @return void
      */
-    private function setMethods($methods)
+    private function setMethods(array $methods)
     {
-        if (is_array($methods)) {
-            $this->methods = array_keys(array_change_key_case(array_flip($methods), CASE_UPPER));
-        } else {
-            $this->methods = explode('|', strtoupper($methods));
-        }
+        $this->methods = array_keys(array_change_key_case(array_flip($methods), CASE_UPPER));
     }
 
     /**
@@ -251,24 +244,8 @@ class Route implements RouteInterface
      *
      * @return void
      */
-    private function setSchemes($schemes)
+    private function setSchemes(array $schemes)
     {
-        if (is_array($schemes)) {
-            $this->schemes = array_keys(array_change_key_case(array_flip($schemes), CASE_LOWER));
-        } else {
-            $this->schemes = 0 < strlen($schemes) ? explode('|', strtolower($schemes)) : ['http', 'https'];
-        }
-    }
-
-    /**
-     * isSerializableHandler
-     *
-     * @param mixed $handler
-     *
-     * @return bool
-     */
-    private function isSerializableHandler($handler)
-    {
-        return !$handler instanceof Closure;
+        $this->schemes = array_keys(array_change_key_case(array_flip($schemes), CASE_LOWER));
     }
 }

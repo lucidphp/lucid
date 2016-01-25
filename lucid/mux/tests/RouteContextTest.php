@@ -23,8 +23,17 @@ class RouteContextTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function itShouldExtractVarsFromTokens()
     {
-        $ctx = new Ctx('', '', ['bar', 'baz']);
+        $a = $this->mockToken('Lucid\Mux\Parser\Variable');
+        $a->value = 'bar';
+        $b = $this->mockToken();
 
-        $this->assertSame(['bar', 'baz'], $ctx->getVars());
+        $ctx = new Ctx('', '', $tokens = [$b, $a]);
+
+        $this->assertSame(['bar'], $ctx->getVars());
+    }
+
+    private function mockToken($class = 'Lucid\Mux\Parser\TokenInterface')
+    {
+        return $this->getMockbuilder($class)->disableOriginalConstructor()->getMock();
     }
 }

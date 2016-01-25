@@ -11,9 +11,10 @@
 
 namespace Lucid\Mux\Cache;
 
+use LogicException;
+use Lucid\Mux\RouteInterface;
 use Lucid\Mux\RouteCollectionInterface;
 use Lucid\Mux\Routes as RouteCollection;
-use LogicException;
 
 /**
  * @class Routes
@@ -52,7 +53,7 @@ class Routes extends RouteCollection implements CachedCollectionInterface
      */
     public function add($routeName, RouteInterface $route)
     {
-        throw new LogicException('Cant\'t add routes to a cached collection.');
+        throw new LogicException('Can\'t add routes to a cached collection.');
     }
 
     /**
@@ -60,7 +61,7 @@ class Routes extends RouteCollection implements CachedCollectionInterface
      */
     public function remove($routeName)
     {
-        throw new LogicException('Cant\'t remove routes to a cached collection.');
+        throw new LogicException('Can\'t remove routes from a cached collection.');
     }
 
     /**
@@ -118,18 +119,6 @@ class Routes extends RouteCollection implements CachedCollectionInterface
     }
 
     /**
-     * slice
-     *
-     * @param array $array
-     *
-     * @return array
-     */
-    private function slice(array $array)
-    {
-        return array_intersect_key($this->routes, array_flip($array));
-    }
-
-    /**
      * createMaps
      *
      * @param RouteCollectionInterface $routes
@@ -147,7 +136,19 @@ class Routes extends RouteCollection implements CachedCollectionInterface
                 $this->scMap[$scheme][] = $name;
             }
 
-            $this->spMap[$route->getContext()->getStaticPath()] = $name;
+            $this->spMap[$route->getContext()->getStaticPath()][] = $name;
         }
+    }
+
+    /**
+     * slice
+     *
+     * @param array $array
+     *
+     * @return array
+     */
+    private function slice(array $array)
+    {
+        return array_intersect_key($this->routes, array_flip($array));
     }
 }

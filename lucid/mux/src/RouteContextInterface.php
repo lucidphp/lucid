@@ -44,7 +44,16 @@ interface RouteContextInterface
     public function getVars();
 
     /**
+     * getTokens
+     *
+     *
+     * @return array `Lucid\Mux\Parser\TokenInterface[]`
+     */
+    public function getTokens();
+
+    /**
      * getHostRegexp
+     *
      *
      * @var bool $raw
      *
@@ -58,4 +67,11 @@ interface RouteContextInterface
      * @return array
      */
     public function getHostVars();
+
+    /**
+     * getHostTokens
+     *
+     * @return array `Lucid\Mux\Parser\TokenInterface[]`
+     */
+    public function getHostTokens();
 }

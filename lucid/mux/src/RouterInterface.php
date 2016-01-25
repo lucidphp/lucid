@@ -11,6 +11,8 @@
 
 namespace Lucid\Mux;
 
+use Lucid\Mux\Request\ContextInterface as RequestContext;
+
 /**
  * @interface MultiplexerInterface
  *
@@ -18,7 +20,7 @@ namespace Lucid\Mux;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-interface MultiplexerInterface
+interface RouterInterface
 {
     /**
      * dispatch
@@ -27,7 +29,7 @@ interface MultiplexerInterface
      *
      * @return void
      */
-    public function dispatch(ContextInterface $context);
+    public function dispatch(RequestContext $context);
 
     /**
      * route
@@ -67,9 +69,12 @@ interface MultiplexerInterface
     public function getCurrentRouteName();
 
     /**
-     * Get an UrlGenerator object.
+     * Generates a http url for a given route name.
      *
-     * @return UrlGeneratorInterface an implementation of UrlGeneratorInterface.
+     * @param string $name
+     * @param string $host
+     * @param array $vars
+     * @param bool $rel
      */
-    public function getGenerator();
+    public function getUrl($name, $host = null, array $vars = [], $rel = true);
 }

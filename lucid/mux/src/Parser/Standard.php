@@ -13,8 +13,6 @@ namespace Lucid\Mux\Parser;
 
 use Lucid\Mux\RouteContext;
 use Lucid\Mux\RouteInterface;
-use InvalidArgumentException;
-use Lucid\Mux\Exception\ParserException;
 use Lucid\Mux\Parser\ParserInterface as Ps;
 use Lucid\Mux\RouteContextInterface as ContextInterface;
 
@@ -56,7 +54,7 @@ REGEX;
         extract(self::transpilePattern($route->getPattern(), false, $route->getConstraints(), $route->getDefaults()));
         $host = self::parseHostVars($route);
 
-        return new RouteContext($staticPath, $expression, $vars, $host['expression'], $host['vars']);
+        return new RouteContext($staticPath, $expression, $tokens, $host['expression'], $host['tokens']);
     }
 
     /**
@@ -72,17 +70,11 @@ REGEX;
     {
         $tokens = self::tokenizePattern($pattern, $host, $requirements, $defaults);
 
-        $staticPath = $tokens[0] instanceof Text ? $tokens[0]->value : '';
-
-        $vars = array_map(function (Variable $token) {
-            return $token->value;
-        }, array_filter($tokens, function (TokenInterface $token) {
-            return $token instanceof Variable;
-        }));
+        $staticPath = !$tokens[0] instanceof Variable ? $tokens[0]->value : '/';
 
         $regex = self::transpileMatchRegex($tokens);
 
-        return self::getCompact($staticPath, $regex, $vars, $tokens);
+        return self::getCompact($staticPath, $regex, $tokens);
     }
 
     /**
@@ -281,7 +273,7 @@ REGEX;
     private static function parseHostVars(RouteInterface $route)
     {
         if (null === $host = $route->getHost()) {
-            return ['expression' => null, 'vars' => []];
+            return ['expression' => null, 'tokens' => []];
         }
 
         return self::transpilePattern($host, true, $route->getConstraints(), $route->getDefaults());
@@ -297,8 +289,8 @@ REGEX;
      *
      * @return array
      */
-    private static function getCompact($staticPath, $expression, array $vars = [], array $tokens = [])
+    private static function getCompact($staticPath, $expression, array $tokens = [])
     {
-        return compact('staticPath', 'expression', 'vars', 'tokens');
+        return compact('staticPath', 'expression', 'tokens');
     }
 }

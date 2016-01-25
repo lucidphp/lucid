@@ -12,8 +12,9 @@
 namespace Lucid\Mux\Cache;
 
 use Lucid\Mux\Routes;
-use Lucid\Resource\ResourceCollectorInterface as CollectorInterface;
+use Lucid\Resource\CollectionInterface;
 use Lucid\Resource\Loader\LoaderInterface;
+use Lucid\Resource\Collection as Resources;
 
 /**
  * @class Routing
@@ -27,7 +28,7 @@ class Routing implements LoaderListener
     /** @var StorageInterface */
     private $storage;
 
-    /** @var CollectorInterface */
+    /** @var CollectionInterface */
     private $resources;
 
     /** @var LoaderInterface */
@@ -48,29 +49,29 @@ class Routing implements LoaderListener
     /**
      * Constructor
      *
-     * @param string $resource
+     * @param string $res
      * @param Store $storage
      * @param Loader $loader
-     * @param boolean $debug
+     * @param bool $debug
      */
     public function __construct($res, $manifest, RouteCacheInterface $cache, LoaderInterface $loader, $debug = false)
     {
-        $this->debug    = $debug;
-        $this->loader   = $loader;
-        $this->storage  = $cache;
-        $this->manifest = $manifest;
+        $this->debug     = $debug;
+        $this->loader    = $loader;
+        $this->storage   = $cache;
+        $this->manifest  = $manifest;
+
+        $this->meta      = [];
+        $this->metaCache = [];
 
         $this->setResources($res);
-
         $this->loader->addListener($this);
-        $this->meta = [];
-        $this->metaCache = [];
     }
 
     /**
      * Checks if the cache is valid.
      *
-     * @return boolean
+     * @return bool
      */
     public function isValid()
     {
@@ -121,7 +122,7 @@ class Routing implements LoaderListener
     /**
      * Check if in debug mode.
      *
-     * @return boolean
+     * @return bool
      */
     private function isDebugging()
     {
@@ -137,9 +138,9 @@ class Routing implements LoaderListener
      */
     private function setResources($resources)
     {
-        if (!$resources instanceof CollectorInterface) {
+        if (!$resources instanceof CollectionInterface) {
             $files = (array)$resources;
-            $resources = new Collector;
+            $resources = new Resources;
 
             foreach ($files as $file) {
                 $resources->addFileResource($file);
@@ -284,7 +285,7 @@ class Routing implements LoaderListener
     /**
      * getManifest
      *
-     * @return void
+     * @return string
      */
     private function getManifest()
     {

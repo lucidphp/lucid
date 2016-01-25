@@ -22,7 +22,7 @@ use Lucid\Mux\Matcher\ContextInterface as Match;
  */
 class Dispatcher implements DispatcherInterface
 {
-    private $parser;
+    private $resolver;
 
     private $mapper;
 
@@ -32,12 +32,10 @@ class Dispatcher implements DispatcherInterface
      * @param ParserInterface $parser
      * @param ParameterMapperInterface $mapper
      */
-    public function __construct(
-        ParserInterface $parser = null,
-        ParameterMapperInterface $mapper = null
-    ) {
-        $this->parser = $parser ?: new Parser;
-        $this->mapper = $mapper ?: new PassParameterMapper;
+    public function __construct(ResolverInterface $resolver = null, ParameterMapperInterface $mapper = null)
+    {
+        $this->resolver = $resolver ?: new Resolver;
+        $this->mapper   = $mapper ?: new PassParameterMapper;
     }
 
     /**
@@ -46,8 +44,8 @@ class Dispatcher implements DispatcherInterface
     public function dispatch(Match $context)
     {
         $args = $this->mapper->map(
-            $handler = $this->parser->parse($context->getHandler()),
-            $context->getParameters()
+            $handler = $this->resolver->resolve($context->getHandler()),
+            $context->getVars()
         );
 
         return $handler->invokeArgs($args);

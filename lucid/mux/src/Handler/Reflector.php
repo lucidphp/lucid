@@ -44,9 +44,6 @@ class Reflector
     /** @var callable */
     private $handler;
 
-    /** @var array */
-    private $args;
-
     /** @var \Reflector **/
     private $reflector;
 
@@ -58,7 +55,6 @@ class Reflector
     public function __construct(callable $handler, array $args = [])
     {
         $this->handler = $handler;
-        $this->args    = $args;
     }
 
     /**
@@ -85,20 +81,6 @@ class Reflector
     public function invokeArgs(array $args)
     {
         return call_user_func_array($this->handler, $args);
-    }
-
-    /**
-     * invoke
-     *
-     * @return mixed
-     */
-    public function invoke()
-    {
-        if (!empty($this->args)) {
-            return $this->invokeArgs($this->args);
-        }
-
-        return call_user_func($this->handler);
     }
 
     /**
@@ -215,17 +197,13 @@ class Reflector
      */
     private function getClass()
     {
-        if ($this->isMethod() || $this->isInvokedObject()) {
-            $parts = $this->explodeCallable($this->handler);
+        $parts = $this->explodeCallable($this->handler);
 
-            if ($this->isStaticMethod()) {
-                return $parts[0];
-            }
-
-            return get_class($parts[0]);
+        if ($this->isStaticMethod()) {
+            return $parts[0];
         }
 
-        return '';
+        return get_class($parts[0]);
     }
 
     /**

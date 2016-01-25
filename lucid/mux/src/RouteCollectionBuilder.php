@@ -158,11 +158,11 @@ class RouteCollectionBuilder
         $route = new Route(
             $this->prefixPattern($pattern),
             $handler,
-            explode('|', $methods),
+            is_array($methods) ? $methods : explode('|', $methods),
             $host,
             $defaults,
             $constraints,
-            $schemes
+            is_array($schemes) ? $schemes : explode('|', $schemes)
         );
 
         $this->routes->add($name, $route);

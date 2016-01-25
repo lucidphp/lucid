@@ -21,7 +21,7 @@ namespace Lucid\Mux;
 class Routes implements RouteCollectionInterface
 {
     /** @var array */
-    private $routes;
+    protected $routes;
 
     /** @var array */
     private $methodIndex;
@@ -51,14 +51,18 @@ class Routes implements RouteCollectionInterface
      */
     public function add($routeName, RouteInterface $route)
     {
+        if (!is_string($routeName)) {
+            throw new \InvalidArgumentException('Routename must be string.');
+        }
+
         $this->routes[$routeName] = &$route;
 
         foreach ($route->getSchemes() as $scheme) {
-            $this->schemeIndex[$scheme][] = $routeName;
+            $this->schemeIndex[$scheme][$routeName] = true;
         }
 
         foreach ($route->getMethods() as $method) {
-            $this->methodIndex[$method][] = $routeName;
+            $this->methodIndex[$method][$routeName] = true;
         }
     }
 
@@ -71,14 +75,14 @@ class Routes implements RouteCollectionInterface
             return;
         }
 
-        if (false !== $idx = array_search($routeName, $this->methodIndex[$routeName])) {
-            unset($this->methodIndex[$routeName][$idx]);
-            reset($this->methodIndex[$routeName]);
+        $route = $this->get($routeName);
+
+        foreach ($route->getMethods() as $m) {
+            unset($this->methodIndex[$m][$routeName]);
         }
 
-        if (false !== $idx = array_search($routeName, $this->schemeIndex[$routeName])) {
-            unset($this->schemeIndex[$routeName][$idx]);
-            reset($this->schemeIndex[$routeName]);
+        foreach ($route->getSchemes() as $s) {
+            unset($this->schemeIndex[$s][$routeName]);
         }
 
         unset($this->routes[$routeName]);
@@ -97,10 +101,6 @@ class Routes implements RouteCollectionInterface
      */
     public function get($routeName)
     {
-        if (!$this->has($routeName)) {
-            // throw
-        }
-
         return $this->routes[$routeName];
     }
 
@@ -109,13 +109,13 @@ class Routes implements RouteCollectionInterface
      */
     public function findByMethod($method)
     {
-        $method = strtolower($method);
+        $method = strtoupper($method);
 
         if (!isset($this->methodIndex[$method])) {
             return new self([]);
         }
 
-        return new self($this->methodIndex[$method]);
+        return new self(array_intersect_key($this->routes, $this->methodIndex[$method]));
     }
 
     /**
@@ -129,7 +129,7 @@ class Routes implements RouteCollectionInterface
             return new self([]);
         }
 
-        return new self($this->schemeIndex[$scheme]);
+        return new self(array_intersect_key($this->routes, $this->schemeIndex[$scheme]));
     }
 
     /**
@@ -144,9 +144,6 @@ class Routes implements RouteCollectionInterface
         $this->routes = [];
 
         foreach ($routes as $name => $route) {
-            if (!is_string($name)) {
-                throw new \Exception;
-            }
             $this->add($name, $route);
         }
     }

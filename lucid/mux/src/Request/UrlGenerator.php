@@ -11,9 +11,14 @@
 
 namespace Lucid\Mux\Request;
 
-use Lucid\Mux\MultiplexerInterface;
+use Lucid\Mux\RouteInterface;
+use Lucid\Mux\RouterInterface;
 use Lucid\Mux\RouteContextInterface;
+use Lucid\Mux\Request\ContextInterface as RequestContextInterface;
+use Lucid\Mux\Request\Context as RequestContext;
 use Lucid\Mux\RouteCollectionInterface;
+use Lucid\Mux\Parser\Text;
+use Lucid\Mux\Parser\Variable;
 
 /**
  * @class UrlGenerator
@@ -139,7 +144,7 @@ class UrlGenerator implements UrlGeneratorInterface
             throw new \InvalidArgumentException(sprintf('A route with name "%s" could not be found.', $name));
         }
 
-        return $this->compilePath($route, $parameters, $host, $type, $name);
+        return $this->compilePath($route, $parameters, $host ?: $route->getHost(), $type, $name);
     }
 
     /**
@@ -181,46 +186,39 @@ class UrlGenerator implements UrlGeneratorInterface
         $context = $route->getContext();
         $prefix  = static::ABSOLUTE_PATH === $type ? $this->getPathPrefix($route, $host) : '';
 
-        if (!(bool)$context->getParameters()) {
-            $url = $prefix.$route->getPattern();
-
-            return 1 === strlen($url) ? $url : rtrim($url, '/');
+        if (0 === count($vars = $context->getVars())) {
+            return $this->getPrefixed($context->getStaticPath(), $prefix);
         }
 
         $parts      = [];
-        $parameters = $this->getRouteParameters($context, $parameters);
+        $vars = $this->getRouteVars($context, $parameters);
 
         foreach ($context->getTokens() as $token) {
-            if ($token->isVariable()) {
-                if ($token->isRequired() && !isset($parameters[$token->getValue()])) {
+            if ($token instanceof Variable) {
+                if ($token->required && !isset($vars[$token->value])) {
                     throw new \InvalidArgumentException(sprintf('{%s} is a required parameter.', $token->getValue()));
                 }
-
-                $parts[] = $parameters[$token->getValue()];
-                $parts[] = $token->getSeparator();
-
-            } elseif ($token->isText()) {
-                $parts[] = $token->getValue();
+                $parts[] = $vars[$token->value];
+            } else {
+                $parts[] = $token->value;
             }
         }
 
-        $uri = strtr(rawurlencode(implode('', array_reverse($parts))), static::$noEncode);
-
-        return '/'.trim($prefix.$uri, '/');
+        return $this->getPrefixed(implode('', $parts), $prefix);
     }
 
     /**
-     * getRouteParameters
+     * getRouteVars
      *
      * @param RouteContextInterface $context
      * @param array $parameters
      *
      * @return array
      */
-    private function getRouteParameters(RouteContextInterface $context, array $parameters)
+    private function getRouteVars(RouteContextInterface $context, array $parameters)
     {
         return array_merge(
-            array_combine(array_values($v = $context->getParameters()), array_fill(1, count($v), null)),
+            array_combine(array_values($v = $context->getVars()), array_fill(1, count($v), null)),
             $parameters
         );
     }
@@ -234,15 +232,15 @@ class UrlGenerator implements UrlGeneratorInterface
      *
      * @return mixed
      */
-    private function getPathPrefix(RouteInterface $route, $host)
+    private function getPathPrefix(RouteInterface $route, $host = null)
     {
         $context = $route->getContext();
 
-        if (null === $route->getHost()) {
-            $host = $this->request->getHost();
-        } elseif (null === $host) {
-            throw new \InvalidArgumentException('Route requires host, no host given.');
-        } elseif (null !== $host && !(bool)preg_match($context->getHostRegexp(), $host)) {
+        if (null === $host) {
+            $host = $route->getHost() ? $route->getHost() : $this->request->getHost();
+        }
+
+        if (null !== $route->getHost() && !(bool)preg_match($context->getHostRegex(), $host)) {
             throw new \InvalidArgumentException('Host requirement does not match given host.');
         }
 
@@ -292,7 +290,7 @@ class UrlGenerator implements UrlGeneratorInterface
      */
     private function getReqPath(RequestContextInterface $req)
     {
-        return $req->getBaseUrl().$req->getPath();
+        return $req->getPath();
     }
 
     /**
@@ -317,5 +315,18 @@ class UrlGenerator implements UrlGeneratorInterface
     private function getQueryString(RequestContextInterface $req)
     {
         return $req->getQueryString() ? '?'.$req->getQueryString() : '';
+    }
+
+    /**
+     * getPrefied
+     *
+     * @param string $path
+     * @param string $prefix
+     *
+     * @return string
+     */
+    private function getPrefixed($path, $prefix)
+    {
+        return $prefix.'/'.trim(strtr(rawurlencode($path), static::$noEncode), '/');
     }
 }

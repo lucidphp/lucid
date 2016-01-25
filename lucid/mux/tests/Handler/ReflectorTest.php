@@ -56,20 +56,32 @@ class ReflectorTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($r->isMethod());
         $this->assertTrue($r->isStaticMethod());
 
+        $rf = $r->getReflector();
+        $res = $rf->invokeArgs($this, $args = [1, 2]);
+        $this->assertSame($res, $args);
+
         $r = new Reflector([__CLASS__, 'staticTestMethod']);
 
         $this->assertTrue($r->isMethod());
         $this->assertTrue($r->isStaticMethod());
+
+        $rf = $r->getReflector();
+        $res = $rf->invokeArgs($this, $args = [3, 4]);
+        $this->assertSame($res, $args);
     }
 
     /** @test */
     public function itShouldBeInvokedObjectType()
     {
         $obj = $this->getMock('InvokedObjMock', ['__invoke']);
+        $obj->method('__invoke')->willReturn('invoked');
 
         $r = new Reflector($obj);
 
         $this->assertTrue($r->isInvokedObject());
+
+        $rf = $r->getReflector();
+        $this->assertSame('invoked', $rf->invoke($obj));
     }
 
     /** @test */
@@ -98,7 +110,8 @@ class ReflectorTest extends \PHPUnit_Framework_TestCase
         return true;
     }
 
-    public static function staticTestMethod()
+    public static function staticTestMethod(...$args)
     {
+        return $args;
     }
 }

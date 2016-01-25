@@ -3,7 +3,7 @@
 /*
  * This File is part of the Lucid\Mux package
  *
- * (c) iwyg <mail@thomas-appel.com> 
+ * (c) iwyg <mail@thomas-appel.com>
  *
  * For full copyright and license information, please refer to the LICENSE file
  * that was distributed with this package.
@@ -13,6 +13,7 @@ namespace Lucid\Mux\Handler;
 
 use RuntimeException;
 use Interop\Container\ContainerInterface;
+use Lucid\Mux\Exception\ResolverException;
 
 /**
  * @class ControllerResolver
@@ -39,7 +40,7 @@ class Resolver implements ContainerAwareResolverInterface
     /**
      * {@inheritdoc}
      */
-    public function resolve($controller, array $args = [])
+    public function resolve($controller)
     {
         if (is_callable($callable = $this->findHandler($controller))) {
             return new Reflector($callable);
@@ -82,7 +83,8 @@ class Resolver implements ContainerAwareResolverInterface
         if (class_exists($handler)) {
             try {
                 return [new $handler, $method];
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
+                throw new ResolverException('Cannot resolve handler', $e->getCode(), $e);
             }
         }
 

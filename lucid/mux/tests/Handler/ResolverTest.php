@@ -12,6 +12,7 @@
 namespace Lucid\Mux\Tests\Handler;
 
 use Lucid\Mux\Handler\Resolver;
+use Lucid\Mux\Exception\ResolverException;
 use Lucid\Mux\Tests\Handler\Stubs\SimpleHandler;
 
 /**
@@ -69,7 +70,8 @@ class ResolverTest extends \PHPUnit_Framework_TestCase
     public function itShouldParseHandlerAsService()
     {
         $container = $this->mockContainer(['handler' => $this, 'simple_handler' => new SimpleHandler]);
-        $resolver = new Resolver($container);
+        $resolver = new Resolver;
+        $resolver->setContainer($container);
 
         $this->assertInstanceof(
             'Lucid\Mux\Handler\Reflector',
@@ -79,6 +81,20 @@ class ResolverTest extends \PHPUnit_Framework_TestCase
             'Lucid\Mux\Handler\Reflector',
             $resolver->resolve('simple_handler@noneParamAction')
         );
+    }
+
+    /** @test */
+    public function itShouldThrowResolverExceptionIfHandlerIsNotInstantiable()
+    {
+        $handler = 'Lucid\Mux\Tests\Handler\Stubs\AbstractHandler@handle';
+
+        $resolver = new Resolver();
+
+        try {
+            $resolver->resolve($handler);
+        } catch (\Exception $e) {
+            //var_dump($e->getMessage());
+        }
     }
 
     private function mockContainer(array $services = [])

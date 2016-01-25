@@ -15,7 +15,6 @@ use Serializable;
 use Lucid\Mux\Parser\Variable;
 use Lucid\Mux\Parser\TokenInterface;
 use Lucid\Mux\Parser\ParserInterface;
-use Lucid\Mux\Parser\Text;
 
 /**
  * @class RouteContext
@@ -35,11 +34,17 @@ class RouteContext implements RouteContextInterface, Serializable
     /** @var array */
     private $vars;
 
+    /** @var array */
+    private $tokens;
+
     /** @var string */
     private $hostRegex;
 
     /** @var array */
     private $hostVars;
+
+    /** @var array */
+    private $hostTokens;
 
     /**
      * Construtor.
@@ -50,13 +55,16 @@ class RouteContext implements RouteContextInterface, Serializable
      * @param string $hostRegex
      * @param array  $hostVars
      */
-    public function __construct($staticPath, $regex, array $vars = [], $hostRegex = null, array $hostVars = [])
+    public function __construct($staticPath, $regex, array $tokens = [], $hostRegex = null, array $hostTokens = [])
     {
         $this->staticPath = $staticPath;
         $this->regex      = $regex;
-        $this->vars       = $vars;
-        $this->hostVars   = $hostVars;
+        $this->tokens     = $tokens;
         $this->hostRegex  = $hostRegex;
+        $this->hostTokens = $hostTokens;
+
+        $this->vars = $this->filterVars($tokens);
+        $this->hostVars = $this->filterVars($hostTokens);
     }
 
     /**
@@ -78,6 +86,22 @@ class RouteContext implements RouteContextInterface, Serializable
     /**
      * {@inheritdoc}
      */
+    public function getTokens()
+    {
+        return $this->tokens;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getHostTokens()
+    {
+        return $this->tokens;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getVars()
     {
         return $this->vars;
@@ -88,7 +112,7 @@ class RouteContext implements RouteContextInterface, Serializable
      */
     public function getHostRegex($raw = false)
     {
-        return $raw ? $this->hostExp : self::wrapRegex($this->hostExp);
+        return $raw ? $this->hostRegex : self::wrapRegex($this->hostRegex);
     }
 
     /**
@@ -109,9 +133,11 @@ class RouteContext implements RouteContextInterface, Serializable
         return serialize([
             'static_path' => $this->staticPath,
             'regex'       => $this->regex,
+            'tokens'      => $this->tokens,
             'vars'        => $this->vars,
             'host_regex'  => $this->hostRegex,
-            'host_vars'   => $this->hostVars
+            'host_vars'   => $this->hostVars,
+            'host_tokens' => $this->hostTokens
         ]);
     }
 
@@ -128,9 +154,11 @@ class RouteContext implements RouteContextInterface, Serializable
 
         $this->staticPath = $data['static_path'];
         $this->regex      = $data['regex'];
-        $this->parameters = $data['vars'];
+        $this->tokens     = $data['tokens'];
+        $this->vars       = $data['vars'];
         $this->hostRegex  = $data['host_regex'];
         $this->hostVars   = $data['host_vars'];
+        $this->hostTokens = $data['host_tokens'];
     }
 
     /**
@@ -143,5 +171,14 @@ class RouteContext implements RouteContextInterface, Serializable
     private static function wrapRegex($regex)
     {
         return sprintf('%1$s^%2$s$%1$ss', ParserInterface::EXP_DELIM, $regex);
+    }
+
+    private function filterVars(array $tokens)
+    {
+        return array_values(array_map(function (Variable $token) {
+            return $token->value;
+        }, array_filter($tokens, function (TokenInterface $token) {
+            return $token instanceof Variable;
+        })));
     }
 }

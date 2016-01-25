@@ -14,13 +14,18 @@ namespace Lucid\Mux;
 use SplStack;
 use InvalidArgumentException;
 use Lucid\Mux\Request\UrlGenerator;
-use Lucid\Mux\Request\UrlGeneratorInterface;
-use Lucid\Mux\Handler\HandlerDispatcher;
-use Lucid\Mux\Handler\HandlerDispatcherInterface;
-use Lucid\Mux\Matcher\ContextInterface as MatchContextInterface;
+use Lucid\Mux\Matcher\RequestMatcher;
+use Lucid\Mux\Exception\MatchException;
+use Lucid\Mux\Request\PassResponseMapper;
 use Lucid\Mux\Matcher\Context as MatchContext;
-use Lucid\Mux\Request\ContextInterface as RequestContextInterface;
 use Lucid\Mux\Request\Context as RequestContext;
+use Lucid\Mux\Request\UrlGeneratorInterface as Url;
+use Lucid\Mux\Handler\Dispatcher as HandlerDispatcher;
+use Lucid\Mux\Matcher\RequestMatcherInterface as Matcher;
+use Lucid\Mux\Handler\DispatcherInterface as Dispatcher;
+use Lucid\Mux\Request\ResponseMapperInterface as ResponseMapper;
+use Lucid\Mux\Matcher\ContextInterface as MatchContextInterface;
+use Lucid\Mux\Request\ContextInterface as RequestContextInterface;
 
 /**
  * @class Router
@@ -50,26 +55,26 @@ class Router implements RouterInterface
     private $routeStack;
 
     /**
-     * Constructor.
+     * Construtor.
      *
      * @param RouteCollectionInterface $routes
-     * @param RequestMatcherInterface $matcher
-     * @param HandlerDispatcherInterface $dispatcher
-     * @param ResponseMapperInterface $mapper
-     * @param UrlGeneratorInterface $url
+     * @param Matcher $matcher
+     * @param Dispatcher $dispatcher
+     * @param ResponseMapper $mapper
+     * @param Url $url
      */
     public function __construct(
         RouteCollectionInterface $routes,
-        RequestMatcherInterface $matcher = null,
-        HandlerDispatcherInterface $dispatcher = null,
-        ResponseMapperInterface $mapper = null,
-        UrlGeneratorInterface $url = null
+        Matcher $matcher = null,
+        Dispatcher $dispatcher = null,
+        ResponseMapper $mapper = null,
+        Url $url = null
     ) {
         $this->routes     = $routes;
         $this->matcher    = $matcher ?: new RequestMatcher;
         $this->dispatcher = $dispatcher ?: new HandlerDispatcher;
         $this->mapper     = $mapper ?: new PassResponseMapper;
-        $this->url        = $url ?: new UrlGenerator;
+        $this->url        = $url ?: new UrlGenerator($this->routes);
         $this->routeStack = new SplStack;
     }
 
@@ -88,31 +93,16 @@ class Router implements RouterInterface
     /**
      * {@inheritdoc}
      */
-    public function route($name, array $parameters = [], array $options = [])
+    public function route($name, array $vars = [], array $options = [])
     {
         $options = $this->getOptions($options);
 
-        $type = 'localhost' === $options['host'] ?
-            UrlGeneratorInterface::RELATIVE_PATH :
-            UrlGeneratorInterface::ABSOLUTE_PATH;
+        $rel = 'localhost' === $options['host'] ? true : false;
 
         $request = $this->createRequestContextFromOptions($options);
-        $r = $this->getGenerator()->getRequestContext();
-        $this->getGenerator()->setRequestContext($request);
+        $path    = $this->getUrl($name, $options['host'], $vars, $rel);
 
-        try {
-            $url = $this->getGenerator()->generate($name, $parameters, $options['host'], $type);
-        } catch (InvalidArgumentException $e) {
-            throw $e;
-        }
-
-        if (null !== $r) {
-            $this->getGenerator()->setRequestContext($r);
-        }
-
-        $context = $this->createMatchContextFromParameters($parameters, $name, $url);
-
-        return $this->dispatchRequest($request, $context);
+        return $this->dispatchRequest($request, $this->createMatchContextFromParameters($vars, $name, $path));
     }
 
     /**
@@ -164,17 +154,13 @@ class Router implements RouterInterface
     }
 
     /**
-     * getGenerator
-     *
-     * @return UrlGeneratorInterface
+     * {@inheritdoc}
      */
-    public function getGenerator()
+    public function getUrl($name, $host = null, array $vars = [], $rel = true)
     {
-        if (null === $this->url) {
-            $this->url = new UrlGenerator;
-        }
+        $rel = $rel ? $type = Url::RELATIVE_PATH : Url::ABSOLUTE_PATH;
 
-        return $this->url;
+        return $this->url->generate($name, $vars, $host, $rel);
     }
 
     /**
@@ -187,18 +173,19 @@ class Router implements RouterInterface
      */
     private function dispatchRequest(RequestContextInterface $request, MatchContextInterface $match)
     {
-        $previous = $this->getGenerator()->getRequestContext();
+        // store the previous request context.
+        $previous = $this->url->getRequestContext();
 
-        $this->getGenerator()->setRequestContext($request);
+        $this->url->setRequestContext($request);
         $this->routeStack->push($match->getName());
 
-        $response = $this->response->mapResponse($this->dispatcher->dispatch($match));
+        $response = $this->mapper->mapResponse($this->dispatcher->dispatch($match));
 
         $this->routeStack->pop();
 
         // restore the previous request context.
         if (null !== $previous) {
-            $this->getGenerator()->setRequestContext($previous);
+            $this->url->setRequestContext($previous);
         }
 
         return $response;
@@ -214,8 +201,7 @@ class Router implements RouterInterface
     private function createRequestContextFromOptions(array $options)
     {
         return new RequestContext(
-            $options['base_path'],
-            '',
+            '/',
             $options['method'],
             $options['query'],
             $options['host'],
@@ -232,15 +218,11 @@ class Router implements RouterInterface
      *
      * @return MatchContextInterface
      */
-    private function createMatchContextFromParameters(array $parameters, $name, $url)
+    private function createMatchContextFromParameters(array $vars, $name, $url)
     {
-        return new MatchContext(
-            RequestMatcherInterface::MATCH,
-            $name,
-            $url,
-            $this->routes->get($name)->getHandler(),
-            $parameters
-        );
+        $handler = $this->routes->get($name)->getHandler();
+
+        return new MatchContext(Matcher::MATCH, $name, $url, $handler, $vars);
     }
 
     /**
@@ -257,8 +239,7 @@ class Router implements RouterInterface
             'host'      => 'localhost',
             'port'      => 80,
             'query'     => '',
-            'scheme'    => 'http',
-            'base_path' => ''
+            'scheme'    => 'http'
         ], $options);
     }
 }

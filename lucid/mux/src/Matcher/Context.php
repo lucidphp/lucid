@@ -58,10 +58,13 @@ class Context implements ContextInterface
     /**
      * Constructor.
      *
-     * @param mixed $name
-     * @param mixed $url
+     * @param int $type
+     * @param string $name
+     * @param string $url
      * @param mixed $handler
      * @param array $vars
+     *
+     * @return void
      */
     public function __construct($type, $name, $url, $handler, array $vars = [])
     {

@@ -34,6 +34,13 @@ class StandardTest extends \PHPUnit_Framework_TestCase
 
         $ctx = Parser::parse($r);
         $this->assertInstanceOf('Lucid\Mux\RouteContextInterface', $ctx);
+
+        $r = $this->mockRoute();
+        $r->method('getPattern')->willReturn('{a}');
+        $this->prepareRoute($r, [], ['a' => '(\d+)']);
+
+        $ctx = Parser::parse($r);
+        $this->assertSame('/', $ctx->getStaticPath());
     }
 
     /**

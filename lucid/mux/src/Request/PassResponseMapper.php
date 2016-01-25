@@ -9,23 +9,26 @@
  * that was distributed with this package.
  */
 
-namespace Lucid\Mux\Handler;
+namespace Lucid\Mux\Request;
 
 /**
- * @interface ResolverInterface
+ * @class PassResponseMapper
  *
- * @package Lucid\Mux
+ * @package Lucid\Routing\Http
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-interface ResolverInterface
+class PassResponseMapper implements ResponseMapperInterface
 {
     /**
-     * resolve
+     * {@inheritdoc}
      *
-     * @param mixed $handler
+     * Will just pass the input data.
      *
-     * @return Lucid\Mux\Handler\Reflector
+     * @return mixed the input value.
      */
-    public function resolve($handler);
+    public function mapResponse($response)
+    {
+        return $response;
+    }
 }
