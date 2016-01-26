@@ -10,7 +10,7 @@
     stopOnFailure="true"
     syntaxCheck="true">
   <testsuites>
-    <testsuite name="Lucid Mux">
+    <testsuite name="Lucid Mux Cache">
       <directory>./tests</directory>
     </testsuite>
   </testsuites>
