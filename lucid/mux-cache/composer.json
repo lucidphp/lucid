@@ -9,7 +9,8 @@
   ],
   "license": "MIT",
   "require": {
-    "lucid/mux":"dev-master"
+    "lucid/mux":"dev-develop",
+    "lucid/writer":"dev-develop"
   },
   "require-dev": {
     "phpunit/phpunit": "dev-master"
