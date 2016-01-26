@@ -82,13 +82,6 @@ server request by using the `Context::fromPsrRequest()` method.
 
 ```php
 <?php
-use Lucid\Mux\Request\Context as RequestContext;
-
-$request = new RequestContext('/', 'GET');
-```
-
-```php
-<?php
 $request = new RequestContext::fromPsrRequest($psrRequest);
 ```
 
@@ -104,7 +97,7 @@ $options = [
 $response = $router->route('user.delete', $options);
 ```
 
-### Advanced Router configuration
+### Advanced router configuration
 
 The router mostly relies on two main components:
 
@@ -121,9 +114,9 @@ the left hand side represents a classname and the right hand site a method.
 
 ##### Dependency Injection
 
-If the handler dipatcher/resolver is constructed with an instance of
-`Interop\Container\ContainerInterface` it will also check if the left hand side
-is a service registered by the di container.
+If the handler resolver (`Lucid\Mux\Handler\Resolver` by default) is constructed
+with an instance of `Interop\Container\ContainerInterface` it will also check if
+the left hand side is a service registered by the di container.
 
 ```php
 <?php
@@ -137,13 +130,15 @@ $dispatcher = new Dispatcher($resolver);
 
 #### The response mapper
 
-By default, the mapper is a simple passthroug mapper. However it's easy to
-create a custom mapper that suites your specific needs.
+By default, the response mapper is a simple passthrough mapper. However it's easy
+to create a custom mapper that suites your
+specific needs.
 
 ```php
 <?php
 
 use Zend\Diactoros\Response;
+
 use Lucid\Mux\Request\ResponseMapperInterface.php;
 
 class PsrResponseMapper implements ResponseMapperInterface
