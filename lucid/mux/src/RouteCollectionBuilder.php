@@ -207,14 +207,12 @@ class RouteCollectionBuilder
     private function parseRequirements(array $rq, $methods)
     {
         $keys = [];
-        $constr = array_filter($this->mergeDefaults($rq), function ($val, $key) use (&$keys, $methods) {
+        $constr = array_filter($this->mergeDefaults($rq, $methods), function ($val, $key) use (&$keys, $methods) {
             if (!in_array($key, self::$keys)) {
                 return true;
             }
-            if (self::K_NAME === $key && null === $val) {
-                $val = $this->generateName($methods);
-            }
             $keys[$key] = $val;
+
             return false;
         }, ARRAY_FILTER_USE_BOTH);
 
@@ -230,9 +228,19 @@ class RouteCollectionBuilder
      *
      * @return array
      */
-    private function mergeDefaults(array $given)
+    private function mergeDefaults(array $given, $methods)
     {
-        return array_merge(array_combine(self::$keys, array_pad([], count(self::$keys), null)), $given);
+        $defaults = array_merge(array_combine(self::$keys, array_pad([], count(self::$keys), null)), $given);
+
+        if (null === $defaults[self::K_SCHEME]) {
+            $defaults[self::K_SCHEME] = 'http|https';
+        }
+
+        if (null === $defaults[self::K_NAME]) {
+            $defaults[self::K_NAME] = $this->generateName($methods);
+        }
+
+        return $defaults;
     }
 
     /**

@@ -23,11 +23,29 @@ class RouteCollectionBuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertStringStartsWith('route_GET_', $name);
 
         $builder = $this->newBuilder();
-        $builder->post('/app/{user}/{area}', 'action', ['user' => '\w+', 'area' => '\d+']);
+        $builder->post('/app/{user}/{area}', 'action', $c = ['user' => '\w+', 'area' => '\d+']);
 
         $name = current(array_keys($builder->getCollection()->all()));
 
         $this->assertStringStartsWith('route_POST_', $name);
+    }
+
+    /** @test */
+    public function itShouldObtainDefaults()
+    {
+        $builder = $this->newBuilder();
+        $builder->get('/{foo}', 'action', [Builder::K_NAME => 'index'], ['foo' => 'bar']);
+
+        $this->assertSame('bar', $builder->getCollection()->get('index')->getDefault('foo'));
+    }
+
+    /** @test */
+    public function itShouldObtainConstraints()
+    {
+        $builder = $this->newBuilder();
+        $builder->get('/{foo}', 'action', [Builder::K_NAME => 'index', 'foo' => '\w+']);
+
+        $this->assertSame('\w+', $builder->getCollection()->get('index')->getConstraint('foo'));
     }
 
     /**
@@ -47,6 +65,15 @@ class RouteCollectionBuilderTest extends \PHPUnit_Framework_TestCase
         foreach ($expected as $m) {
             $this->assertTrue($route->hasMethod($m));
         }
+    }
+
+    /** @test */
+    public function itShouldObtainDefaultSchemes()
+    {
+        $builder = $this->newBuilder();
+        $builder->get('/', 'action');
+
+        $this->assertEquals(['http', 'https'], current($builder->getCollection()->all())->getSchemes());
     }
 
     /** @test */
