@@ -14,6 +14,7 @@
   },
   "require-dev": {
     "phpunit/phpunit": "5.2.*@dev",
+    "lucid/resource": "dev-develop",
     "container-interop/container-interop": "~1.1.0",
     "zendframework/zend-diactoros":"^1.3"
   },
@@ -28,6 +29,7 @@
     }
   },
   "suggest": {
+    "lucid/resource": "For loading routes from file definitions.",
     "container-interop/container-interop": "For resolving controllers via a DI container."
   },
   "minimum-stability": "dev"
