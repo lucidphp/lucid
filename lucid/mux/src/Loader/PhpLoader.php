@@ -17,6 +17,7 @@ use Lucid\Mux\RouteCollectionBuilder;
 use Lucid\Mux\RouteCollectionInterface;
 use Lucid\Mux\Loader\LoaderInterface;
 use Lucid\Resource\Loader\AbstractFileLoader;
+use Lucid\Resource\Exception\LoaderException;
 
 /**
  * @class PhpLoader
@@ -63,7 +64,7 @@ class PhpLoader extends AbstractFileLoader implements LoaderInterface
     protected function doLoad($file)
     {
         if (!is_array($routes = include $file)) {
-            throw new \RuntimeException();
+            throw new LoaderException('Return value must be array.');
         }
 
         $this->addRoutes($routes);

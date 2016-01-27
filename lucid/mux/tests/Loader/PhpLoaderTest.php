@@ -55,6 +55,21 @@ class PhpLoaderTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(['http', 'https'], $routes->get('users')->getSchemes());
     }
 
+    /** @test */
+    public function itShouldThrowOnInvalidConfig()
+    {
+        $loader = new PhpLoader($this->mockLocator());
+
+        try {
+            $loader->loadRoutes('faulty.php');
+        } catch (\Lucid\Resource\Exception\LoaderException $e) {
+            $this->assertEquals('Return value must be array.', $e->getMessage());
+            return;
+        }
+
+        $this->fail();
+    }
+
     private function mockLocator()
     {
         $locator = $this->getMockbuilder('Lucid\Resource\LocatorInterface')
