@@ -57,12 +57,12 @@ class Routes implements RouteCollectionInterface
 
         $this->routes[$routeName] = &$route;
 
-        foreach ($route->getSchemes() as $scheme) {
-            $this->schemeIndex[$scheme][$routeName] = true;
-        }
-
         foreach ($route->getMethods() as $method) {
             $this->methodIndex[$method][$routeName] = true;
+        }
+
+        foreach ($route->getSchemes() as $scheme) {
+            $this->schemeIndex[$scheme][$routeName] = true;
         }
     }
 

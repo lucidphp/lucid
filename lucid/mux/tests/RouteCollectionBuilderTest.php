@@ -109,6 +109,21 @@ class RouteCollectionBuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('/backstage/users', $route->getPattern());
     }
 
+    /** @test */
+    public function itShouldPassGroupRequirements()
+    {
+        $builder = $this->newBuilder();
+
+        $builder->group('backstage', [Builder::K_HOST => 'example.com', Builder::K_SCHEME => 'https']);
+        $builder->addRoute('GET', 'foo', 'fooAction', [Builder::K_NAME => 'foo']);
+        $builder->endGroup();
+
+        $routes = $builder->getCollection();
+
+        $this->assertSame('example.com', $routes->get('foo')->getHost());
+        $this->assertSame(['https'], $routes->get('foo')->getSchemes());
+    }
+
     public function methodProvider()
     {
         return [
