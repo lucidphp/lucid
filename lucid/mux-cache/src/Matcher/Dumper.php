@@ -9,13 +9,9 @@
  * that was distributed with this package.
  */
 
-namespace Lucid\Mux\Cache;
+namespace Lucid\Mux\Cache\Matcher;
 
 use Lucid\Writer\FormatterHelper;
-use Lucid\Writer\Object\ClassWriter;
-use Lucid\Writer\Object\Method;
-use Lucid\Writer\Object\Argument;
-use Lucid\Writer\Object\Property;
 use Lucid\Mux\RouteCollectionInterface;
 use Lucid\Mux\Parser\ParserInterface as Ps;
 
@@ -33,19 +29,6 @@ class Dumper
     /** @var string */
     const NGRP_RPLC = '%1$s(\(\?P\<)(.*?)(\>)%1$s';
 
-    /** @var string */
-    private $className;
-
-    /**
-     * Constructor.
-     *
-     * @param string $class
-     */
-    public function __construct($class = 'Lucid\Mux\Cache\Matcher\CachedMatcher')
-    {
-        $this->className = $class;
-    }
-
     /**
      * dump
      *
@@ -56,16 +39,8 @@ class Dumper
     public function dump(RouteCollectionInterface $routes)
     {
         $map = $this->createMap($routes);
-        $obj = new ClassWriter($this->className, null, 'Lucid\Mux\Cache\Matcher\FastMatcher');
-        $obj->addProperty($pmap = new Property('map', Property::IS_PROTECTED, false));
 
-        $pmap->setValue($this->extractParams($map));
-
-        $obj->addMethod($match = new Method('__construct'));
-        $obj->addUseStatement('Lucid\Mux\RouteCollectionInterface');
-        $obj->addUseStatement('Lucid\Mux\Request\ContextInterface');
-
-        return $obj->generate();
+        return sprintf("<?php\n\nreturn %s;", $this->extractParams($map));
     }
 
     /**
@@ -75,7 +50,7 @@ class Dumper
      *
      * @return array
      */
-    public function createMap(RouteCollectionInterface $routes)
+    private function createMap(RouteCollectionInterface $routes)
     {
         $i    = 0;
         $m    = [];
