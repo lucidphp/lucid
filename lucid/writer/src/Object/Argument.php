@@ -140,7 +140,9 @@ class Argument implements GeneratorInterface
     public function generate($raw = false)
     {
         $writer = new Writer;
-        $prefix = $this->isVariadic ? '...' : ($this->isReference ? '&' : '');
+
+        $prefix = $this->isVariadic ? '...' : '';
+        $prefix .= $this->isReference ? '&' : '';
 
         $type = null === $this->type || in_array($this->type, array_merge(self::$silent, self::$primitives)) ?
             '' :
