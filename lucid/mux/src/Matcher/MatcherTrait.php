@@ -12,6 +12,7 @@
 namespace Lucid\Mux\Matcher;
 
 use Lucid\Mux\RouteInterface;
+use Lucid\Mux\RouteContextInterface as RouteContext;
 use Lucid\Mux\RouteCollectionInterface;
 use Lucid\Mux\Request\ContextInterface as Request;
 
@@ -35,6 +36,49 @@ trait MatcherTrait
     private function filterByMethodAndScheme(RouteCollectionInterface $routes, Request $context)
     {
         return $routes->findByMethod($context->getMethod())->findByScheme($context->getScheme());
+    }
+
+    /**
+     * getMatchFailureReason
+     *
+     * @param array $nomatch
+     * @param Request $request
+     *
+     * @return int
+     */
+    private function getMatchFailureReason(array $nomatch, Request $request)
+    {
+        $path = $request->getPath();
+
+        $reduce = array_filter($nomatch, function ($route) use ($path) {
+            return (bool)preg_match_all($route->getContext()->getRegex(), $path);
+        });
+
+        foreach ($reduce as $name => $route) {
+
+            if (!$this->matchHost($route->getContext(), $request, $route->getHost())) {
+                return RequestMatcherInterface::NOMATCH_HOST;
+            }
+
+            if (!$route->hasScheme($request->getScheme())) {
+                return RequestMatcherInterface::NOMATCH_SCHEME;
+            }
+
+            if (!$route->hasMethod($request->getMethod())) {
+                return RequestMatcherInterface::NOMATCH_METHOD;
+            }
+        }
+
+        return RequestMatcherInterface::NOMATCH;
+    }
+
+    private function matchHost(RouteContext $ctx, Request $request, $host = null)
+    {
+        if (null === $host) {
+            return true;
+        }
+
+        return (bool)preg_match_all($ctx->getHostRegex(), $request->getHost());
     }
 
     /**

@@ -23,9 +23,24 @@ interface ContextInterface
     /**
      * isMatch
      *
-     * @return boolean
+     * @return bool
      */
     public function isMatch();
+
+    /**
+     * @return bool
+     */
+    public function isHostMissmatch();
+
+    /**
+     * @return bool
+     */
+    public function isMethodMissmatch();
+
+    /**
+     * @return bool
+     */
+    public function isSchemeMissMatch();
 
     /**
      * getName

@@ -20,39 +20,19 @@ namespace Lucid\Mux\Matcher;
  */
 class Context implements ContextInterface
 {
-    /**
-     * type
-     *
-     * @var int
-     */
+    /** @var int */
     private $type;
 
-    /**
-     * name
-     *
-     * @var string
-     */
+    /** @var string */
     private $name;
 
-    /**
-     * path
-     *
-     * @var string
-     */
+    /** @var string */
     private $path;
 
-    /**
-     * handler
-     *
-     * @var mixed
-     */
+    /** @var mixed */
     private $handler;
 
-    /**
-     * parameters
-     *
-     * @var array
-     */
+    /** @var array */
     private $vars;
 
     /**
@@ -63,8 +43,6 @@ class Context implements ContextInterface
      * @param string $url
      * @param mixed $handler
      * @param array $vars
-     *
-     * @return void
      */
     public function __construct($type, $name, $url, $handler, array $vars = [])
     {
@@ -81,6 +59,30 @@ class Context implements ContextInterface
     public function isMatch()
     {
         return RequestMatcherInterface::MATCH === $this->type;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isHostMissmatch()
+    {
+        return RequestMatcherInterface::NOMATCH_HOST === $this->type;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isMethodMissmatch()
+    {
+        return RequestMatcherInterface::NOMATCH_METHOD === $this->type;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isSchemeMissMatch()
+    {
+        return RequestMatcherInterface::NOMATCH_SCHEME === $this->type;
     }
 
     /**

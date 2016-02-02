@@ -23,16 +23,27 @@ use Lucid\Mux\Request\ContextInterface as Request;
  */
 interface RequestMatcherInterface
 {
-    const MATCH = 200;
+    /** @var int */
+    const MATCH = 1;
 
-    const NOMATCH = 500;
+    /** @var int */
+    const NOMATCH = -1;
+
+    /** @var int */
+    const NOMATCH_METHOD = -2;
+
+    /** @var int */
+    const NOMATCH_HOST = -3;
+
+    /** @var int */
+    const NOMATCH_SCHEME = -4;
 
     /**
      * matchRequest
      *
      * @param RequestContextInterface $context
      *
-     * @return array
+     * @return ContextInterface
      */
     public function matchRequest(Request $context, RouteCollectionInterface $routes);
 }

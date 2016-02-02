@@ -38,20 +38,21 @@ class RequestMatcher implements RequestMatcherInterface
     public function matchRequest(Request $request, RouteCollectionInterface $routes)
     {
         $path   = $request->getPath();
-        $routes = $this->filterByMethodAndScheme($routes, $request);
+        $filtered = $this->filterByMethodAndScheme($routes, $request);
 
-        if ($routes instanceof CachedCollectionInterface && 0 !== count($r = $route->findByStaticPath($path))) {
-            $routes = $r;
+        if ($filtered instanceof CachedCollectionInterface && 0 !== count($r = $route->findByStaticPath($path))) {
+            $filtered = $r;
         }
 
-        foreach ($routes->all() as $name => $route) {
+        $nomatch = array_diff_key($routes->all(), $filtered->all());
+
+        foreach ($filtered->all() as $name => $route) {
 
             $rctx = $route->getContext();
 
             // does it match host?
-            if (null !== ($host = $route->getHost())
-                && !(bool)preg_match_all($rctx->getHostRegex(), $request->getHost(), PREG_SET_ORDER)
-            ) {
+            if (!$this->matchHost($rctx, $request, $route->getHost())) {
+                $nomatch[$name] = $route;
                 continue;
             }
 
@@ -67,8 +68,10 @@ class RequestMatcher implements RequestMatcherInterface
 
                 return new MatchContext(self::MATCH, $name, $path, $handler, $vars);
             }
+
+            $nomatch[$name] = $route;
         }
 
-        return new MatchContext(self::NOMATCH, null, null, null);
+        return new MatchContext($this->getMatchFailureReason($nomatch, $request), null, null, null);
     }
 }
