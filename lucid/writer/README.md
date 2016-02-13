@@ -11,7 +11,7 @@
 ## Installation
 
 ```bash
-$ composer require lucid/writer
+> composer require lucid/writer
 ```
 
 ## The Writer
@@ -28,12 +28,11 @@ use Lucid\Writer\Writer;
 $writer = new Writer;
 
 $writer
-	->writeln('foo')
-	->writeln('bar');
+    ->writeln('foo')
+    ->writeln('bar');
 
-echo $writer->dump();  //"foo\n    bar"  
+echo $writer->dump();  //"foo\nbar"
 ```
-
 
 ### Behavior
 
@@ -49,6 +48,7 @@ use Lucid\Writer\Writer;
 
 $writer = new Writer;
 $writer->allowTrailingSpace(true); // will now preserve trailing space chars for each line.
+
 ```
 
 ### Indentation
@@ -66,10 +66,11 @@ use Lucid\Writer\Writer;
 $writer = new Writer(2);
 
 $writer
-	->writeln('foo')
-	->writeln('bar');
+    ->writeln('foo')
+    ->indent()
+    ->writeln('bar');
 
-echo $writer->dump(); //"foo\n  bar"   
+echo $writer->dump(); //"foo\n  bar"
 ```
 
 You may also change spaces to tabs using the `useTabs()` method.
@@ -84,73 +85,84 @@ $writer->useTabs(true);
 
 // …
 ```
+
 ### Output indentation
 
 Output indentation indents the whole block and is applied just before the
 string is being dumped. The value passed to `setOutputIndentation(int $level)`
-acts as a multiplyer.  
+acts as a multiplyer.
 
 ### API
 
 Fluent methods:
 
-- **`Lucid\Writer\Writer` writeln( `string|null $str` )**  
+- **`Lucid\Writer\Writer` writeln( `string|null $str` )**
+
 Adds a line.
- 
-- **`Lucid\Writer\Writer` indent( `void` )** 
+
+- **`Lucid\Writer\Writer` indent( `void` )**
+
 Adds an indentation.
 
-- **`Lucid\Writer\Writer` replaceln( string $str, int $index)**  
+- **`Lucid\Writer\Writer` replaceln( string $str, int $index)**
+
 Replaces a line at a line index.
 
-- **`Lucid\Writer\Writer` removeln( `int $index` )**  
+- **`Lucid\Writer\Writer` removeln( `int $index` )**
+
 Removes a line at a line index.
 
-- **`Lucid\Writer\Writer` popln ( `void` )**  
+- **`Lucid\Writer\Writer` popln ( `void` )**
+
 Removes the last line.
 
-- **`Lucid\Writer\Writer` appendln ( `string $str` )**  
+- **`Lucid\Writer\Writer` appendln ( `string $str` )**
+
 Appends a string to the last line.
 
 None fluent methods:
 
-- **`void` ignoreNull( `bool $ignore` )**  
+- **`void` ignoreNull( `bool $ignore` )**
 Don't add a line if `$str` in `Writer::writeln()` is `null`. Default is on.
 
-- **`void` allowTrailingSpace( `bool $space` )**  
+- **`void` allowTrailingSpace( `bool $space` )**
 Allow/Disallow traling space chars. Default is off.
 
-- **`void` useTabs( `void` )**  
+- **`void` useTabs( `void` )**
 Use Tabs for indentation instead of spaces.
 
-- **`void` setOutputIndentation( `int $level` )**  
-Sets the output indentation level of the whole text block.  
-The level value increments the indentation by one indent, e.g. `0` is no additional indentation, `1` is one indent, etc.  
+- **`void` setOutputIndentation( `int $level` )**
+Sets the output indentation level of the whole text block.
+The level value increments the indentation by one indent, e.g. `0` is no additional indentation, `1` is one indent, etc.
 Default is `0`.
 
-- **`int` getOutputIndentation( `void` )**  
+- **`int` getOutputIndentation( `void` )**
 Gets the output indentation level. (see `Writer::setOutputIndentation()`);
 
-## Generators
+## Class, Interface, and Trait Writers
 
 Dump PSR-2 compliant php source code.
 
-There're three object generators, `InterfaceWriter`, `ClassWriter`, and `TraitWriter`.  
+There're three object generators, `InterfaceWriter`, `ClassWriter`, and `TraitWriter`.
 All object generators share a common API.
 
 ### Shared API
 
-- **setParent( `string $parent` )**  
-This is a one time operation. Once the parent is set, you cannot change it. `$parent` name must be the FQN of the parent interface or class.
+- **setParent( `string $parent` )**
 
-- **addUseStatement( `string $use` )**  
+This is a one time operation. Once the parent is set, you cannot change it.
+`$parent` name must be the FQN of the parent interface or class.
+
+- **addUseStatement( `string $use` )**
+
 Adds a use statement to the php document. Naming conflicts will automatically
 be resolved, however you can set your own alias by declating the import like
 this `\Acme\Foo as FooAlias`. By default `Acme\Lib\Foo` will become `LibFoo`,
-or `AcmeLibFoo`, or `AcmeLibFooAlias`, and so on. 
+or `AcmeLibFoo`, or `AcmeLibFooAlias`, and so on.
 Note that the use statement is considered to be the FQN;
 
-- **getImportResolver( )**  
+- **getImportResolver( )**
+
 Will return an instance of `Lucid\Writer\Object\ImportResolver`.
 This is useful if you need to know the aliases name of a imported string
 (interface, trait, parent class or usestatement), e.g.
@@ -160,31 +172,36 @@ This is useful if you need to know the aliases name of a imported string
 $alias = $cg->getImportResolver()->getAlias('Acme\MyClass') // e.g. AcmeMyClassAlias;
 ```
 
-- **`void` addConstant( `Lucid\Writer\Object\Constant $constant` )**  
+- **`void` addConstant( `Lucid\Writer\Object\Constant $constant` )**
+
 Adds a constant to the interface.
 
-- **`void` addMethod( `Lucid\Writer\Object\MethodInterface $method` )**  
-Takes an object of type `Lucid\Writer\Object\MethodInterface` and adds it to the object declaration.
+- **`void` addMethod( `Lucid\Writer\Object\MethodInterface $method` )**
 
-- **`Lucid\Writer\Object\DocBlock` getDoc( `void` )**  
+Takes an object of type `Lucid\Writer\Object\MethodInterface` and adds it to
+the object declaration.
+
+- **`Lucid\Writer\Object\DocBlock` getDoc( `void` )**
+
 Returns an instance of `Lucid\Writer\Object\DocBlock` that represents the
 document level docblock.
 
-- **`Lucid\Writer\Object\DocBlock` getObjDoc( `void` )**  
+- **`Lucid\Writer\Object\DocBlock` getObjDoc( `void` )**
+
 Returns an instance of `Lucid\Writer\Object\DocBlock` that represents the
 object level docblock.
 
-- **`void` noAutoGenerateTag( void )**  
+- **`void` noAutoGenerateTag( void )**
+
 By default, the objectwriter will add a timestamp to the document level
 docblock. Use this if you wan't to deactivate this behavior.
-
 
 ### InterfaceWriter
 
 Use this for autogenerating php interfaces.
 
 ```php
-<?php 
+<?php
 
 use Lucid\Writer\Object\ClassWriter;
 
@@ -196,7 +213,7 @@ file_put_contents('Acme/Foo.php', $iw->generate());
 Results in:
 
 ```php
-<?php 
+<?php
 
 /*
  * This file was generated at 2014-07-08 12:23:22.
@@ -215,16 +232,17 @@ interface Foo extends Parent
 
 ### API
 
-- **addMethod( `Lucid\Writer\Object\MethodInterface $method` )**  
-Takes an object of type `Lucid\Writer\Object\InterfaceMethod` and adds it to the interface.
+- **addMethod( `Lucid\Writer\Object\MethodInterface $method` )**
 
+Takes an object of type `Lucid\Writer\Object\InterfaceMethod` and adds it to
+the interface.
 
 ### ClassWriter
 
-Use this for autogenerating php classes.
+Use this to generate php classes.
 
 ```php
-<?php 
+<?php
 
 use Lucid\Writer\Object\ClassWriter;
 
@@ -233,6 +251,7 @@ $cg = new ClassWriter('Foo', 'Acme');
 file_put_contents('Acme/Foo.php', $cg->generate());
 
 ```
+
 Results in:
 
 ```php
@@ -256,35 +275,35 @@ class Foo
 
 In addition to the InterfaceWriter:
 
-- **`void` addTrait( `string $trait` )**  
+- **`void` addTrait( `string $trait` )**
 Takes a FQN of a trait and adds it as a trait. Traits will be automatically
 added to the use statements list, except they're belong to exact same namespace of
 the class.
 
-- **`void` addInterface( `string $interface` )**  
-Adds an interface. Will be automatically added to the class imports. 
+- **`void` addInterface( `string $interface` )**
+Adds an interface. Will be automatically added to the class imports.
 
-- **`void` setAbstract( `boolean $abstract` )**  
+- **`void` setAbstract( `boolean $abstract` )**
 Toggle this class abstract.
 
-- **`void` addMethod( `MethodInterface $method` )**  
+- **`void` addMethod( `MethodInterface $method` )**
 Takes an object of type `Method` and adds it to the class.
 
-- **`void` setProperties( `array $properties` )**   
+- **`void` setProperties( `array $properties` )**
 Set the class properties. `$properties` must be an array of
 `Lucid\Writer\Object\Property` instances.
 
-- **`void` addProperty( `Lucid\Writer\Object\Property $property` )**  
+- **`void` addProperty( `Lucid\Writer\Object\Property $property` )**
 Takes an object of type `Lucid\Writer\Object\Property` and adds it as a class property.
 
-- **`void` useTraitMethodAs(`string $trait`, `string $method`, `string $replacement`, `[string $visibility]`)**    
+- **`void` useTraitMethodAs(`string $trait`, `string $method`, `string $replacement`, `[string $visibility]`)**
 Replaces a method naming conflict between a trait an a class. Default visiblity
 is `public`.
 
-- **`void` replaceTraitConflict(`string $trait`, `string $conflict`, `string $method`)**  
+- **`void` replaceTraitConflict(`string $trait`, `string $conflict`, `string $method`)**
 Replaces a method conflict between two traits.
 
-### Example 
+### Example
 
 Generating a class with constants, methods, properties, and traits.
 
@@ -319,9 +338,9 @@ $cg->replaceTraitConflict($bar, $foo, 'getBar');
 
 // modify the class doc.
 $cg->getObjDoc()
-	->setDescription('Some class.')
-	->setLongDescription("Some more info on the class.\nSome more lines.")
-	->addAnnotation('author', 'Thomas Appel <mail@thomas-appel.com>');
+    ->setDescription('Some class.')
+    ->setLongDescription("Some more info on the class.\nSome more lines.")
+    ->addAnnotation('author', 'Thomas Appel <mail@thomas-appel.com>');
 
 echo $cg->generate();
 
@@ -332,7 +351,7 @@ Results in
 <?php
 
 /*
- * This file was generated at 2014-07-09 02:07:42. 
+ * This file was generated at 2014-07-09 02:07:42.
  */
 
 namespace Acme;
@@ -353,20 +372,20 @@ use Acme\Lib\Traits\FooTrait;
  */
 class Foo extends Bar
 {
-    use FooTrait, 
-		BarTrait {
-		FooTrait::getFoo as private getFooStr;	
-		BarTrait::getBar insteadof FooTrait;	
-	}
+    use FooTrait,
+        BarTrait {
+        FooTrait::getFoo as private getFooStr;
+        BarTrait::getBar insteadof FooTrait;
+    }
 
     /** @var int */
-	const T_ASW = 42;
+    const T_ASW = 42;
 
     /** @var string */
     private $foo;
 
     /**
-	 * Constructor.
+     * Constructor.
      *
      * @param string $foo
      */
@@ -376,6 +395,7 @@ class Foo extends Bar
     }
 }
 ```
+
 ### TraitWriter
 
 Behaves like the `ClassWriter` except there're no constants and interfaces.
