@@ -67,14 +67,13 @@ class ArgumentTest extends \PHPUnit_Framework_TestCase
     }
 
     /** @test */
-    public function variadicArgsCantBeReferenced()
+    public function itShouldAcceptReferencedVariadics()
     {
         $arg = new Argument('args');
-
-        $arg->isReference(true);
         $arg->isVariadic(true);
+        $arg->isReference(true);
 
-        $this->assertSame('...$args', (string)$arg);
+        $this->assertSame('...&$args', (string)$arg);
     }
 
     /** @test */
