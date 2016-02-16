@@ -73,7 +73,7 @@ class ArgumentTest extends \PHPUnit_Framework_TestCase
         $arg->isVariadic(true);
         $arg->isReference(true);
 
-        $this->assertSame('...&$args', (string)$arg);
+        $this->assertSame('&...$args', (string)$arg);
     }
 
     /** @test */
