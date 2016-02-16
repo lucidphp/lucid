@@ -188,7 +188,6 @@ trait TraitAwareWriterHelper
         $replCfl = isset($this->replacements['trait_conflict']);
 
         foreach ($this->traits as $trait) {
-
             if ($replUse) {
                 $useRpl = array_merge(
                     $useRpl,
@@ -214,7 +213,6 @@ trait TraitAwareWriterHelper
                         return $clfExists && (AbstractWriter::trimNs($trait) === AbstractWriter::trimNs($def[0]));
                     })
                 );
-
             }
         }
 
