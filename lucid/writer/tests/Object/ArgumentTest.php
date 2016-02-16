@@ -77,6 +77,23 @@ class ArgumentTest extends \PHPUnit_Framework_TestCase
     }
 
     /** @test */
+    public function itShouldTypedVariadics()
+    {
+        $arg = new Argument('args');
+        $arg->setType('SomeClass');
+        $arg->isVariadic(true);
+
+        $this->assertSame('SomeClass ...$args', (string)$arg);
+
+        $arg = new Argument('args');
+        $arg->setType('SomeClass');
+        $arg->isVariadic(true);
+        $arg->isReference(true);
+
+        $this->assertSame('SomeClass &...$args', (string)$arg);
+    }
+
+    /** @test */
     public function itShouldBeReference()
     {
         $arg = new Argument('foo');
