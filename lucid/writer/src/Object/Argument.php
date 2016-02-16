@@ -141,8 +141,8 @@ class Argument implements GeneratorInterface
     {
         $writer = new Writer;
 
-        $prefix = $this->isVariadic ? '...' : '';
-        $prefix .= $this->isReference ? '&' : '';
+        $prefix = $this->isReference ? '&' : '';
+        $prefix .= $this->isVariadic ? '...' : '';
 
         $type = null === $this->type || in_array($this->type, array_merge(self::$silent, self::$primitives)) ?
             '' :
