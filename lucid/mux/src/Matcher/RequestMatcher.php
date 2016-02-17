@@ -47,7 +47,6 @@ class RequestMatcher implements RequestMatcherInterface
         $nomatch = array_diff_key($routes->all(), $filtered->all());
 
         foreach ($filtered->all() as $name => $route) {
-
             $rctx = $route->getContext();
 
             // does it match host?

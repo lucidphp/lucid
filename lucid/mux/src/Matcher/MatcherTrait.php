@@ -55,7 +55,6 @@ trait MatcherTrait
         });
 
         foreach ($reduce as $name => $route) {
-
             if (!$this->matchHost($route->getContext(), $request, $route->getHost())) {
                 return RequestMatcherInterface::NOMATCH_HOST;
             }
