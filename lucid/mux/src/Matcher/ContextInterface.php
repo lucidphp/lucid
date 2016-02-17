@@ -11,6 +11,8 @@
 
 namespace Lucid\Mux\Matcher;
 
+use Lucid\Mux\Request\ContextInterface as RequestContext;
+
 /**
  * @interface ContextInterface
  *
@@ -48,6 +50,13 @@ interface ContextInterface
      * @return string
      */
     public function getName();
+
+    /**
+     * Get the request Context.
+     *
+     * @return string
+     */
+    public function getRequest();
 
     /**
      * getPath

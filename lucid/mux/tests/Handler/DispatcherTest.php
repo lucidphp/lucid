@@ -29,7 +29,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
     public function itShouldDispatchHandler()
     {
         $called = false;
-        $ctx = new Context(M::MATCH, 'route', '/foo', 'foo@bar', [], []);
+        $ctx = new Context(M::MATCH, 'route', $this->mockRequest('/foo'), 'foo@bar', [], []);
 
         $dispatcher = new Dispatcher($res = $this->mockResolver());
         $res->method('resolve')->with('foo@bar')->willReturn(new Reflector(function () use (&$called) {
@@ -50,5 +50,15 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
     {
         return $this->getMockbuilder('Ludic\Mux\Handler\Reflector')
             ->disableOriginalConstructor()->getMock();
+    }
+
+    private function mockRequest($path = '/')
+    {
+        $r = $this->getMockbuilder('Lucid\Mux\Request\ContextInterface')
+            ->disableOriginalConstructor()->getMock();
+
+        $r->method('getPath')->willReturn($path);
+
+        return $r;
     }
 }

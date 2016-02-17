@@ -65,12 +65,12 @@ class RequestMatcher implements RequestMatcherInterface
                 $vars    = $this->getMatchedVars($route, $matches);
                 $handler = $route->getHandler();
 
-                return new MatchContext(self::MATCH, $name, $path, $handler, $vars);
+                return new MatchContext(self::MATCH, $name, $request, $handler, $vars);
             }
 
             $nomatch[$name] = $route;
         }
 
-        return new MatchContext($this->getMatchFailureReason($nomatch, $request), null, null, null);
+        return new MatchContext($this->getMatchFailureReason($nomatch, $request), null, $request, null);
     }
 }

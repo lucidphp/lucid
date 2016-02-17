@@ -11,6 +11,8 @@
 
 namespace Lucid\Mux\Matcher;
 
+use Lucid\Mux\Request\ContextInterface as RequestContext;
+
 /**
  * @class Context
  *
@@ -26,8 +28,8 @@ class Context implements ContextInterface
     /** @var string */
     private $name;
 
-    /** @var string */
-    private $path;
+    /** @var RequestContext */
+    private $request;
 
     /** @var mixed */
     private $handler;
@@ -44,11 +46,11 @@ class Context implements ContextInterface
      * @param mixed $handler
      * @param array $vars
      */
-    public function __construct($type, $name, $url, $handler, array $vars = [])
+    public function __construct($type, $name, RequestContext $request, $handler, array $vars = [])
     {
         $this->type    = $type;
         $this->name    = $name;
-        $this->path    = $url;
+        $this->request = $request;
         $this->handler = $handler;
         $this->vars    = $vars;
     }
@@ -96,9 +98,17 @@ class Context implements ContextInterface
     /**
      * {@inheritdoc}
      */
+    public function getRequest()
+    {
+        return $this->request;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getPath()
     {
-        return $this->path;
+        return $this->request->getPath();
     }
 
     /**

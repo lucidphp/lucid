@@ -11,6 +11,7 @@
 
 namespace Lucid\Mux;
 
+use Lucid\Mux\Matcher\ContextInterface as MatchContext;
 use Lucid\Mux\Request\ContextInterface as RequestContext;
 
 /**
@@ -30,6 +31,24 @@ interface RouterInterface
      * @return void
      */
     public function dispatch(RequestContext $context);
+
+    /**
+     * Dispatches a match.
+     *
+     * @param MatchContextInterface $match
+     *
+     * @return mixed the request response.
+     */
+    public function dispatchMatch(MatchContext $match);
+
+    /**
+     * match
+     *
+     * @param ContextInterface $context
+     *
+     * @return Lucid\Mux\Matcher\ContextInterface
+     */
+    public function match(RequestContext $context);
 
     /**
      * route

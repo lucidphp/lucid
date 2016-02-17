@@ -9,47 +9,59 @@ use Lucid\Mux\Matcher\RequestMatcherInterface as Matcher;
 class ContextTest extends \PHPUnit_Framework_TestCase
 {
     /** @test */
+    public function itShouldBeInstantiable()
+    {
+        $this->assertInstanceOf(
+            'Lucid\Mux\Matcher\ContextInterface',
+            new Context(Matcher::NOMATCH, null, $this->mockRequest(), null)
+        );
+    }
+
+    /** @test */
     public function contextWillReturnProperties()
     {
-        $ctx = new Context(Matcher::MATCH, 'index', '/', 'action', $vars = ['id' => 12]);
+        $r = $this->mockRequest();
+        $r->method('getPath')->willReturn('/');
+        $ctx = new Context(Matcher::MATCH, 'index', $r, 'action', $vars = ['id' => 12]);
         $this->assertTrue($ctx->isMatch());
         $this->assertEquals('/', $ctx->getPath());
         $this->assertEquals('index', $ctx->getName());
         $this->assertEquals('action', $ctx->getHandler());
         $this->assertSame($vars, $ctx->getVars());
-    }
-
-    /** @test */
-    public function itShouldBeInstantiable()
-    {
-        $this->assertInstanceOf('Lucid\Mux\Matcher\ContextInterface', new Context(Matcher::NOMATCH, null, null, null));
+        $this->assertTrue($r === $ctx->getRequest());
     }
 
     /** @test */
     public function itShouldBeMatchFailure()
     {
-        $ctx = new Context(Matcher::NOMATCH, null, null, null);
+        $ctx = new Context(Matcher::NOMATCH, null, $this->mockRequest(), null);
         $this->assertFalse($ctx->isMatch());
     }
 
     /** @test */
     public function itShouldBeMethodFailure()
     {
-        $ctx = new Context(Matcher::NOMATCH_METHOD, null, null, null);
+        $ctx = new Context(Matcher::NOMATCH_METHOD, null, $this->mockRequest(), null);
         $this->assertTrue($ctx->isMethodMissmatch());
     }
 
     /** @test */
     public function itShouldBeHostFailure()
     {
-        $ctx = new Context(Matcher::NOMATCH_HOST, null, null, null);
+        $ctx = new Context(Matcher::NOMATCH_HOST, null, $this->mockRequest(), null);
         $this->assertTrue($ctx->isHostMissmatch());
     }
 
     /** @test */
     public function itShouldBeSchemeFailure()
     {
-        $ctx = new Context(Matcher::NOMATCH_SCHEME, null, null, null);
+        $ctx = new Context(Matcher::NOMATCH_SCHEME, null, $this->mockRequest(), null);
         $this->assertTrue($ctx->isSchemeMissmatch());
+    }
+
+    private function mockRequest()
+    {
+        return $this->getMockbuilder('Lucid\Mux\Request\ContextInterface')
+            ->disableOriginalConstructor()->getMock();
     }
 }

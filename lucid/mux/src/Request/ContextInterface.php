@@ -20,6 +20,7 @@ namespace Lucid\Mux\Request;
  */
 interface ContextInterface
 {
+
     /**
      * Get the request URI.
      *

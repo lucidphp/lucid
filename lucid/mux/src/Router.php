@@ -81,13 +81,49 @@ class Router implements RouterInterface
     /**
      * {@inheritdoc}
      */
+    public function match(RequestContextInterface $request)
+    {
+        return $this->matcher->matchRequest($request, $this->routes);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function dispatch(RequestContextInterface $request)
     {
-        if (($match = $this->matcher->matchRequest($request, $this->routes)) && $match->isMatch()) {
-            return $this->dispatchRequest($request, $match);
+        if (($match = $this->match($request)) && $match->isMatch()) {
+            return $this->dispatchMatch($match);
         }
 
         throw MatchException::noRouteMatch($request);
+    }
+
+    /**
+     * Dispatches a request.
+     *
+     * @param RequestContextInterface $request
+     * @param MatchContextInterface $match
+     *
+     * @return mixed the request response.
+     */
+    public function dispatchMatch(MatchContextInterface $match)
+    {
+        // store the previous request context.
+        $request = $this->url->getRequestContext();
+
+        $this->url->setRequestContext($match->getRequest());
+        $this->routeStack->push($match->getName());
+
+        $response = $this->mapper->mapResponse($this->dispatcher->dispatch($match));
+
+        $this->routeStack->pop();
+
+        // restore the previous request context.
+        if (null !== $request) {
+            $this->url->setRequestContext($request);
+        }
+
+        return $response;
     }
 
     /**
@@ -99,10 +135,10 @@ class Router implements RouterInterface
 
         $rel = 'localhost' === $options['host'] ? true : false;
 
-        $request = $this->createRequestContextFromOptions($options);
         $path    = $this->getUrl($name, $options['host'], $vars, $rel);
+        $request = $this->createRequestContextFromOptions($path, $options);
 
-        return $this->dispatchRequest($request, $this->createMatchContextFromParameters($vars, $name, $path));
+        return $this->dispatchMatch($this->createMatchContextFromParameters($vars, $name, $request));
     }
 
     /**
@@ -164,44 +200,16 @@ class Router implements RouterInterface
     }
 
     /**
-     * Dispatches a request.
-     *
-     * @param RequestContextInterface $request
-     * @param MatchContextInterface $match
-     *
-     * @return mixed the request response.
-     */
-    private function dispatchRequest(RequestContextInterface $request, MatchContextInterface $match)
-    {
-        // store the previous request context.
-        $previous = $this->url->getRequestContext();
-
-        $this->url->setRequestContext($request);
-        $this->routeStack->push($match->getName());
-
-        $response = $this->mapper->mapResponse($this->dispatcher->dispatch($match));
-
-        $this->routeStack->pop();
-
-        // restore the previous request context.
-        if (null !== $previous) {
-            $this->url->setRequestContext($previous);
-        }
-
-        return $response;
-    }
-
-    /**
      * createRequestContextFromOptions
      *
      * @param array $options
      *
      * @return RequestContextInterface
      */
-    private function createRequestContextFromOptions(array $options)
+    private function createRequestContextFromOptions($path, array $options)
     {
         return new RequestContext(
-            '/',
+            $path,
             $options['method'],
             $options['query'],
             $options['host'],
@@ -218,11 +226,11 @@ class Router implements RouterInterface
      *
      * @return MatchContextInterface
      */
-    private function createMatchContextFromParameters(array $vars, $name, $url)
+    private function createMatchContextFromParameters(array $vars, $name, $request)
     {
         $handler = $this->routes->get($name)->getHandler();
 
-        return new MatchContext(Matcher::MATCH, $name, $url, $handler, $vars);
+        return new MatchContext(Matcher::MATCH, $name, $request, $handler, $vars);
     }
 
     /**

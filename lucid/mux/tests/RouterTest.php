@@ -83,7 +83,9 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         });
 
         $matcher->expects($this->once())->method('matchRequest')->with($req, $routes)
-            ->willReturn($this->mockMatch(true));
+            ->willReturn($match = $this->mockMatch(true));
+
+        $match->method('getRequest')->willReturn($req);
 
         $this->assertSame('ok', $router->dispatch($req));
     }
@@ -104,7 +106,9 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         });
 
         $matcher->expects($this->once())->method('matchRequest')->with($req, $routes)
-            ->willReturn($this->mockMatch(true));
+            ->willReturn($match = $this->mockMatch(true));
+
+        $match->method('getRequest')->willReturn($req);
 
         $mapper->expects($this->once())->method('mapResponse')->with('ok')->willReturn('ko');
 
