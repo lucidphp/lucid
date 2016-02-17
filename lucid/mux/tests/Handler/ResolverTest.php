@@ -84,6 +84,19 @@ class ResolverTest extends \PHPUnit_Framework_TestCase
     }
 
     /** @test */
+    public function itShouldResolveInvokables()
+    {
+        $handler =  $this->getMock(__NAMESPACE__.'\InvokableHandler', ['__invoke']);
+        $handler->method('__invoke')->willReturnCallback(function () {
+            return 'ok';
+        });
+        $container = $this->mockContainer(['handler' => $this, 'inv.handler' => $handler]);
+
+        $resolver = new Resolver($container);
+        $this->assertInstanceOf('Lucid\Mux\Handler\Reflector', $resolver->resolve('inv.handler'));
+    }
+
+    /** @test */
     public function itShouldThrowResolverExceptionIfHandlerIsNotInstantiable()
     {
         $handler = 'Lucid\Mux\Tests\Handler\Stubs\AbstractHandler@handle';

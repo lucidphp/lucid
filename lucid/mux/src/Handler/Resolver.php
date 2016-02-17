@@ -94,7 +94,7 @@ class Resolver implements ContainerAwareResolverInterface
         // if the service parameter is registererd as service, return the
         // service object and its method as callable:
         if ($service = $this->getService($handler)) {
-            return [$service, $method];
+            return null === $method ? $service : [$service, $method];
         }
 
         if (class_exists($handler)) {
