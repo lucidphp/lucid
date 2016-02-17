@@ -28,24 +28,28 @@ class ContextTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function itShouldBeMatchFailure()
     {
-        $this->assertFalse((new Context(Matcher::NOMATCH, null, null, null))->isMatch());
+        $ctx = new Context(Matcher::NOMATCH, null, null, null);
+        $this->assertFalse($ctx->isMatch());
     }
 
     /** @test */
     public function itShouldBeMethodFailure()
     {
-        $this->assertTrue(($ctx = new Context(Matcher::NOMATCH_METHOD, null, null, null))->isMethodMissmatch());
+        $ctx = new Context(Matcher::NOMATCH_METHOD, null, null, null);
+        $this->assertTrue($ctx->isMethodMissmatch());
     }
 
     /** @test */
     public function itShouldBeHostFailure()
     {
-        $this->assertTrue(($ctx = new Context(Matcher::NOMATCH_HOST, null, null, null))->isHostMissmatch());
+        $ctx = new Context(Matcher::NOMATCH_HOST, null, null, null);
+        $this->assertTrue($ctx->isHostMissmatch());
     }
 
     /** @test */
     public function itShouldBeSchemeFailure()
     {
-        $this->assertTrue(($ctx = new Context(Matcher::NOMATCH_SCHEME, null, null, null))->isSchemeMissmatch());
+        $ctx = new Context(Matcher::NOMATCH_SCHEME, null, null, null);
+        $this->assertTrue($ctx->isSchemeMissmatch());
     }
 }
