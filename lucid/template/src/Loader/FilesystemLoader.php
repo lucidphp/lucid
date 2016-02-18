@@ -77,10 +77,6 @@ final class FilesystemLoader implements LoaderInterface
      */
     private function findTemplateInPaths($template)
     {
-        if (file_exists($template)) {
-            return $template;
-        }
-
         foreach ($this->paths as $path) {
             if (file_exists($realpath = $path . DIRECTORY_SEPARATOR . ltrim($template, DIRECTORY_SEPARATOR))) {
                 return $realpath;
