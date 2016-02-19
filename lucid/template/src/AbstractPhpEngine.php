@@ -136,7 +136,6 @@ abstract class AbstractPhpEngine implements EngineInterface, DisplayInterface, P
     public function loadTemplate($template)
     {
         if (!$this->isLoaded($identity = $this->findIdentity($template))) {
-
             if (!$this->supports($identity)) {
                 throw new \InvalidArgumentException(sprintf('Unsupported template "%s".', $identity->getName()));
             }

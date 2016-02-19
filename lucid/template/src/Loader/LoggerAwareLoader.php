@@ -55,7 +55,6 @@ final class LoggerAwareLoader implements LoaderInterface
     public function load(IdentityInterface $template)
     {
         if (!$res = $this->loader->load($template)) {
-
             $this->logger->error('Error loading template "%s".', [(string)$template]);
             return;
         }

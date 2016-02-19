@@ -231,7 +231,7 @@ class Engine extends AbstractPhpEngine implements ViewAwareInterface
      */
     public function insert($template, array $replacements = [])
     {
-        list ($resource, $params) = $this->getCurrent();
+        list($resource, $params) = $this->getCurrent();
 
         return $this->render($template, array_merge($params, $replacements));
     }
@@ -245,7 +245,7 @@ class Engine extends AbstractPhpEngine implements ViewAwareInterface
      */
     public function extend($template)
     {
-        list ($resource,) = $this->getCurrent();
+        list($resource, ) = $this->getCurrent();
 
         //if (isset($this->parents[$hash = $resource->getHash()])) {
             //throw new RenderException('Circular reference.');
@@ -341,7 +341,7 @@ class Engine extends AbstractPhpEngine implements ViewAwareInterface
      */
     protected function hasParent()
     {
-        list ($resource, ) = $this->getCurrent();
+        list($resource, ) = $this->getCurrent();
 
         return isset($this->parents[$resource->getHash()]);
     }
@@ -410,7 +410,6 @@ class Engine extends AbstractPhpEngine implements ViewAwareInterface
             } elseif ($resource instanceof StringResource) {
                 $this->displayString($resource, $parameters);
             }
-
         } catch (Exception $e) {
             ob_end_clean();
 
