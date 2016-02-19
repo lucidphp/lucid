@@ -117,7 +117,6 @@ class Priority implements PriorityInterface
      */
     private function getHandlerString($handler)
     {
-
         if (is_string($handler)) {
             return $handler;
         }

@@ -45,7 +45,7 @@ class ContainerAwareDispatcher extends EventDispatcher
     {
         if (is_string($handler)) {
             if ($this->hasAttachedMethod($handler)) {
-                list($id,) = explode(self::M_SEPARATOR, $handler);
+                list($id, ) = explode(self::M_SEPARATOR, $handler);
             } else {
                 $id = $handler;
             }

@@ -88,7 +88,6 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase
         $events->dispatch('event');
 
         $this->assertSame(['B', 'A', 'C'], $order);
-
     }
 
     /** @test */
