@@ -82,7 +82,6 @@ class ViewTest extends \PHPUnit_Framework_TestCase
         $called = false;
         $view->notifyListeners('new.template');
         $this->assertFalse($called);
-
     }
 
     /** @test */
