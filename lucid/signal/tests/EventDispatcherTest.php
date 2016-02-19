@@ -25,6 +25,12 @@ use Lucid\Signal\Tests\Stubs\SimpleSubscriber;
 class EventDispatcherTest extends \PHPUnit_Framework_TestCase
 {
     /** @test */
+    public function itShouldBeInstantiable()
+    {
+        $this->assertInstanceOf('Lucid\Signal\EventDispatcher', new EventDispatcher);
+    }
+
+    /** @test */
     public function itShouldAllowInvokableHandlers()
     {
         $invoked = false;
@@ -82,7 +88,6 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase
         $events->dispatch('event');
 
         $this->assertSame(['B', 'A', 'C'], $order);
-
     }
 
     /** @test */

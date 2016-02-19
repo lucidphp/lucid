@@ -63,7 +63,7 @@ class EventDispatcher implements EventDispatcherInterface
             }
 
             foreach ((array)($methods) as $method) {
-                list ($method, $prio) = array_pad((array)$method, 2, 0);
+                list($method, $prio) = array_pad((array)$method, 2, 0);
                 $this->addHandler($name, [$subscriber, $method], $prio);
             }
         }
@@ -82,7 +82,7 @@ class EventDispatcher implements EventDispatcherInterface
             }
 
             foreach ((array)($methods) as $method) {
-                list ($method,) = array_pad((array)$method, 2, 0);
+                list($method, ) = array_pad((array)$method, 2, 0);
                 $this->removeHandler($name, [$subscriber, $method]);
             }
         }
