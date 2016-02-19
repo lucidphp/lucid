@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This File is part of the Lucid\Filesystem\Tests\Driver package
+ * This File is part of the Lucid\Filesystem\Tests\Client package
  *
  * (c) iwyg <mail@thomas-appel.com>
  *
@@ -9,15 +9,15 @@
  * that was distributed with this package.
  */
 
-namespace Lucid\Filesystem\Tests\Driver;
+namespace Lucid\Filesystem\Tests\Client;
 
 use Lucid\Filesystem\Filesystem;
-use Lucid\Filesystem\Driver\LocalDriver;
+use Lucid\Filesystem\Client\LocalDriver;
 
 /**
  * @class LocalDriverTest
  *
- * @package Lucid\Filesystem\Tests\Driver
+ * @package Lucid\Filesystem\Tests\Client
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */

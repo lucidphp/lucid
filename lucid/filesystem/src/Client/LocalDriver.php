@@ -9,7 +9,7 @@
  * that was distributed with this package.
  */
 
-namespace Lucid\Filesystem\Driver;
+namespace Lucid\Filesystem\Client;
 
 use SplFileInfo;
 use FilesystemIterator;
@@ -27,11 +27,11 @@ use Lucid\Filesystem\Exception\IOException;
  * @see SupportVisibility
  * @see AbstractDriver
  *
- * @package Lucid\Filesystem\Driver
+ * @package Lucid\Filesystem\Client
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-class LocalDriver extends AbstractDriver implements SupportsTouch, SupportsPermission, SupportsVisibility
+class LocalDriver extends AbstractClient implements SupportsTouch, SupportsPermission, SupportsVisibility
 {
     /**
      * Constructor.

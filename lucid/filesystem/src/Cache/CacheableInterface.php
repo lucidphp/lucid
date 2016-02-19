@@ -20,5 +20,4 @@ namespace Lucid\Filesystem\Cache;
  */
 interface CacheableInterface
 {
-
 }

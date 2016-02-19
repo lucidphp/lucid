@@ -328,7 +328,6 @@ abstract class AbstractCache implements CacheInterface
         }
 
         foreach ($this->cache as $path => $object) {
-
             if (!$this->has($path)) {
                 return false;
             }

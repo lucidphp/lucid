@@ -9,20 +9,15 @@
  * that was distributed with this package.
  */
 
-namespace Lucid\Filesystem\Tests;
+namespace Lucid\Filesystem\Client;
 
 /**
- * @class PathInfoTest
+ * @interface SupportPermission
  *
  * @package Lucid\Filesystem
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-class PathInfoTest extends \PHPUnit_Framework_TestCase
+interface SupportsPermission
 {
-    /** @test */
-    public function itIsExpectedThat()
-    {
-        $this->assertTrue(true);
-    }
 }

@@ -89,12 +89,10 @@ class Dependency
         $requirements = (array)$provider->requires();
 
         foreach ($requirements as $req) {
-
             $optional = $this->isOptional($req);
             $req = rtrim($req, '?');
 
             if (!$providers->has($req)) {
-
                 if ($optional) {
                     continue;
                 }

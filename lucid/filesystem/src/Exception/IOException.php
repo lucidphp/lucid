@@ -74,5 +74,4 @@ class IOException extends \RuntimeException
     {
         return new self(sprintf('Could not change group on %s%s.', $linkError ? 'link ' : '', $file));
     }
-
 }

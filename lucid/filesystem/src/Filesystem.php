@@ -261,7 +261,6 @@ class Filesystem implements FilesystemInterface
         }
 
         if (false !== $stream = $this->driver->readStream($file)) {
-
             $this->cache->setContent($file, stream_get_contents($stream), null, null);
             rewind($stream);
 

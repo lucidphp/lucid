@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This File is part of the Lucid\Filesystem\Cache package
+ * This File is part of the Lucid\Package\Tests\Stubs package
  *
  * (c) iwyg <mail@thomas-appel.com>
  *
@@ -9,18 +9,17 @@
  * that was distributed with this package.
  */
 
-namespace Lucid\Filesystem\Cache;
+namespace Acme\Package;
+
+use Lucid\Package\AbstractProvider;
 
 /**
- * @class Item
+ * @class SomeFancyPackageProvider
  *
- * @package Lucid\Filesystem\Cache
+ * @package Lucid\Package\Tests\Stubs
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-class Item
+class SomeFancyPackageProvider extends AbstractProvider
 {
-    public function __construct($type = null, $info = null, $complete = false)
-    {
-    }
 }

@@ -93,7 +93,6 @@ trait PathHelperTrait
         $skip = 0;
 
         while (count($bits)) {
-
             $part = array_pop($bits);
 
             if (0 === strcmp($part, '..')) {

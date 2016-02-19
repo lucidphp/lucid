@@ -57,7 +57,6 @@ class DependencyTest extends \PHPUnit_Framework_TestCase
                 $e->getMessage()
             );
         }
-
     }
     /** @test */
     public function itShouldExplodeOnMissingProvider()

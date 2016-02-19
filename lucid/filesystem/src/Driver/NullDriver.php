@@ -20,5 +20,4 @@ namespace Lucid\Filesystem\Driver;
  */
 class NullDriver implements DriverInteface
 {
-
 }
