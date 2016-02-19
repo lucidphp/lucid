@@ -124,7 +124,7 @@ class ReflectionResolver implements ResolverInterface
         ParameterInterface $params = null
     ) {
         foreach ($service->getSetters() as $setter) {
-            list ($method, $args) = $setter;
+            list($method, $args) = $setter;
             call_user_func_array([$instance, $method], $this->resolveArguments($args, $container, $params));
         }
 

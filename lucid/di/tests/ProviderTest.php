@@ -51,6 +51,5 @@ class ProviderTest extends \PHPUnit_Framework_TestCase
         $provider->method('getServiceMyService')->willReturn($stub);
         $this->assertTrue($provider->provides('my_service'));
         $this->assertTrue($stub === $provider->provide('my_service'));
-
     }
 }

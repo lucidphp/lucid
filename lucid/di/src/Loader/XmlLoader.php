@@ -22,6 +22,5 @@ class XmlLoader extends DicLoader
 {
     protected function doLoad($file)
     {
-
     }
 }
