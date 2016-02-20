@@ -1,6 +1,6 @@
 {
   "name": "lucid/lucid",
-  "description":"Lucid Main Repository", 
+  "description":"Lucid Main Repository",
   "keywords": ["php", "components"],
   "require": {
     "php":">=5.6.0",
@@ -37,6 +37,7 @@
       "Lucid\\Http\\Core\\":"lucid/http-core/src/",
       "Lucid\\Http\\Infuse\\":"lucid/http-infuse/src/",
       "Lucid\\Mux\\":"lucid/mux/src/",
+      "Lucid\\Mux\\Psr7\\":"lucid/mux-Psr7/src/",
       "Lucid\\Mux\\Cache\\":"lucid/mux-cache/src/",
       "Lucid\\Package\\":"lucid/package/src/",
       "Lucid\\Resource\\":"lucid/resource/src/",
@@ -60,6 +61,7 @@
       "Lucid\\Http\\Core\\Tests\\":"lucid/http-core/tests/",
       "Lucid\\Http\\Infuse\\Tests\\":"lucid/http-infuse/tests/",
       "Lucid\\Mux\\Tests\\":"lucid/mux/tests/",
+      "Lucid\\Mux\\Psr7\\Tests\\":"lucid/mux-Psr7/tests/",
       "Lucid\\Mux\\Cache\\Tests\\":"lucid/mux-cache/tests/",
       "Lucid\\Package\\Tests\\":"lucid/package/tests/",
       "Lucid\\Resource\\Tests\\":"lucid/resource/tests/",
