@@ -99,14 +99,13 @@ class ResolverTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function itShouldThrowResolverExceptionIfHandlerIsNotInstantiable()
     {
-        $handler = 'Lucid\Mux\Tests\Handler\Stubs\AbstractHandler@handle';
-
         $resolver = new Resolver();
+        $handler = 'Lucid\Mux\Tests\Handler\Stubs\AbstractHandler@handle';
 
         try {
             $resolver->resolve($handler);
-        } catch (\Exception $e) {
-            //var_dump($e->getMessage());
+        } catch (ResolverException $e) {
+            $this->assertSame(0, strpos($e->getMessage(), 'Can\'t resolve handler: '));
         }
     }
 

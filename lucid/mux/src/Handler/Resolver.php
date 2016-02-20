@@ -40,21 +40,21 @@ class Resolver implements ContainerAwareResolverInterface
     /**
      * {@inheritdoc}
      */
+    public function setContainer(ContainerInterface $container)
+    {
+        $this->container = $container;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function resolve($controller)
     {
         if (is_callable($callable = $this->findHandler($controller))) {
             return new Reflector($callable);
         };
 
-        throw new RuntimeException('No routing handler could be found.');
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setContainer(ContainerInterface $container)
-    {
-        $this->container = $container;
+        throw new ResolverException('No routing handler could be found.');
     }
 
     /**
@@ -97,15 +97,30 @@ class Resolver implements ContainerAwareResolverInterface
             return null === $method ? $service : [$service, $method];
         }
 
-        if (class_exists($handler)) {
-            try {
-                return [new $handler, $method];
-            } catch (\Throwable $e) {
-                throw new ResolverException('Cannot resolve handler', $e->getCode(), $e);
-            }
+        if (!class_exists($handler)) {
+            return [$handler, $method];
+        }
+        $err = null;
+
+        set_error_handler(function ($errno, $msg) {
+            throw $this->newResolverException($msg);
+        });
+
+        try {
+            $resolvedHandler = [new $handler, $method];
+        } catch (ResolverException $e) {
+            $err = $e;
+        } catch (\Throwable $t) {
+            $err = $this->newResolverException($t->getMessage());
         }
 
-        return [$handler, $method];
+        restore_error_handler();
+
+        if (null !== $err) {
+            throw $err;
+        }
+
+        return $resolvedHandler;
     }
 
     /**
@@ -120,5 +135,17 @@ class Resolver implements ContainerAwareResolverInterface
         }
 
         return null;
+    }
+
+    /**
+     * newResolverException
+     *
+     * @param string $msg
+     *
+     * @return ResolverException
+     */
+    private function newResolverException($msg)
+    {
+        return new ResolverException('Can\'t resolve handler: '. $msg);
     }
 }
