@@ -53,6 +53,12 @@ class PhpLoaderTest extends \PHPUnit_Framework_TestCase
 
         $this->assertNull($routes->get('users')->getHost());
         $this->assertSame(['http', 'https'], $routes->get('users')->getSchemes());
+
+        $loader = new PhpLoader($this->mockLocator());
+        $routes = $loader->loadRoutes('route_groups.2.php');
+
+        $this->assertNull($routes->get('users')->getHost());
+        $this->assertSame(['http', 'https'], $routes->get('users')->getSchemes());
     }
 
     /** @test */

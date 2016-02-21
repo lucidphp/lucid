@@ -84,8 +84,11 @@ class PhpLoader extends AbstractFileLoader implements LoaderInterface
         foreach ($routes as $name => $route) {
             if ((bool)$gkeys = $this->getGroupKeys($route)) {
                 $req = isset($route['requirements']) ? $route['requirements'] : [];
+                if (null === $prefix = isset($route['pattern']) ? $route['pattern'] : $name) {
+                    continue;
+                }
                 foreach ($gkeys as $i) {
-                    $this->loadGroup($name, $req, $route[$i]);
+                    $this->loadGroup($prefix, $req, $route[$i]);
                 }
                 continue;
             }
