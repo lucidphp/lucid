@@ -90,7 +90,6 @@ class PhpLoader extends AbstractFileLoader implements LoaderInterface
             }
 
             if ((bool)$gkeys = $this->getGroupKeys($route)) {
-
                 $req = isset($route['requirements']) ? $route['requirements'] : [];
 
                 if (null === $prefix = isset($route['pattern']) ? $route['pattern'] : $name) {
