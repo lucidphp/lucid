@@ -32,4 +32,19 @@ interface CachedCollectionInterface extends RouteCollectionInterface, Serializab
      * @return self
      */
     public function findByStaticPath($path);
+
+    /**
+     * Returns the time of creation as unix timestamp.
+     *
+     * @return int
+     */
+    public function getTimestamp();
+
+    /**
+     * Returns the time of creation as DateTime instance.
+     *
+     * @throws \RuntimeException if creation of datetime fails.
+     * @return \DateTime
+     */
+    public function getCreationDate();
 }

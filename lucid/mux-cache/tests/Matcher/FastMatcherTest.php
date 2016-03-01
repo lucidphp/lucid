@@ -2,10 +2,10 @@
 
 namespace Lucid\Mux\Cache\Tests\Matcher;
 
+use Lucid\Mux\Cache\Matcher\Dumper;
 use Lucid\Mux\RouteCollectionBuilder;
-use Lucid\Mux\Request\Context as Request;
 use Lucid\Mux\Cache\Matcher\FastMatcher;
-use Lucid\Mux\Cache\Dumper;
+use Lucid\Mux\Request\Context as Request;
 
 class FastMatcherTest extends \PHPUnit_Framework_TestCase
 {

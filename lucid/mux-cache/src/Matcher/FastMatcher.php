@@ -11,6 +11,7 @@
 
 namespace Lucid\Mux\Cache\Matcher;
 
+use RuntimeException;
 use Lucid\Mux\Matcher\MatcherTrait;
 use Lucid\Mux\RouteCollectionInterface;
 use Lucid\Mux\Matcher\RequestMatcherInterface;
@@ -87,7 +88,7 @@ class FastMatcher implements RequestMatcherInterface
     {
         try {
             list ($name, $route, $vars) = $this->reverseMapRoute($routes, $matches, $map['map']);
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
             return $this->noMatch();
         }
 
@@ -141,6 +142,6 @@ class FastMatcher implements RequestMatcherInterface
             return [$name, $route, $args];
         }
 
-        throw new \RuntimeException('No match found.');
+        throw new RuntimeException('No match found.');
     }
 }

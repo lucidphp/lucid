@@ -11,7 +11,9 @@
 
 namespace Lucid\Mux\Cache;
 
+use DateTime;
 use LogicException;
+use RuntimeException;
 use Lucid\Mux\RouteInterface;
 use Lucid\Mux\RouteCollectionInterface;
 use Lucid\Mux\Routes as RouteCollection;
@@ -34,6 +36,9 @@ class Routes extends RouteCollection implements CachedCollectionInterface
     /** @var array */
     private $scMap;
 
+    /** @var int */
+    private $timestamp;
+
     /**
      * Constructor.
      *
@@ -46,6 +51,7 @@ class Routes extends RouteCollection implements CachedCollectionInterface
         $this->scMap  = [];
         $this->routes = $routes->all();
         $this->createMaps($routes);
+        $this->timestamp = time();
     }
 
     /**
@@ -88,6 +94,20 @@ class Routes extends RouteCollection implements CachedCollectionInterface
         return new self(isset($this->spMap[$path]) ? $this->slice($this->spMap[$path]) : []);
     }
 
+    public function getTimestamp()
+    {
+        return $this->timestamp;
+    }
+
+    public function getCreationDate()
+    {
+        if ($date = (new DateTime)->setTimestamp($this->getTimestamp())) {
+            return $date;
+        }
+
+        throw new RuntimeException();
+    }
+
     /**
      * serialize
      *
@@ -96,9 +116,10 @@ class Routes extends RouteCollection implements CachedCollectionInterface
     public function serialize()
     {
         return serialize([
-            'sp_map' => $this->spMap,
-            'sc_map' => $this->scMap,
-            'm_map'  => $this->mMap,
+            'sp_map'    => $this->spMap,
+            'sc_map'    => $this->scMap,
+            'm_map'     => $this->mMap,
+            'timestamp' => $this->timestamp,
         ]);
     }
 
@@ -113,9 +134,10 @@ class Routes extends RouteCollection implements CachedCollectionInterface
     {
         $data = unserialize($data);
 
-        $this->mMap  = $data['m_map'];
-        $this->scMap = $data['sc_map'];
-        $this->spMap = $data['sp_map'];
+        $this->mMap      = $data['m_map'];
+        $this->scMap     = $data['sc_map'];
+        $this->spMap     = $data['sp_map'];
+        $this->timestamp = $data['timestamp'];
     }
 
     /**
