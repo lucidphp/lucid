@@ -12,6 +12,7 @@
 namespace Lucid\Mux\Loader;
 
 use Lucid\Mux\Routes;
+use Lucid\Resource\Locator;
 use Lucid\Resource\LocatorInterface;
 use Lucid\Mux\RouteCollectionBuilder;
 use Lucid\Mux\RouteCollectionInterface;
@@ -34,10 +35,10 @@ class PhpLoader extends AbstractFileLoader implements LoaderInterface
      * @param LocatorInterface $locator
      * @param RouteCollectionInterface $routes
      */
-    public function __construct(LocatorInterface $locator, RouteCollectionInterface $routes = null)
+    public function __construct(RouteCollectionBuilder $builder = null, LocatorInterface $locator = null)
     {
-        parent::__construct($locator);
-        $this->builder = new RouteCollectionBuilder($routes ?: new Routes);
+        parent::__construct($locator ?: new Locator);
+        $this->builder = $builder ?: new RouteCollectionBuilder(new Routes);
     }
 
     /**
@@ -64,7 +65,7 @@ class PhpLoader extends AbstractFileLoader implements LoaderInterface
     protected function doLoad($file)
     {
         if (!is_array($routes = include $file)) {
-            throw new LoaderException('Return value must be array.');
+            throw new LoaderException('Return value must be an array.');
         }
 
         $this->addRoutes($routes);
@@ -82,11 +83,20 @@ class PhpLoader extends AbstractFileLoader implements LoaderInterface
     private function addRoutes(array $routes)
     {
         foreach ($routes as $name => $route) {
+            if (isset($route['resources'])) {
+                $this->loadImports(is_array($route['resources']) ? $route['resources'] :
+                (is_string($route['resources']) ? [$route['resources']] : []));
+                continue;
+            }
+
             if ((bool)$gkeys = $this->getGroupKeys($route)) {
+
                 $req = isset($route['requirements']) ? $route['requirements'] : [];
+
                 if (null === $prefix = isset($route['pattern']) ? $route['pattern'] : $name) {
                     continue;
                 }
+
                 foreach ($gkeys as $i) {
                     $this->loadGroup($prefix, $req, $route[$i]);
                 }
@@ -151,8 +161,15 @@ class PhpLoader extends AbstractFileLoader implements LoaderInterface
      *
      * @return void
      */
-    private function loadImports(array $routes)
+    private function loadImports(array $resources)
     {
+        foreach ($resources as $resource) {
+            if (!is_string($resource)) {
+                continue;
+            }
+
+            $this->import($resource);
+        }
     }
 
     /**

@@ -11,6 +11,8 @@
 
 namespace Lucid\Mux\Loader;
 
+use Lucid\Resource\Loader\LoaderInterface as BaseLoaderInterface;
+
 /**
  * @interface LoaderInterface
  *
@@ -18,7 +20,14 @@ namespace Lucid\Mux\Loader;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-interface LoaderInterface
+interface LoaderInterface extends BaseLoaderInterface
 {
+    /**
+     * Load routes
+     *
+     * @param mixed $routes
+     *
+     * @return Lucid\Mux\RouteContextInterface
+     */
     public function loadRoutes($routes);
 }
