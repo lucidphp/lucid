@@ -75,7 +75,7 @@ class Routes extends RouteCollection implements CachedCollectionInterface
      */
     public function findByMethod($method)
     {
-        return new self(isset($this->mMap[$method]) ? $this->slice($this->mMap[$method]) : []);
+        return new RouteCollection(isset($this->mMap[$method]) ? $this->slice($this->mMap[$method]) : []);
     }
 
     /**
@@ -83,7 +83,7 @@ class Routes extends RouteCollection implements CachedCollectionInterface
      */
     public function findByScheme($scheme)
     {
-        return new self(isset($this->scMap[$scheme]) ? $this->slice($this->scMap[$scheme]) : []);
+        return new RouteCollection(isset($this->scMap[$scheme]) ? $this->slice($this->scMap[$scheme]) : []);
     }
 
     /**
@@ -91,7 +91,7 @@ class Routes extends RouteCollection implements CachedCollectionInterface
      */
     public function findByStaticPath($path)
     {
-        return new self(isset($this->spMap[$path]) ? $this->slice($this->spMap[$path]) : []);
+        return new RouteCollection(isset($this->spMap[$path]) ? $this->slice($this->spMap[$path]) : []);
     }
 
     public function getTimestamp()
@@ -119,7 +119,8 @@ class Routes extends RouteCollection implements CachedCollectionInterface
             'sp_map'    => $this->spMap,
             'sc_map'    => $this->scMap,
             'm_map'     => $this->mMap,
-            'timestamp' => $this->timestamp,
+            'routes'    => $this->routes,
+            'timestamp' => $this->timestamp
         ]);
     }
 
@@ -137,6 +138,7 @@ class Routes extends RouteCollection implements CachedCollectionInterface
         $this->mMap      = $data['m_map'];
         $this->scMap     = $data['sc_map'];
         $this->spMap     = $data['sp_map'];
+        $this->routes    = $data['routes'];
         $this->timestamp = $data['timestamp'];
     }
 

@@ -30,17 +30,17 @@ class FastMatcher implements RequestMatcherInterface
 {
     use MatcherTrait;
 
-    /** @var array */
-    protected $map;
+    /** @var MapLaoder */
+    private $loader;
 
     /**
      * Constructor.
      *
-     * @param array $map
+     * @param MapLoader $loader
      */
-    public function __construct(array $map)
+    public function __construct(MapLoader $loader)
     {
-        $this->map = $map;
+        $this->loader = $loader;
     }
 
     /**
@@ -48,15 +48,17 @@ class FastMatcher implements RequestMatcherInterface
      */
     public function matchRequest(Request $request, RouteCollectionInterface $routes)
     {
+        $map = $this->loader->load($routes);
+
         $routes = $this->preFilterRoutes($request, $routes);
         $method = strtolower($request->getMethod());
 
-        if (!isset($this->map[$method]) ||
-            !(bool)preg_match_all($this->map[$method]['regex'], $request->getPath(), $matches, PREG_SET_ORDER)) {
-            return $this->noMatch();
+        if (!isset($map[$method]) ||
+            !(bool)preg_match_all($map[$method]['regex'], $request->getPath(), $matches, PREG_SET_ORDER)) {
+            return $this->noMatch($request);
         }
 
-        return $this->postFilterRoutes($request, $routes, $this->map[$method], $matches);
+        return $this->postFilterRoutes($request, $routes, $map[$method], $matches);
     }
 
     /**
@@ -89,16 +91,15 @@ class FastMatcher implements RequestMatcherInterface
         try {
             list ($name, $route, $vars) = $this->reverseMapRoute($routes, $matches, $map['map']);
         } catch (RuntimeException $e) {
-            return $this->noMatch();
+            return $this->noMatch($request, self::NOMATCH);
         }
 
         if (null !== $route->getHost() &&
             !(bool)preg_match_all($route->getContext()->getHostRegex(), $request->getHost())) {
-            var_dump('FUCK IT', $route->getContext()->getHostRegex());
-            return $this->noMatch();
+            return $this->noMatch($request, self::NOMATCH_HOST);
         }
 
-        return new Match(self::MATCH, $name, $request->getPath(), $route->getHandler(), $vars);
+        return new Match(self::MATCH, $name, $request, $route->getHandler(), $vars);
     }
 
     /**
@@ -106,9 +107,9 @@ class FastMatcher implements RequestMatcherInterface
      *
      * @return \Lucid\Mux\Matcher\ContextInterface
      */
-    protected function noMatch($name = null)
+    protected function noMatch(Request $context, $reason = self::NOMATCH, $name = null)
     {
-        return new Match(self::NOMATCH, $name, null, null);
+        return new Match($reason, $name, $context, null);
     }
 
     /**

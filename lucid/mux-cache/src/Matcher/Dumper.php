@@ -24,8 +24,6 @@ use Lucid\Mux\Parser\ParserInterface as Ps;
  */
 class Dumper
 {
-    use FormatterHelper;
-
     /** @var string */
     const NGRP_RPLC = '%1$s(\(\?P\<)(.*?)(\>)%1$s';
 
@@ -84,6 +82,11 @@ class Dumper
         }
 
         return $expr;
+    }
+
+    private function extractParams(array $params)
+    {
+        return var_export($params, true);
     }
 
     /**
