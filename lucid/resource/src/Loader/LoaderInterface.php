@@ -71,7 +71,19 @@ interface LoaderInterface
      */
     public function removeListener(ListenerInterface $listener);
 
+    /**
+     * setResolver
+     *
+     * @param ResolverInterface $resolver
+     *
+     * @return void
+     */
     public function setResolver(ResolverInterface $resolver);
 
+    /**
+     * getResolver
+     *
+     * @return ResolverInterface
+     */
     public function getResolver();
 }
