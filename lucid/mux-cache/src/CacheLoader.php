@@ -147,7 +147,6 @@ class CacheLoader implements ListenerInterface
     private function setResources($resources)
     {
         if (!$resources instanceof ResourcesInterface) {
-
             $files = (array)$resources;
             $resources = new Resources;
 
