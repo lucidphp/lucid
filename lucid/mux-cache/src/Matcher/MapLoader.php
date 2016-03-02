@@ -96,8 +96,6 @@ class MapLoader
             );
         }
 
-        var_dump($file);
-
         file_put_contents($file, $this->dumper->dump($routes));
     }
 

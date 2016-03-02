@@ -18,5 +18,5 @@
 
 - php >= 5.6
 - [lucid/mux](https://github.com/lucidphp/mux/tree/develop)
-- [lucid/writer](https://github.com/lucidphp/writer/tree/develop)
+- [lucid/resource](https://github.com/lucidphp/resource/tree/develop)
 
