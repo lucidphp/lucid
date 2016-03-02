@@ -137,14 +137,16 @@ class FastMatcher implements RequestMatcherInterface
             try {
                 $route = $routes->get($name);
             } catch (\Exception $e) {
+                throw new RuntimeException('Route does not exists.');
             }
 
             $route = $routes->get($name);
             $args  = [];
 
-            foreach ($route->getContext()->getVars() as $var) {
-                $args[$var] = $matches[$prefix.$var];
-            }
+            $keys = $route->getContext()->getVars();
+            $args = array_combine($keys, array_map(function ($key) use ($matches, $prefix) {
+                return isset($matches[$prefix.$key]) ? $matches[$prefix.$key] : null;
+            }, $keys));
 
             return [$name, $route, $args];
         }
