@@ -2,6 +2,7 @@
 
 namespace Lucid\Mux\Cache\Tests\Matcher;
 
+use Lucid\Mux\Cache\Routes;
 use Lucid\Mux\Cache\Matcher\Dumper;
 use Lucid\Mux\RouteCollectionBuilder;
 use Lucid\Mux\Cache\Matcher\FastMatcher;
@@ -10,27 +11,60 @@ use Lucid\Mux\Request\Context as Request;
 class FastMatcherTest extends \PHPUnit_Framework_TestCase
 {
     /** @test */
-    public function itShouldCompileMatchExpression()
+    public function itShouldMatchDumpedRouteMap()
     {
-        //$builder = new RouteCollectionBuilder;
-        //$builder->any('/', 'indexAction', ['route' => 'index']);
-        //$builder->get('/user', 'userIndexAction', ['route' => 'user.index']);
-        //$builder->get('/user/{id}', 'userShowAction', ['route' => 'user.show']);
-        //$builder->get('/front', 'frontAction', ['route' => 'front.index']);
-        //$builder->get('/login', 'loginIndexAction', ['route' => 'login.index']);
-        //$builder->post('/login', 'loginAction', ['route' => 'login.create']);
-        //$builder->delete('/user/{area}/{id}', 'userDeleteAction', ['route' => 'user.delete']);
+        $builder = new RouteCollectionBuilder;
+        $builder->any('/', 'indexAction', ['route' => 'index']);
+        $builder->get('/user', 'userIndexAction', ['route' => 'user.index']);
+        $builder->get('/user/{id}', 'userShowAction', ['route' => 'user.show']);
+        $builder->delete('/user/{area}/{id}', 'userDeleteAction', ['route' => 'user.delete']);
+        $builder->get('/front', 'frontAction', ['route' => 'frontindex']);
+        $builder->get('/login', 'loginIndexAction', ['route' => 'login.index']);
+        $builder->post('/login', 'loginAction', ['route' => 'login.create']);
 
-        //$routes = $builder->getCollection();
 
-        //$d = new Dumper;
-        //$map = $d->createMap($routes);
-        //$matcher = new FastMatcher($map);
+        $matcher = new FastMatcher($loader = $this->mockLoader());
+        $routes = new Routes($builder->getCollection());
 
-        //$request = new Request('/user/backoffice/12', 'DELETE');
+        $loader->method('load')->with($routes)->willReturnCallback(function ($routes) {
+            $d = new Dumper;
+            return eval('?>' . $d->dump($routes));
+        });
 
-        //$match = $matcher->matchRequest($request, $routes);
 
-        //$this->assertTrue($match->isMatch());
+        $request = new Request('/foo/bar', 'GET');
+        $match = $matcher->matchRequest($request, $routes);
+        $this->assertFalse($match->isMatch());
+
+        $request = new Request('/', 'GET');
+        $match = $matcher->matchRequest($request, $routes);
+        $this->assertTrue($match->isMatch(), '/ GET');
+        $this->assertEquals('indexAction', $match->getHandler());
+
+        $request = new Request('/front', 'GET');
+        $match = $matcher->matchRequest($request, $routes);
+        $this->assertTrue($match->isMatch(), '/front GET');
+        $this->assertEquals('frontAction', $match->getHandler());
+
+        $request = new Request('/user/backstage/12', 'DELETE');
+        $match = $matcher->matchRequest($request, $routes);
+        $this->assertTrue($match->isMatch(), '/user/backstage/12 DELETE');
+        $this->assertEquals('userDeleteAction', $match->getHandler());
+
+        $request = new Request('/user/backstage/12', 'GET');
+        $match = $matcher->matchRequest($request, $routes);
+        $this->assertFalse($match->isMatch(), '/user/backstage/12 GET');
+    }
+
+    private function mockRequest()
+    {
+        return $this->getMockbuilder('Lucid\Mux\Request\ContextInterface')
+            ->disableOriginalConstructor()->getMock();
+    }
+
+    private function mockLoader()
+    {
+        return $this->getMockbuilder('Lucid\Mux\Cache\Matcher\MapLoader')
+            ->disableOriginalConstructor()->getMock();
     }
 }

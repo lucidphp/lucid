@@ -71,7 +71,7 @@ class FastMatcher implements RequestMatcherInterface
     protected function preFilterRoutes(Request $request, RouteCollectionInterface $routes)
     {
         if ($routes instanceof CachedCollection && $sRoutes = $routes->findByStaticPath($request->getPath())) {
-            $routes = $sRoutes;
+            $routes = 0 !== count($sRoutes->all()) ? $sRoutes : $routes;
         }
 
         return $routes->findByMethod($request->getMethod());
@@ -132,7 +132,13 @@ class FastMatcher implements RequestMatcherInterface
                 continue;
             }
 
+
             list ($index, $name, $prefix) = $map[$key];
+            try {
+                $route = $routes->get($name);
+            } catch (\Exception $e) {
+            }
+
             $route = $routes->get($name);
             $args  = [];
 

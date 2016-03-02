@@ -37,7 +37,8 @@ class DumperTest extends \PHPUnit_Framework_TestCase
         $routes->method('all')->willReturn([]);
         $res = $d->dump($routes);
 
-        $this->assertEquals("<?php\n\nreturn Array();", $res);
+        $time = time();
+        $this->assertEquals("<?php\n\nreturn array (\n  'prefix' => 'r$time',\n);", $res);
     }
 
     private function mockRoutes()
