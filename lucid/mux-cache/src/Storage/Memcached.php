@@ -52,7 +52,7 @@ class Memcached implements StorageInterface
 
         $routes = $this->memcached->get($this->storeId);
 
-        return MemcachedClient::RES_NOTFOUND === $this->memcached->getResultCode() ? null : $routes;
+        return MemcachedClient::RES_SUCCESS !== $this->memcached->getResultCode() ? null : $routes;
     }
 
     /**
@@ -83,7 +83,7 @@ class Memcached implements StorageInterface
     public function exists()
     {
         if (false === $this->memcached->get($this->storeId)) {
-            return MemcachedClient::RES_NOTFOUND !== $this->memcached->getResultCode();
+            return MemcachedClient::RES_SUCCESS === $this->memcached->getResultCode();
         }
 
         return true;
@@ -111,7 +111,7 @@ class Memcached implements StorageInterface
      */
     private function store(RouteCollectionInterface $routes, $method)
     {
-        call_user_func([$this->memcached, $method, $this->storeId, $routes]);
-        call_user_func([$this->memcached, $method, $this->storeId.'.lastmod', time()]);
+        call_user_func_array([$this->memcached, $method], [$this->storeId, $routes]);
+        call_user_func_array([$this->memcached, $method], [$this->storeId.'.lastmod', time()]);
     }
 }

@@ -44,7 +44,8 @@ class Filesystem implements StorageInterface
     public function __construct($path, $prefix = self::DEFAULT_PREFIX)
     {
         $this->prefix = $prefix;
-        $this->validatePath($path);
+        $this->ensureExists($path);
+        $this->path = $path;
         $this->exists();
     }
 
@@ -70,7 +71,7 @@ class Filesystem implements StorageInterface
      */
     public function isValid($time)
     {
-        return $this->getLastWriteTime() < $time;
+        return $this->getLastWriteTime() <= $time;
     }
 
     /**
@@ -86,7 +87,7 @@ class Filesystem implements StorageInterface
      */
     public function getLastWriteTime()
     {
-        if ($this->exists) {
+        if ($this->exists()) {
             return filemtime($this->getFilePath());
         }
 
@@ -132,11 +133,11 @@ class Filesystem implements StorageInterface
      */
     private function ensureExists($dir)
     {
-        if (is_dir($dir)) {
-            return;
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
         }
 
-        mkdir($dir, 0755, true);
+        return $this->validatePath($dir);
     }
 
     /**
@@ -152,14 +153,15 @@ class Filesystem implements StorageInterface
     /**
      * @param string $path
      *
-     * @return string
+     * @return bool
      */
     private function validatePath($path)
     {
-        if (is_dir($path) && is_writable($path)) {
-            return $this->path = $path;
+        if (is_readable($path) && is_writable($path)) {
+            return true;
         }
 
-        throw new InvalidArgumentException('Invalid path.');
+        throw new InvalidArgumentException(sprintf('Invalid path "%s".', $path));
+
     }
 }
