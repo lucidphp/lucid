@@ -211,9 +211,9 @@ class CacheLoader implements ListenerInterface
      */
     private function writeManifest($file, ResourcesInterface $resources)
     {
-        $mask = 0755 & ~umask();
+        $mask = 0775 & ~umask();
         if (!is_dir($dir = dirname($file))) {
-            if (false === @mkdir($dir, $mask, true)) {
+            if (false === mkdir($dir, $mask, true)) {
                 throw new RuntimeException('Creating manifest for router cache failed.');
             }
         } elseif (false === @chmod($dir, $mask)) {
