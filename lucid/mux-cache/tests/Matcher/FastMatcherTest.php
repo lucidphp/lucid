@@ -56,6 +56,13 @@ class FastMatcherTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($match->isMatch(), '/user/backstage/12 GET');
     }
 
+    protected function setUp()
+    {
+        if ('hhvm' === phpversion() && !defined('ARRAY_FILTER_USE_BOTH')) {
+            $this->markTestSkipped('Insufficient HHVM version.')
+        }
+    }
+
     private function mockRequest()
     {
         return $this->getMockbuilder('Lucid\Mux\Request\ContextInterface')
