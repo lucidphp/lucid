@@ -14,7 +14,8 @@
     "lucid/resource":"dev-develop"
   },
   "require-dev": {
-    "phpunit/phpunit": "5.2.*@dev"
+    "phpunit/phpunit": "5.2.*@dev",
+    "lucid/mux":"dev-develop"
   },
   "autoload": {
     "psr-4": {

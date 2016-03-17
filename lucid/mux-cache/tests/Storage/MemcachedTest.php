@@ -33,8 +33,15 @@ class MemcachedTest extends \PHPUnit_Framework_TestCase
         }
 
         $this->memcached = new \Memcached;
-        if (!$this->memcached->addServers([['0.0.0.0', 11211]])) {
+        if (!$this->memcached->addServer('0.0.0.0', 11211, 0)) {
             $this->markTestSkipped('Cannot connect to memcached server.');
+        }
+
+        $this->memcached->get('foo');
+        $res = $this->memcached->getResultCode();
+
+        if (!in_array($res, [\Memcached::RES_FAILURE, \Memcached::RES_SUCCESS])) {
+            $this->markTestSkipped('An error ocurred while setting up memcached connection.');
         }
     }
 
