@@ -59,7 +59,7 @@ class FastMatcherTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         if ('hhvm' === phpversion() && !defined('ARRAY_FILTER_USE_BOTH')) {
-            $this->markTestSkipped('Insufficient HHVM version.')
+            $this->markTestSkipped('Insufficient HHVM version.');
         }
     }
 
