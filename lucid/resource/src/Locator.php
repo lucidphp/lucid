@@ -47,8 +47,6 @@ class Locator implements LocatorInterface
      */
     public function locate($file, $collection = LoaderInterface::LOAD_ONE)
     {
-        var_dump($file);
-
         if (!is_dir($this->cwd)) {
             throw new InvalidArgumentException(sprintf('%s is not a directory.', $this->cwd));
         }
