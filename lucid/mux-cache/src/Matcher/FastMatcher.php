@@ -148,9 +148,14 @@ class FastMatcher implements RequestMatcherInterface
                 return isset($matches[$prefix.$key]) ? $matches[$prefix.$key] : null;
             }, $keys));
 
-            return [$name, $route, $args];
+            return [$name, $route, array_merge($route->getDefaults(), array_map([$this, 'getArgValue'], array_filter($args)))];
         }
 
         throw new RuntimeException('No match found.');
+    }
+
+    private function getArgValue($val)
+    {
+        return is_numeric($val) ? 0 + $val : $val;
     }
 }
