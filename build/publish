@@ -96,10 +96,10 @@ for d in `ls -d lucid/* | xargs`; do
 
     name=`basename $d`
     if [[ ! -z "$DRYRUN" ]]; then
-        echo "DRYRUN: $GIT subsplit publish --no-tags --heads="$BRANCH" "$d":git@github.com:lucidphp/"$name".git"
+        echo "DRYRUN: $GIT subsplit publish --tags --heads="$BRANCH" "$d":git@github.com:lucidphp/"$name".git"
         sleep 1
     else
-        RET=`$GIT subsplit publish --no-tags --heads="$BRANCH" "$d":git@github.com:lucidphp/"$name".git`
+        RET=`$GIT subsplit publish --tags --heads="$BRANCH" "$d":git@github.com:lucidphp/"$name".git`
         abortIf $? $RET
     fi
 done
