@@ -11,7 +11,7 @@
 ## Installation
 
 ```shell
-> composer require lucid/mux:dev-master
+> composer require lucid/mux
 ```
 
 ## Usage

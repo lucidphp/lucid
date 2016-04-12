@@ -143,6 +143,8 @@ REGEX;
                 self::pushTokens($delim, $lt, $tokens);
             }
 
+            $opt = null === $default ? $opt : true;
+
             // add variable
             $tVar = new Variable($var[0], !$opt, $constraint, $lt = self::lastToken($tokens), null, $separator);
             self::pushTokens($tVar, $lt, $tokens);
@@ -216,15 +218,59 @@ REGEX;
      */
     private static function makeOptGrp(Variable $var)
     {
-        if ($var->required || (null !== $var->next && !$var->next instanceof Variable)) {
+        if ($var->required) {
             return;
         }
 
-        $optgrp = null !== $var->next ? self::makeOptGrp($var->next) : '';
+        list ($next, $nextIsOpt) = self::findNextOpt($var);
 
-        $p = $var->prev instanceof Delimiter ? $var->prev : '';
+        if (!$nextIsOpt) {
+            return;
+        }
+
+        //$nextOpt = null !== $next ? self::makeOptGrp($next) : null;
+
+        //if (null === $nextOpt && null !== $next) {
+        //    return;
+        //}
+
+        $optgrp = null !== $next ? self::makeOptGrp($next) : '';
+        $p      = $var->prev instanceof Delimiter ? $var->prev : '';
 
         return sprintf('(?:%s%s%s)?', $p, $var, $optgrp);
+    }
+
+    /**
+     * Finds next optional valiable token
+     *
+     * @param Variable $var
+     *
+     * @return array
+     */
+    private static function findNextOpt(Variable $var)
+    {
+        $nextIsOpt = true;
+
+        $next = null;
+        $n = $var->next;
+
+        while (null !== $n) {
+            if (!$n instanceof Variable) {
+                $n = $n->next;
+                $nextIsOpt = true;
+                continue;
+            }
+            if (!$n->required) {
+                $nextIsOpt = true;
+                $next = $n;
+                break;
+            }
+
+            $nextIsOpt = false;
+            $n = $n->next;
+        }
+
+        return [$next, $nextIsOpt];
     }
 
     /**

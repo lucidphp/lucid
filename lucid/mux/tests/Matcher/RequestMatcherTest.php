@@ -92,6 +92,29 @@ class RequestMatcherTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($result->isSchemeMissmatch(), 'Reason should be scheme missmatch.');
     }
 
+    /** @test */
+    public function itShouldMapDefaultValues()
+    {
+        $matcher = new Matcher;
+        $routes = new Routes;
+
+        $routes->add(
+            'user',
+            new Route('/user/{id?}', 'getUserAction', ['GET'], null, ['id' => 12])
+        );
+
+        $request = $this->mockRequest();
+        $request->method('getMethod')->willReturn('GET');
+        $request->method('getPath')->willReturn('/user');
+        $request->method('getScheme')->willReturn('http');
+
+        $result = $matcher->matchRequest($request, $routes);
+
+        $vars = $result->getVars();
+        $this->assertArrayHasKey('id', $vars);
+        $this->assertSame(12, $vars['id']);
+    }
+
     private function mockRoute()
     {
         return $this->getMockbuilder('Lucid\Mux\Route')

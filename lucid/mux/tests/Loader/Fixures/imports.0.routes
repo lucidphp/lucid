@@ -1,0 +1,15 @@
+
+<?php
+
+return [
+    'foo' => [
+        'pattern' => '/foo',
+        'method' => 'GET',
+        'handler' => 'fooAction'
+    ],
+    'bar' => [
+        'pattern' => '/bar',
+        'method' => 'GET',
+        'handler' => 'barAction'
+    ],
+];

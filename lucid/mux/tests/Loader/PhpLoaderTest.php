@@ -5,13 +5,15 @@ namespace Lucid\Mux\Tests\Loader;
 use Lucid\Mux\Routes;
 use Lucid\Resource\Collection;
 use Lucid\Mux\Loader\PhpLoader;
+use Lucid\Resource\Loader\Resolver;
+use Lucid\Mux\RouteCollectionBuilder;
 
 class PhpLoaderTest extends \PHPUnit_Framework_TestCase
 {
     /** @test */
     public function itShouldReturnRoutes()
     {
-        $loader = new PhpLoader($this->mockLocator());
+        $loader = new PhpLoader(null, $this->mockLocator());
 
         $this->assertInstanceOf('Lucid\Mux\RouteCollectionInterface', $routes = $loader->loadRoutes('routes.php'));
     }
@@ -19,15 +21,39 @@ class PhpLoaderTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function itShouldReturnInputCollection()
     {
-        $loader = new PhpLoader($this->mockLocator(), $routes = new Routes);
+        $loader = new PhpLoader(new RouteCollectionBuilder($routes = new Routes), $this->mockLocator());
 
         $this->assertSame($routes, $loader->loadRoutes('routes.php'));
     }
 
     /** @test */
+    public function itShouldImportRoutes()
+    {
+        $loader = new PhpLoader($builder = new RouteCollectionBuilder, $loc = $this->mockLocator());
+
+        $mockedLoader = $this->getMockbuilder('Lucid\Mux\Loader\PhpLoader')
+            ->setMethods(['getExtensions'])
+            ->setConstructorArgs([$builder, $loc])->getMock();
+        $mockedLoader->method('getExtensions')->willReturn(['routes']);
+
+        $resolver = new Resolver([$loader, $mockedLoader]);
+
+        $routes = $loader->loadRoutes('route_imports.php');
+
+
+        $all = $routes->all();
+
+        $this->assertArrayHasKey('foo', $all);
+        $this->assertArrayHasKey('bar', $all);
+
+        $this->assertSame('/admin/foo', $routes->get('foo')->getPattern());
+        $this->assertSame('/admin/bar', $routes->get('bar')->getPattern());
+    }
+
+    /** @test */
     public function itShouldLoadRoutes()
     {
-        $loader = new PhpLoader($this->mockLocator());
+        $loader = new PhpLoader(null, $this->mockLocator());
         $routes = $loader->loadRoutes('routes.0.php');
 
         $this->assertTrue($routes->has('index'));
@@ -36,7 +62,7 @@ class PhpLoaderTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function itShouldLoadGroups()
     {
-        $loader = new PhpLoader($this->mockLocator());
+        $loader = new PhpLoader(null, $this->mockLocator());
         $routes = $loader->loadRoutes('route_groups.0.php');
 
         $this->assertTrue($routes->has('users'));
@@ -48,13 +74,13 @@ class PhpLoaderTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('example.com', $routes->get('affiliates')->getHost());
         $this->assertSame(['https'], $routes->get('users')->getSchemes());
 
-        $loader = new PhpLoader($this->mockLocator());
+        $loader = new PhpLoader(null, $this->mockLocator());
         $routes = $loader->loadRoutes('route_groups.1.php');
 
         $this->assertNull($routes->get('users')->getHost());
         $this->assertSame(['http', 'https'], $routes->get('users')->getSchemes());
 
-        $loader = new PhpLoader($this->mockLocator());
+        $loader = new PhpLoader(null, $this->mockLocator());
         $routes = $loader->loadRoutes('route_groups.2.php');
 
         $this->assertNull($routes->get('users')->getHost());
@@ -64,12 +90,12 @@ class PhpLoaderTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function itShouldThrowOnInvalidConfig()
     {
-        $loader = new PhpLoader($this->mockLocator());
+        $loader = new PhpLoader(null, $this->mockLocator());
 
         try {
             $loader->loadRoutes('faulty.php');
         } catch (\Lucid\Resource\Exception\LoaderException $e) {
-            $this->assertEquals('Return value must be array.', $e->getMessage());
+            $this->assertEquals('Return value must be an array.', $e->getMessage());
             return;
         }
 

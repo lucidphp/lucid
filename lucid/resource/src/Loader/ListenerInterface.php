@@ -27,5 +27,5 @@ interface ListenerInterface
      *
      * @return void
      */
-    public function onLoaded($resource);
+    public function onLoaded(ResourceInterface $resource);
 }

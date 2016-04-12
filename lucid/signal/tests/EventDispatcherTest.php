@@ -35,7 +35,7 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase
     {
         $invoked = false;
 
-        $handler = $this->getMock('InvokableHandler', ['__invoke']);
+        $handler = $this->getMockBuilder('InvokableHandler')->setMethods(['__invoke'])->getMock();
         $handler->method('__invoke')->willReturnCallback(function () use (&$invoked) {
             $invoked = true;
         });
@@ -174,7 +174,7 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase
     {
         $called = false;
 
-        $handler = $this->getMock('Lucid\Signal\HandlerInterface');
+        $handler = $this->getMockBuilder('Lucid\Signal\HandlerInterface')->getMock();
         $handler->method('handleEvent')->will($this->returnCallback(function () use (&$called) {
             $called = true;
         }));

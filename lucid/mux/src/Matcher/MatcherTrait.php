@@ -93,13 +93,13 @@ trait MatcherTrait
         $vars = $route->getContext()->getVars();
         $params = array_merge(
             $route->getDefaults(),
-            array_map(
+            array_filter(array_map(
                 [$this, 'getValue'],
                 array_intersect_key(
                     $matches,
                     $t = array_combine($vars, array_pad([], count($vars), null))
                 )
-            )
+            ))
         );
 
         return array_intersect_key($params, $t);
