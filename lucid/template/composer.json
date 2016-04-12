@@ -14,7 +14,7 @@
   },
   "require-dev": {
     "psr/log": "^1.0",
-    "phpunit/phpunit": "5.2.*@dev"
+    "phpunit/phpunit":"^5.2"
   },
   "autoload": {
     "psr-4": {

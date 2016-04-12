@@ -84,6 +84,26 @@ class StandardTest extends \PHPUnit_Framework_TestCase
                 ['bar' => '\d+', 'baz' => '\w+']
             ],
             [
+                '/foo/{bar?}/{baz?}', false,
+                [['/foo', true], ['/foo/bar', false], ['/foo/12', true], ['/foo/12/a', true]],
+                ['bar' => '\d+', 'baz' => '\w+'],
+                ['bar' => 12, 'baz' => 'string'],
+            ],
+            [
+                // should not match first, missing default
+                '/foo/{bar?}/{baz?}', false,
+                [['/foo', false], ['/foo/bar', false], ['/foo/12', true], ['/foo/12/a', true]],
+                ['bar' => '\d+', 'baz' => '\w+'],
+                ['baz' => 'string'],
+            ],
+            [
+                // should not match, nested optional
+                '/foo/{bar?}/{baz}', false,
+                [['/foo', false], ['/foo/bar', false], ['/foo/12', false], ['/foo/12/a', true]],
+                ['bar' => '\d+', 'baz' => '\w+'],
+                ['bar' => 12],
+            ],
+            [
                 '/foo/{bar}/baz', false,
                 [['/foo/bar/baz', true], ['/foo/baz', false], ['/foo/12/baz', true]]
             ],
@@ -105,7 +125,6 @@ class StandardTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
     }
-
 
     /**
      * prepareRoute
