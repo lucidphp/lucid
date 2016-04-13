@@ -11,6 +11,18 @@ cleanUp() {
     unset GIT
     unset DIRS
     unset BRANCH
+    unset TAGS
+}
+
+usage() {
+cat <<EOF
+Usage: ./bin/publish [options... --tags --dryrun --branch=<branch>]
+Options:
+  -h, --help         Shows this dialog.
+  -d, --dryrun       Run this script without actually updating.
+  -t, --tags         Publish tags of the current branch.
+  -b, --branch       Specify which branch to publish. Default is current branch.
+EOF
 }
 
 for key in "$@"; do
@@ -27,6 +39,17 @@ for key in "$@"; do
             DRYRUN=true
             shift 1
             continue
+        ;;
+        --tags|-t)
+            echo "Push Tags"
+            TAGS=true
+            shift 1
+            continue
+        ;;
+        --help|-h)
+            usage
+            cleanUp
+            exit 0
         ;;
             *)
             shift 1
@@ -86,6 +109,15 @@ OPTIONS=''
 if [[ ! -z "$DRYRUN" ]]; then
     OPTIONS='--dry-run'
 fi
+
+if [[ ! -z "$TAGS" ]]; then
+    OPTIONS=$OPTIONS" --tags="`$GIT tag | xargs`
+else
+    OPTIONS=$OPTIONS" --no-tags"
+fi
+echo $OPTIONS
+exit 1;
+
 TAGS=`$GIT tag | xargs`
 SUBSPLIT=`$GIT subsplit init git@github.com:lucidphp/lucid.git`
 abortIf $? $SUBSPLIT
@@ -104,7 +136,7 @@ for d in `ls -d lucid/* | xargs`; do
     fi
 
     name=`basename $d`
-    RET=`$GIT subsplit publish $OPTIONS --tags="$TAGS" --heads="$BRANCH" "$d":git@github.com:lucidphp/"$name".git`
+    RET=`$GIT subsplit publish $OPTIONS --heads="$BRANCH" "$d":git@github.com:lucidphp/"$name".git`
     abortIf $? $RET
 done
 unset d
