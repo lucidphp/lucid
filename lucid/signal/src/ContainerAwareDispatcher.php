@@ -44,14 +44,16 @@ class ContainerAwareDispatcher extends EventDispatcher
     protected function getHandler($handler)
     {
         if (is_string($handler)) {
+            $method = null;
             if ($this->hasAttachedMethod($handler)) {
-                list($id, ) = explode(self::M_SEPARATOR, $handler);
+                list($id, $method) = explode(self::M_SEPARATOR, $handler);
             } else {
                 $id = $handler;
             }
 
             if ($this->container->has($id)) {
-                return $handler;
+                $handler = null === $method ? $this->container->get($id) :
+                    [$this->container->get($id), $method];
             }
         }
 
