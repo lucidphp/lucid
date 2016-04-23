@@ -116,7 +116,6 @@ else
     OPTIONS=$OPTIONS" --no-tags"
 fi
 echo $OPTIONS
-exit 1;
 
 TAGS=`$GIT tag | xargs`
 SUBSPLIT=`$GIT subsplit init git@github.com:lucidphp/lucid.git`
