@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This File is part of the Lucid\Routing\Matcher package
+ * This File is part of the Lucid\Mux package
  *
  * (c) iwyg <mail@thomas-appel.com>
  *
@@ -20,7 +20,7 @@ use Lucid\Mux\Matcher\Context as MatchContext;
 /**
  * @class RequestMatcher
  *
- * @package Lucid\Routing\Matcher
+ * @package Lucid\Mux
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */

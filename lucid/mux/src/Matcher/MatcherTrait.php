@@ -114,10 +114,12 @@ trait MatcherTrait
      */
     private function getValue(array $val)
     {
-        if (is_numeric($val[0])) {
-            return 0 + $val[0];
+        $value = urldecode($val[0]);
+
+        if (is_numeric($value)) {
+            return 0 + $value;
         }
 
-        return $val[0];
+        return $value;
     }
 }

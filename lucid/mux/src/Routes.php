@@ -11,6 +11,8 @@
 
 namespace Lucid\Mux;
 
+use InvalidArgumentException;
+
 /**
  * @class RouteCollection
  *
@@ -41,6 +43,9 @@ class Routes implements RouteCollectionInterface
         $this->setRoutes($routes);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function all()
     {
         return $this->routes;
@@ -52,7 +57,7 @@ class Routes implements RouteCollectionInterface
     public function add($routeName, RouteInterface $route)
     {
         if (!is_string($routeName)) {
-            throw new \InvalidArgumentException('Routename must be string.');
+            throw new InvalidArgumentException('Routename must be string.');
         }
 
         $this->routes[$routeName] = &$route;

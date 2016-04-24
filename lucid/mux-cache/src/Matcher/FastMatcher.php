@@ -145,17 +145,12 @@ class FastMatcher implements RequestMatcherInterface
 
             $keys = $route->getContext()->getVars();
             $args = array_combine($keys, array_map(function ($key) use ($matches, $prefix) {
-                return isset($matches[$prefix.$key]) ? $this->getArgValue($matches[$prefix.$key]) : null;
+                return isset($matches[$prefix.$key]) ? $this->getValue([$matches[$prefix.$key]]) : null;
             }, $keys));
 
             return [$name, $route, array_merge($route->getDefaults(), array_filter($args))];
         }
 
         throw new RuntimeException('No match found.');
-    }
-
-    private function getArgValue($val)
-    {
-        return is_numeric($val) ? 0 + $val : $val;
     }
 }
