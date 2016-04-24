@@ -6,11 +6,23 @@ key=
 
 # clean up subsplit files
 cleanUp() {
-    rm -rf ./.subsplit
-    rm -rf ./tmp
+	rm -rf ./.subsplit
+	rm -rf ./tmp
     unset GIT
     unset DIRS
     unset BRANCH
+    unset TAGS
+}
+
+usage() {
+cat <<EOF
+Usage: ./bin/publish [options... --tags --dryrun --branch=<branch>]
+Options:
+  -h, --help         Shows this dialog.
+  -d, --dryrun       Run this script without actually updating.
+  -t, --tags         Publish tags of the current branch.
+  -b, --branch       Specify which branch to publish. Default is current branch.
+EOF
 }
 
 for key in "$@"; do
@@ -28,6 +40,17 @@ for key in "$@"; do
             shift 1
             continue
         ;;
+        --tags|-t)
+            echo "Push Tags"
+            TAGS=true
+            shift 1
+            continue
+        ;;
+        --help|-h)
+            usage
+            cleanUp
+            exit 0
+        ;;
             *)
             shift 1
             echo Invalid option "$key". >&2
@@ -39,12 +62,12 @@ done
 
 # abort if error and clean up subsplit files
 abortIf() {
-    if [[ ! "$1" == 0 ]]; then
-        cleanUp
-        echo "\e[31m%s\e[m\n" "$2"
-        exit $1
-    fi
-    return 0
+	if [[ ! "$1" == 0 ]]; then
+		cleanUp
+		echo "\e[31m%s\e[m\n" "$2"
+		exit $1
+	fi
+	return 0
 }
 
 GIT=`which git`
@@ -74,12 +97,29 @@ if [ -z "$BRANCH" ]; then
     fi
 fi
 
+#if [[ ! -z "$DRYRUN" ]]; then
+#    echo "DRYRUN: $GIT subsplit init git@github.com:lucidphp/lucid.git"
+#else
+#    SUBSPLIT=`$GIT subsplit init git@github.com:lucidphp/lucid.git`
+#    abortIf $? $SUBSPLIT
+#fi
+
+OPTIONS=''
+
 if [[ ! -z "$DRYRUN" ]]; then
-    echo "DRYRUN: $GIT subsplit init git@github.com:lucidphp/lucid.git"
-else
-    SUBSPLIT=`$GIT subsplit init git@github.com:lucidphp/lucid.git`
-    abortIf $? $SUBSPLIT
+    OPTIONS='--dry-run'
 fi
+
+if [[ ! -z "$TAGS" ]]; then
+    OPTIONS=$OPTIONS" --tags="`$GIT tag | xargs`
+else
+    OPTIONS=$OPTIONS" --no-tags"
+fi
+echo $OPTIONS
+
+TAGS=`$GIT tag | xargs`
+SUBSPLIT=`$GIT subsplit init git@github.com:lucidphp/lucid.git`
+abortIf $? $SUBSPLIT
 
 echo "current branch is $BRANCH"
 
@@ -95,13 +135,8 @@ for d in `ls -d lucid/* | xargs`; do
     fi
 
     name=`basename $d`
-    if [[ ! -z "$DRYRUN" ]]; then
-        echo "DRYRUN: $GIT subsplit publish --no-tags --heads="$BRANCH" "$d":git@github.com:lucidphp/"$name".git"
-        sleep 1
-    else
-        RET=`$GIT subsplit publish --no-tags --heads="$BRANCH" "$d":git@github.com:lucidphp/"$name".git`
-        abortIf $? $RET
-    fi
+    RET=`$GIT subsplit publish $OPTIONS --heads="$BRANCH" "$d":git@github.com:lucidphp/"$name".git`
+    abortIf $? $RET
 done
 unset d
 cleanUp
