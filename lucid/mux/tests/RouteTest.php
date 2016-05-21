@@ -137,7 +137,10 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function itShouldCallParser()
     {
-        $route = $this->getMock(Route::class, ['getParserFunc'], ['/', 'action']);
+        $route = $this->getMockBuilder(Route::class)
+            ->setConstructorArgs(['/', 'action'])
+            ->setMethods(['getParserFunc'])
+            ->getMock();
         $route->method('getParserFunc')->willReturnCallback(function () {
             return function () {
                 return 'RouteContext';

@@ -22,11 +22,8 @@ use Lucid\Mux\Exception\ResolverException;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-class Resolver implements ContainerAwareResolverInterface
+class Resolver extends AbstractResolver
 {
-    /** @var ContainerInterface */
-    private $container;
-
     /**
      * Constructor.
      *
@@ -34,51 +31,15 @@ class Resolver implements ContainerAwareResolverInterface
      */
     public function __construct(ContainerInterface $container = null)
     {
-        $this->container = $container;
+        if (null !== $container) {
+            $this->setContainer($container);
+        }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setContainer(ContainerInterface $container)
-    {
-        $this->container = $container;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function resolve($controller)
-    {
-        if (is_callable($callable = $this->findHandler($controller))) {
-            return new Reflector($callable);
-        };
-
-        throw new ResolverException('No routing handler could be found.');
-    }
-
-    /**
-     * resolveHandlerAndMethod
-     *
-     * @param string $handler
-     *
-     * @return array
-     */
-    protected function resolveHandlerAndMethod($handler)
-    {
-        list ($handler, $method) = array_pad(explode('@', $handler), 2, null);
-
-        return [$handler, $method];
-    }
-
-    /**
-     * findHandler
-     *
-     * @param mixed $handler
-     *
-     * @return callable
-     */
-    private function findHandler($handler)
+    protected function findHandler($handler)
     {
         // if the handler is callable, return it immediately:
         if (is_callable($handler)) {
@@ -124,28 +85,16 @@ class Resolver implements ContainerAwareResolverInterface
     }
 
     /**
-     * @param string $id
+     * resolveHandlerAndMethod
      *
-     * @return mixed
+     * @param string $handler
+     *
+     * @return array
      */
-    private function getService($id)
+    protected function resolveHandlerAndMethod($handler)
     {
-        if (null !== $this->container && $this->container->has($id)) {
-            return $this->container->get($id);
-        }
+        list ($handler, $method) = array_pad(explode('@', $handler), 2, null);
 
-        return null;
-    }
-
-    /**
-     * newResolverException
-     *
-     * @param string $msg
-     *
-     * @return ResolverException
-     */
-    private function newResolverException($msg)
-    {
-        return new ResolverException('Can\'t resolve handler: '. $msg);
+        return [$handler, $method];
     }
 }

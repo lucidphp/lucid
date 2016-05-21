@@ -112,6 +112,6 @@ class UrlGeneratorTest extends \PHPUnit_Framework_TestCase
 
     protected function mockRoutes()
     {
-        return $this->getMock('Lucid\Mux\RouteCollectionInterface');
+        return $this->createMock('Lucid\Mux\RouteCollectionInterface');
     }
 }

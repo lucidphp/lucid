@@ -73,7 +73,8 @@ class ReflectorTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function itShouldBeInvokedObjectType()
     {
-        $obj = $this->getMock('InvokedObjMock', ['__invoke']);
+        $obj = $this->getMOckBuilder('InvokedObjMock')
+            ->setMethods(['__invoke'])->getMock();
         $obj->method('__invoke')->willReturn('invoked');
 
         $r = new Reflector($obj);

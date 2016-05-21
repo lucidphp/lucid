@@ -86,7 +86,9 @@ class ResolverTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function itShouldResolveInvokables()
     {
-        $handler =  $this->getMock(__NAMESPACE__.'\InvokableHandler', ['__invoke']);
+        $handler = $this->getMockBuilder(__NAMESPACE__.'\InvokableHandler')
+            ->setMethods(['__invoke'])->getMock();
+
         $handler->method('__invoke')->willReturnCallback(function () {
             return 'ok';
         });
