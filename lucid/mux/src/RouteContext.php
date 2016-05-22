@@ -14,7 +14,6 @@ namespace Lucid\Mux;
 use Serializable;
 use Lucid\Mux\Parser\Variable;
 use Lucid\Mux\Parser\TokenInterface;
-use Lucid\Mux\Parser\ParserInterface;
 
 /**
  * @class RouteContext
@@ -170,7 +169,7 @@ class RouteContext implements RouteContextInterface, Serializable
      */
     private static function wrapRegex($regex)
     {
-        return sprintf('%1$s^%2$s$%1$ss', ParserInterface::EXP_DELIM, $regex);
+        return sprintf('%1$s^%2$s$%1$ss', \Lucid\Mux\Parser\ParserInterface::EXP_DELIM, $regex);
     }
 
     private function filterVars(array $tokens)
