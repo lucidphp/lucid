@@ -5,11 +5,9 @@ language: php
 matrix:
   fast_finish: true
   include:
-    - php: 5.6
-      env:
-      - CS_CHECK_ENABLED: true
     - php: 7.0
       env:
+      - CS_CHECK_ENABLED: true
       - CODE_COVERAGE_LOG: true
     - php: hhvm
   allow_failures:

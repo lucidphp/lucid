@@ -74,11 +74,11 @@ interface CollectionInterface extends \Countable, \IteratorAggregate
     /**
      * map
      *
-     * @param callable $map
+     * @param callable $each
      *
      * @return CollectionInterface
      */
-    public function each(callable $map) : self;
+    public function each(callable $each) : self;
 
     /**
      * reverse

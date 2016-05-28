@@ -73,6 +73,20 @@ class AbstractCollectionTest extends \PHPUnit_Framework_TestCase
     }
 
     /** @test */
+    public function itShouldReverseValues()
+    {
+        $data = [1, 2, 3];
+        $collection = new IntegerCollection($data);
+
+        $new = $collection->reverse();
+
+        $this->assertFalse($new === $collection);
+
+        $result = $new->toArray();
+        $this->assertSame([3, 2, 1], $result);
+    }
+
+    /** @test */
     public function itShouldFilterValues()
     {
         $data = [1, 2, 3, 4, 5];
