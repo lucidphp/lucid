@@ -1,9 +1,9 @@
 <?php
 /**
  * This File is part of the lucid package
- *  
+ *
  *  (c) malcolm <$email>
- *  
+ *
  *  For full copyright and license information, please refer to the LICENSE file
  *  that was distributed with this package.
  */
@@ -34,11 +34,11 @@ class AbstractCollectionTest extends \PHPUnit_Framework_TestCase
     public function itShouldCallSetter()
     {
         $args = [1, 2, 3];
-        
+
         $collection = $this->newCollection($args, $fn = function(int ...$args) use (&$collection) {
-            $this->data = $args; 
+            $this->data = $args;
         });
-        
+
     }
 
     /** @test */
@@ -46,28 +46,28 @@ class AbstractCollectionTest extends \PHPUnit_Framework_TestCase
     {
         $data = [1, 2, 3];
         $collection = new IntegerCollection($data);
-        
+
         $res = [];
-        
+
         foreach($collection as $index => $item) {
             $res[$index] = $item;
         }
-        
+
         $this->assertEquals($data, $res);
     }
-    
+
     /** @test */
     public function itShouldMapValues()
     {
         $data = [1, 2, 3];
         $collection = new IntegerCollection($data);
-        
+
         $new = $collection->map(function (int $int) {
             return $int + 1;
         });
 
         $this->assertFalse($new === $collection);
-        
+
         $result = $new->toArray();
         $this->assertSame([2, 3, 4], $result);
     }
@@ -111,7 +111,7 @@ class AbstractCollectionTest extends \PHPUnit_Framework_TestCase
         $new = $collection->filter(function (int $int, int $key) {
             return $key > 2;
         }, CollectionInterface::FILTER_USE_BOTH);
-        
+
         $result = $new->toArray();
         $this->assertSame([4, 5], $result);
     }
@@ -171,7 +171,7 @@ class AbstractCollectionTest extends \PHPUnit_Framework_TestCase
     public function itShouldBeCountable()
     {
         $data = [1, 2, 3, 4, 5];
-        
+
         $collection = $this->newCollection($data);
         $this->assertSame(count($data), count($collection));
     }
@@ -187,31 +187,31 @@ class AbstractCollectionTest extends \PHPUnit_Framework_TestCase
         $collection->each(function (int $item, int $index) use (&$test) {
             $test[$index] = $item;
         });
-        
+
         $this->assertSame($args, $test);
     }
-    
+
     protected function newCollection(array $data = [], \Closure $setter = null, $stubClass = false)
     {
         if (false !== $stubClass) {
             return new $stubClass($data);
         }
-        
+
         $collection = $this->getMockbuilder(AbstractCollection::class)
             ->disableOriginalConstructor()
             ->setConstructorArgs([$data])
             ->setMethods(['getSetterMethod', 'getData', 'setData'])
             ->getMock();
-        
+
         $collection->data = [];
         $collection->method('getSetterMethod')->willReturnCallback(function () {
             return 'setData';
         });
-        
+
         $setter = $setter ?: function (...$data) use ($collection) {
             $collection->data = $data;
         };
-        
+
         $setter->bindTo($collection);
 
         $collection->method('getData')->willReturnCallback(function () use ($collection) {
@@ -224,9 +224,9 @@ class AbstractCollectionTest extends \PHPUnit_Framework_TestCase
 
         $reflection = new \ReflectionClass(AbstractCollection::class);
         $constructor = $reflection->getConstructor();
-        
+
         $constructor->invokeArgs($collection, [$data]);
-        
+
         return $collection;
     }
 }

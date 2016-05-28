@@ -22,10 +22,13 @@ use Iterator;
  */
 interface CollectionInterface extends \Countable, \IteratorAggregate
 {
+    /** @var int **/
     const SORT_NATSORT = 1;
 
+    /** @var int **/
     const FILTER_USE_BOTH = ARRAY_FILTER_USE_BOTH;
-    
+
+    /** @var int **/
     const FILTER_USE_KEY = ARRAY_FILTER_USE_KEY;
 
     /**
@@ -86,33 +89,6 @@ interface CollectionInterface extends \Countable, \IteratorAggregate
      * @return CollectionInterface
      */
     public function reverse() : self;
-
-    /**
-     * sort
-     *
-     * @param callable $sort
-     *
-     * @return void
-     */
-    //public function sort(callable $sort = null, int $sortn = self::SORT_NATSORT) : self;
-
-    /**
-     * walk
-     *
-     * @param callable $walk
-     *
-     * @return void
-     */
-    //public function walk(callable $walk) : self;
-
-    /**
-     * find
-     *
-     * @param mixed $item
-     *
-     * @return mixed
-     */
-    //public function find($item) : int;
 
     /**
      * reduce
