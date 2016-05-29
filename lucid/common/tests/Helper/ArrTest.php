@@ -79,13 +79,13 @@ class ArrTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function testMax()
     {
-        $this->assertEquals(3, Arr::max([['a', 'b', 'c'], ['A', 'C'], [1, 2, 3]]));
+        $this->assertEquals(4, Arr::max(['a', 'b', 'c'], ['A', 'C'], [-1, 1, 2, 3]));
     }
 
     /** @test */
     public function testMin()
     {
-        $this->assertEquals(2, Arr::min([['a', 'b', 'c'], ['A', 'C'], [1, 2, 3]]));
+        $this->assertEquals(2, Arr::min(['a', 'b', 'c'], ['A', 'C'], [1, 2, 3]));
     }
 
     /** @test */

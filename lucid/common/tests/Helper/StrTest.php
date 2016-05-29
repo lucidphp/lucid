@@ -50,15 +50,15 @@ class StrTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function itShouldSnakeCaseStrings()
     {
-        $this->assertEquals('foo_bar', Str::lowDash('fooBar'));
-        $this->assertEquals('foo_bar_baz', Str::lowDash('fooBarBaz'));
+        $this->assertEquals('foo_bar', Str::snakeCase('fooBar'));
+        $this->assertEquals('foo_bar_baz', Str::snakeCase('fooBarBaz'));
     }
 
     /** @test */
     public function itShouldSnakeCaseStringsUsingACustomDelimiter()
     {
-        $this->assertEquals('foo@bar', Str::lowDash('fooBar', '@'));
-        $this->assertEquals('foo:bar:baz', Str::lowDash('fooBarBaz', ':'));
+        $this->assertEquals('foo@bar', Str::snakeCase('fooBar', '@'));
+        $this->assertEquals('foo:bar:baz', Str::snakeCase('fooBarBaz', ':'));
     }
 
     /**

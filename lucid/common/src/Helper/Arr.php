@@ -79,7 +79,7 @@ final class Arr
      *
      * @return array
      */
-    public static function zip(...$args) : array
+    public static function zip(array ...$args) : array
     {
         $args = array_values($args);
         $count = count($args);
@@ -100,7 +100,7 @@ final class Arr
      *
      * @return int
      */
-    public static function max(array $args) : int
+    public static function max(array ...$args) : int
     {
         return count(call_user_func_array('max', $args));
     }
@@ -112,7 +112,7 @@ final class Arr
      *
      * @return int
      */
-    public static function min(array $args) : int
+    public static function min(array ...$args) : int
     {
         return count(call_user_func_array('min', $args));
     }
@@ -149,7 +149,7 @@ final class Arr
      *
      * @return mixed
      */
-    public static function get(array $array, $namespace = null, $separator = self::NS_SEPARATOR)
+    public static function get(array $array, string $namespace = null, string $separator = self::NS_SEPARATOR)
     {
         if (!is_string($namespace) || array_key_exists($namespace, $array)) {
             return $array;
@@ -175,7 +175,7 @@ final class Arr
      *
      * @return array
      */
-    public static function set(array &$input, $namespace, $value, $separator = self::NS_SEPARATOR) : array
+    public static function set(array &$input, string $namespace, $value, string $separator = self::NS_SEPARATOR) : array
     {
         $keys  = explode($separator, $namespace);
         $pointer = &$input;

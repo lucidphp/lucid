@@ -31,11 +31,20 @@ final class Str
      *
      * @param string $string
      * @param string $delim
+     * @deprecated
      *
      * @return string
      */
     public static function lowDash(string $string, string $delim = '_') : string
     {
+        trigger_error(
+            sprintf(
+                '%1$s::%2$s will be removed in the future. Use %1$s::snakeCase instead.',
+                __CLASS__,
+                __METHOD__
+            ),
+            E_USER_DEPRECATED
+        );
         return self::snakeCase($string, $delim);
     }
 
@@ -60,7 +69,7 @@ final class Str
      *
      * @return string
      */
-    public static function camelCase(string $string, array $replacement = ['-' => ' ', '_' => ' ']) : string
+    public static function camelCase(string $string, array $replacement = ['-', '_']) : string
     {
         return lcfirst(self::camelCaseAll($string, $replacement));
     }
@@ -73,9 +82,11 @@ final class Str
      *
      * @return string
      */
-    public static function camelCaseAll(string $string, array $replacement = ['-' => ' ', '_' => ' ']) : string
+    public static function camelCaseAll(string $string, array $replacement = ['-', '_']) : string
     {
-        return strtr(ucwords(strtr($string, $replacement)), [' ' => '']);
+        $rpl = array_combine(array_values($replacement), array_pad([], count($replacement), ' '));
+
+        return strtr(ucwords(strtr($string, $rpl)), [' ' => '']);
     }
 
     /**
