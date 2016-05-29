@@ -23,11 +23,7 @@ use InvalidArgumentException;
  */
 final class Str
 {
-    /**
-     * rchars
-     *
-     * @var string
-     */
+    /** @var string */
     private static $rchars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
     /**
@@ -38,7 +34,7 @@ final class Str
      *
      * @return string
      */
-    public static function lowDash($string, $delim = '_')
+    public static function lowDash(string $string, string $delim = '_') : string
     {
         return self::snakeCase($string, $delim);
     }
@@ -51,7 +47,7 @@ final class Str
      *
      * @return string
      */
-    public static function snakeCase($string, $delim = '_')
+    public static function snakeCase(string $string, string $delim = '_') : string
     {
         return strtolower(preg_replace('#[A-Z]#', $delim.'$0', lcfirst($string)));
     }
@@ -64,7 +60,7 @@ final class Str
      *
      * @return string
      */
-    public static function camelCase($string, array $replacement = ['-' => ' ', '_' => ' '])
+    public static function camelCase(string $string, array $replacement = ['-' => ' ', '_' => ' ']) : string
     {
         return lcfirst(self::camelCaseAll($string, $replacement));
     }
@@ -77,7 +73,7 @@ final class Str
      *
      * @return string
      */
-    public static function camelCaseAll($string, array $replacement = ['-' => ' ', '_' => ' '])
+    public static function camelCaseAll(string $string, array $replacement = ['-' => ' ', '_' => ' ']) : string
     {
         return strtr(ucwords(strtr($string, $replacement)), [' ' => '']);
     }
@@ -88,9 +84,9 @@ final class Str
      * @param string $string
      * @param string $input
      *
-     * @return boolean
+     * @return bool
      */
-    public static function equals($string, $input)
+    public static function equals(string $string, string $input) : bool
     {
         return 0 === strcmp($string, $input);
     }
@@ -101,9 +97,9 @@ final class Str
      * @param string $string
      * @param string $input
      *
-     * @return boolean
+     * @return bool
      */
-    public static function safeCmp($string, $input)
+    public static function safeCmp(string $string, string $input) : bool
     {
         $pad = static::rand(4);
 
@@ -129,19 +125,8 @@ final class Str
      *
      * @return string
      */
-    public static function rand($length)
+    public static function rand(int $length) : string
     {
-        if (!is_int($length)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    '%s::%s() expects first argument to be integer, instead saw %s.',
-                    __CLASS__,
-                    __METHOD__,
-                    gettype($length)
-                )
-            );
-        }
-
         if (!function_exists('openssl_random_pseudo_bytes')) {
             return self::quickRand($length);
         }
@@ -160,7 +145,7 @@ final class Str
      *
      * @return string
      */
-    public static function quickRand($length)
+    public static function quickRand(int $length) : string
     {
         return substr(str_shuffle(str_repeat(static::$rchars, 5)), 0, $length);
     }

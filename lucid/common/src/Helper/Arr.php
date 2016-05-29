@@ -34,7 +34,7 @@ final class Arr
      *
      * @return array
      */
-    public static function flatten(array $array)
+    public static function flatten(array $array) : array
     {
         $out = [];
 
@@ -54,7 +54,7 @@ final class Arr
      *
      * @return array
      */
-    public static function column(array $array, $key, $index = null)
+    public static function column(array $array, string $key, $index = null) : array
     {
         return array_column($array, $key, $index);
     }
@@ -67,7 +67,7 @@ final class Arr
      *
      * @return array
      */
-    public static function pluck(array $array, $key)
+    public static function pluck(array $array, string $key) : array
     {
         return array_map(function ($item) use ($key) {
             return is_object($item) ? $item->$key : $item[$key];
@@ -77,9 +77,9 @@ final class Arr
     /**
      * Zips to or more arrays
      *
-     * @return void
+     * @return array
      */
-    public static function zip(...$args)
+    public static function zip(...$args) : array
     {
         $args = array_values($args);
         $count = count($args);
@@ -100,7 +100,7 @@ final class Arr
      *
      * @return int
      */
-    public static function max(array $args)
+    public static function max(array $args) : int
     {
         return count(call_user_func_array('max', $args));
     }
@@ -112,7 +112,7 @@ final class Arr
      *
      * @return int
      */
-    public static function min(array $args)
+    public static function min(array $args) : int
     {
         return count(call_user_func_array('min', $args));
     }
@@ -123,9 +123,9 @@ final class Arr
      * @param array $array
      * @param bool $strict
      *
-     * @return boolean
+     * @return bool
      */
-    public static function isList(array $array, $strict = false)
+    public static function isList(array $array, $strict = false) : bool
     {
         $isNumbers = ctype_digit(implode('', $keys = array_keys($array)));
 
@@ -151,15 +151,15 @@ final class Arr
      */
     public static function get(array $array, $namespace = null, $separator = self::NS_SEPARATOR)
     {
-        if (!is_string($namespace)) {
+        if (!is_string($namespace) || array_key_exists($namespace, $array)) {
             return $array;
         }
 
         $keys = explode($separator, $namespace);
 
-        while (count($keys) > 0 && !is_null($array)) {
+        while (count($keys) > 0 && null !== $array) {
             $key = array_shift($keys);
-            $array = isset($array[$key]) ? $array[$key] : null;
+            $array = array_key_exists($key, $array) ? $array[$key] : null;
         }
 
         return $array;
@@ -175,14 +175,14 @@ final class Arr
      *
      * @return array
      */
-    public static function set(array &$input, $namespace, $value, $separator = self::NS_SEPARATOR)
+    public static function set(array &$input, $namespace, $value, $separator = self::NS_SEPARATOR) : array
     {
         $keys  = explode($separator, $namespace);
         $pointer = &$input;
 
         while (count($keys) > 0) {
             $key = array_shift($keys);
-            $pointer[$key] = isset($pointer[$key]) ? $pointer[$key] : [];
+            $pointer[$key] = array_key_exists($key, $pointer) ? $pointer[$key] : [];
             $pointer = &$pointer[$key];
         }
 
@@ -225,7 +225,7 @@ final class Arr
      *
      * @return array
      */
-    public static function compact($array, $reindex = false)
+    public static function compact(array $array, bool $reindex = false) : array
     {
         $out = array_filter($array, function ($item) {
             return false !== (bool)$item;

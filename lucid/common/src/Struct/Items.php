@@ -12,6 +12,7 @@
 
 namespace Lucid\Common\Struct;
 
+use Iterator;
 use Countable;
 use ArrayAccess;
 use Serializable;
@@ -34,7 +35,7 @@ class Items implements ListInterface, ArrayAccess, Countable, Serializable, Iter
     /**
      * Constructor.
      *
-     * @param mixed $args
+     * @param array $args
      */
     public function __construct(...$args)
     {
@@ -44,23 +45,27 @@ class Items implements ListInterface, ArrayAccess, Countable, Serializable, Iter
     /**
      * {@inheritdoc}
      */
-    public function push($value)
+    public function push($value) : ListInterface
     {
         $this->data[] = $value;
+
+        return $this;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function insert($index, $value)
+    public function insert(int $index, $value) : ListInterface
     {
-        array_splice($this->data, (int)$index, 0, $value);
+        array_splice($this->data, $index, 0, $value);
+
+        return $this;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function pop($index = null)
+    public function pop(int $index = null)
     {
         return null === $index ? array_pop($this->data) : current(array_splice($this->data, $index, 1));
     }
@@ -68,19 +73,21 @@ class Items implements ListInterface, ArrayAccess, Countable, Serializable, Iter
     /**
      * {@inheritdoc}
      */
-    public function remove($value)
+    public function remove($value) : ListInterface
     {
         if (false === ($index = array_search($value, $this->data, true))) {
             throw new InvalidArgumentException('index out of bounds');
         }
 
         $this->pop($index);
+
+        return $this;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function countValue($value)
+    public function countValue($value) : int
     {
         return count(array_filter($this->data, function ($item) use ($value) {
             return $value === $item;
@@ -90,7 +97,7 @@ class Items implements ListInterface, ArrayAccess, Countable, Serializable, Iter
     /**
      * {@inheritdoc}
      */
-    public function count()
+    public function count() : int
     {
         return count($this->data);
     }
@@ -98,35 +105,41 @@ class Items implements ListInterface, ArrayAccess, Countable, Serializable, Iter
     /**
      * {@inheritdoc}
      */
-    public function sort()
+    public function sort() : ListInterface
     {
         sort($this->data);
+
+        return $this;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function reverse()
+    public function reverse() : ListInterface
     {
         $this->data = array_reverse($this->data);
+
+        return $this;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function extend(ListInterface $list)
+    public function extend(ListInterface $list) : ListInterface
     {
         $args = $list->toArray();
         array_unshift($args, null);
         $args[0] = &$this->data;
 
         call_user_func_array('array_push', $args);
+
+        return $this;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function toArray()
+    public function toArray() : array
     {
         return $this->data;
     }
@@ -158,7 +171,7 @@ class Items implements ListInterface, ArrayAccess, Countable, Serializable, Iter
     /**
      * {@inheritdoc}
      */
-    public function offsetExists($offset)
+    public function offsetExists($offset) : bool
     {
         return isset($this->data[$offset]);
     }
@@ -166,7 +179,7 @@ class Items implements ListInterface, ArrayAccess, Countable, Serializable, Iter
     /**
      * {@inheritdoc}
      */
-    public function getIterator()
+    public function getIterator() : Iterator
     {
         return new ArrayIterator($this->data);
     }
@@ -174,7 +187,7 @@ class Items implements ListInterface, ArrayAccess, Countable, Serializable, Iter
     /**
      * {@inheritdoc}
      */
-    public function serialize()
+    public function serialize() : string
     {
         return serialize($this->data);
     }
@@ -182,7 +195,7 @@ class Items implements ListInterface, ArrayAccess, Countable, Serializable, Iter
     /**
      * {@inheritdoc}
      */
-    public function unserialize($data)
+    public function unserialize($data) : ListInterface
     {
         $this->data = unserialize($data);
 

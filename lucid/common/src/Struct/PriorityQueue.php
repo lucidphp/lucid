@@ -23,20 +23,8 @@ use SplPriorityQueue;
  */
 class PriorityQueue extends SplPriorityQueue
 {
-    /**
-     * queueOrder
-     *
-     * @var int
-     */
-    private $queueOrder;
-
-    /**
-     * Constructor.
-     */
-    public function __construct()
-    {
-        $this->queueOrder = PHP_INT_MAX;
-    }
+    /** @var int */
+    private $queueOrder = PHP_INT_MAX;
 
     /**
      * {@inheritdoc}

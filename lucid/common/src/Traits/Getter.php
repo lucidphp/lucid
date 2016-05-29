@@ -11,8 +11,6 @@
 
 namespace Lucid\Common\Traits;
 
-use Closure;
-
 /**
  * @trait Getter
  *
@@ -33,7 +31,7 @@ trait Getter
      *
      * @return mixed Result derived from `$pool`, otherwise `$default`.
      */
-    protected function getDefault(array $pool, $attr, $default = null)
+    protected function getDefault(array $pool, string $attr, $default = null)
     {
         return array_key_exists($attr, $pool) ? $pool[$attr] : $default;
     }
@@ -50,7 +48,7 @@ trait Getter
      *
      * @return mixed Result derived from `$pool`, otherwise results from `$default`.
      */
-    protected function getDefaultUsing(array $pool, $attr, Closure $default)
+    protected function getDefaultUsing(array $pool, string $attr, callable $default)
     {
         return array_key_exists($attr, $pool) ? $pool[$attr] : $default();
     }
@@ -66,7 +64,7 @@ trait Getter
      *
      * @return mixed Result derived from `$pool`, otherwise `$default`.
      */
-    protected function getStrictDefault(array $pool, $attr, $default = null)
+    protected function getStrictDefault(array $pool, string $attr, $default = null)
     {
         return isset($pool[$attr]) ? $pool[$attr] : $default;
     }
@@ -83,7 +81,7 @@ trait Getter
      *
      * @return mixed Result derived from `$pool`, otherwise results from `$default`.
      */
-    protected function getStrictDefaultUsing(array $pool, $attr, Closure $default)
+    protected function getStrictDefaultUsing(array $pool, string $attr, callable $default)
     {
         return isset($pool[$attr]) ? $pool[$attr] : $default();
     }

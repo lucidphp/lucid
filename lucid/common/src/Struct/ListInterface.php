@@ -25,7 +25,7 @@ interface ListInterface
      *
      * @param mixed $value
      *
-     * @return void
+     * @return self
      */
     public function push($value);
 
@@ -35,9 +35,9 @@ interface ListInterface
      * @param int $index the index
      * @param mixed $value the value to insert.
      *
-     * @return void
+     * @return self
      */
-    public function insert($index, $value);
+    public function insert(int $index, $value) : self;
 
     /**
      * Removes a value from the end of the list
@@ -49,16 +49,16 @@ interface ListInterface
      * @return mixed the value specified by the index or the last one in the
      * list.
      */
-    public function pop($index = null);
+    public function pop(int $index = null);
 
     /**
      * Removes an item in the by its value.
      *
      * @param mixed $value the value to be removed.
      *
-     * @return void
+     * @return self
      */
-    public function remove($value);
+    public function remove($value) : self;
 
     /**
      * Gets the amount of values that you are looking for.
@@ -67,28 +67,28 @@ interface ListInterface
      *
      * @return int the amount
      */
-    public function countValue($value);
+    public function countValue($value) : int;
 
     /**
      * sort
      *
-     * @return mixed
+     * @return self
      */
-    public function sort();
+    public function sort() : self;
 
     /**
      * reverse
      *
-     * @return mixed
+     * @return self
      */
-    public function reverse();
+    public function reverse() : self;
 
     /**
      * extend
      *
-     * @param ListStruct $list
+     * @param ListInterface $list
      *
-     * @return mixed
+     * @return self
      */
-    public function extend(ListInterface $list);
+    public function extend(ListInterface $list) : self;
 }
