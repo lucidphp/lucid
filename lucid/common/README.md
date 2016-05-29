@@ -157,7 +157,7 @@ $res = $ints->tail(3)->toArray();
 
 $ints = new Integers(1, 2, 3, 4, 5, 6);
 
-$ints.each(function (int $int) {
+$ints->each(function (int $int) {
     echo $int;
 });
 
