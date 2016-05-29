@@ -1,9 +1,9 @@
 <?php
 /**
  * This File is part of the lucid package
- *  
+ *
  *  (c) malcolm <$email>
- *  
+ *
  *  For full copyright and license information, please refer to the LICENSE file
  *  that was distributed with this package.
  */
@@ -21,7 +21,13 @@ class IntegerCollection extends \Lucid\Common\Struct\AbstractCollection
     /** @var  array */
     private $data;
     
-    protected function setData(int ...$args) {
+    public function reduce(callable $reduce) : int
+    {
+        return parent::reduce($reduce);
+    }
+    
+    protected function setData(int ...$args)
+    {
         $this->data = $args;
     }
 

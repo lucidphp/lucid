@@ -17,7 +17,6 @@ use Iterator;
  * @class AbstractCollection
  *
  * @package Lucid\Common\Struct
- * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
 abstract class AbstractCollection implements CollectionInterface
@@ -27,7 +26,7 @@ abstract class AbstractCollection implements CollectionInterface
      *
      * @param array $data
      */
-    public function __construct(array $data)
+    public function __construct(...$data)
     {
         $this->getSetterMethod();
         call_user_func_array([$this, $this->getSetterMethod()], $data);
@@ -80,7 +79,7 @@ abstract class AbstractCollection implements CollectionInterface
      */
     public function slice(int $offset = 1, int $count = 1) : CollectionInterface
     {
-        return new static(array_slice($data = $this->getData(), $offset, $count));
+        return new static(...array_slice($data = $this->getData(), $offset, $count));
     }
 
     /**
@@ -88,7 +87,7 @@ abstract class AbstractCollection implements CollectionInterface
      */
     public function reverse() : CollectionInterface
     {
-        return new static(array_reverse($this->getData()));
+        return new static(...array_reverse($this->getData()));
     }
 
     /**
@@ -96,7 +95,7 @@ abstract class AbstractCollection implements CollectionInterface
      */
     public function filter(callable $filter = null, int $flag = null) : CollectionInterface
     {
-        return new static(array_filter($this->getData(), $filter ?: null, $flag));
+        return new static(...array_filter($this->getData(), $filter ?: null, $flag));
     }
 
     /**
@@ -104,7 +103,7 @@ abstract class AbstractCollection implements CollectionInterface
      */
     public function map(callable $map) : CollectionInterface
     {
-        return new static(array_map($map, $this->getData()));
+        return new static(...array_map($map, $this->getData()));
     }
 
     /**

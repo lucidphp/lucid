@@ -49,7 +49,7 @@ interface CollectionInterface extends \Countable, \IteratorAggregate
 
     /**
      * tail
-     * 
+     *
      * @param int $max
      *
      * @return CollectionInterface

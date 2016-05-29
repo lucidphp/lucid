@@ -21,7 +21,6 @@ use Lucid\Common\Struct\AbstractCollection;
 use Lucid\Common\Struct\CollectionInterface;
 use Lucid\Common\Tests\Struct\Stubs\IntegerCollection;
 
-
 class AbstractCollectionTest extends \PHPUnit_Framework_TestCase
 {
     /** @test */
@@ -35,21 +34,20 @@ class AbstractCollectionTest extends \PHPUnit_Framework_TestCase
     {
         $args = [1, 2, 3];
 
-        $collection = $this->newCollection($args, $fn = function(int ...$args) use (&$collection) {
+        $collection = $this->newCollection($args, $fn = function (int ...$args) use (&$collection) {
             $this->data = $args;
         });
-
     }
 
     /** @test */
     public function itShouldBeIteratable()
     {
         $data = [1, 2, 3];
-        $collection = new IntegerCollection($data);
+        $collection = new IntegerCollection(...$data);
 
         $res = [];
 
-        foreach($collection as $index => $item) {
+        foreach ($collection as $index => $item) {
             $res[$index] = $item;
         }
 
@@ -60,7 +58,7 @@ class AbstractCollectionTest extends \PHPUnit_Framework_TestCase
     public function itShouldMapValues()
     {
         $data = [1, 2, 3];
-        $collection = new IntegerCollection($data);
+        $collection = new IntegerCollection(...$data);
 
         $new = $collection->map(function (int $int) {
             return $int + 1;
@@ -76,7 +74,7 @@ class AbstractCollectionTest extends \PHPUnit_Framework_TestCase
     public function itShouldReverseValues()
     {
         $data = [1, 2, 3];
-        $collection = new IntegerCollection($data);
+        $collection = new IntegerCollection(...$data);
 
         $new = $collection->reverse();
 
@@ -90,7 +88,7 @@ class AbstractCollectionTest extends \PHPUnit_Framework_TestCase
     public function itShouldFilterValues()
     {
         $data = [1, 2, 3, 4, 5];
-        $collection = new IntegerCollection($data);
+        $collection = new IntegerCollection(...$data);
 
         $new = $collection->filter(function (int $int) {
             return $int > 2;
@@ -106,7 +104,7 @@ class AbstractCollectionTest extends \PHPUnit_Framework_TestCase
     public function itShouldApplyFilterFlags()
     {
         $data = [1, 2, 3, 4, 5];
-        $collection = new IntegerCollection($data);
+        $collection = new IntegerCollection(...$data);
 
         $new = $collection->filter(function (int $int, int $key) {
             return $key > 2;
@@ -117,17 +115,34 @@ class AbstractCollectionTest extends \PHPUnit_Framework_TestCase
     }
 
     /** @test */
+    public function itShouldRediceData()
+    {
+        $data = [1, 2, 3, 4, 5];
+        $collection = new IntegerCollection(...$data);
+
+        $res = $collection->reduce(function (int $prev = null, int $current = null) {
+            if (null === $prev) {
+                return $current;
+            }
+
+            return $current + $prev;
+        });
+
+        $this->assertSame(15, $res);
+    }
+
+    /** @test */
     public function itShouldReturnHead()
     {
         $data = [1, 2, 3, 4, 5];
-        $collection = new IntegerCollection($data);
+        $collection = new IntegerCollection(...$data);
 
         $new = $collection->head();
 
         $result = $new->toArray();
         $this->assertSame([1], $result);
 
-        $collection = new IntegerCollection($data);
+        $collection = new IntegerCollection(...$data);
 
         $new = $collection->head(3);
 
@@ -139,13 +154,13 @@ class AbstractCollectionTest extends \PHPUnit_Framework_TestCase
     public function itShouldReturnTail()
     {
         $data = [1, 2, 3, 4, 5];
-        $collection = new IntegerCollection($data);
+        $collection = new IntegerCollection(...$data);
 
         $new = $collection->tail();
         $result = $new->toArray();
         $this->assertSame([5], $result);
 
-        $collection = new IntegerCollection($data);
+        $collection = new IntegerCollection(...$data);
 
         $new = $collection->tail(2);
         $result = $new->toArray();
@@ -156,7 +171,7 @@ class AbstractCollectionTest extends \PHPUnit_Framework_TestCase
     public function itShouldSlice()
     {
         $data = [1, 2, 3, 4, 5];
-        $collection = new IntegerCollection($data);
+        $collection = new IntegerCollection(...$data);
 
         $new = $collection->slice(1, 2);
         $result = $new->toArray();
@@ -194,12 +209,12 @@ class AbstractCollectionTest extends \PHPUnit_Framework_TestCase
     protected function newCollection(array $data = [], \Closure $setter = null, $stubClass = false)
     {
         if (false !== $stubClass) {
-            return new $stubClass($data);
+            return new $stubClass(...$data);
         }
 
         $collection = $this->getMockbuilder(AbstractCollection::class)
             ->disableOriginalConstructor()
-            ->setConstructorArgs([$data])
+            //->setConstructorArgs($data)
             ->setMethods(['getSetterMethod', 'getData', 'setData'])
             ->getMock();
 
@@ -225,7 +240,7 @@ class AbstractCollectionTest extends \PHPUnit_Framework_TestCase
         $reflection = new \ReflectionClass(AbstractCollection::class);
         $constructor = $reflection->getConstructor();
 
-        $constructor->invokeArgs($collection, [$data]);
+        $constructor->invokeArgs($collection, $data);
 
         return $collection;
     }
