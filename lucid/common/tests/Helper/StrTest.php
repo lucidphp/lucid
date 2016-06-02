@@ -7,6 +7,18 @@ use Lucid\Common\Helper\Str;
 class StrTest extends \PHPUnit_Framework_TestCase
 {
     /** @test */
+    public function callingLowdashShouldTriggerDeprecationError()
+    {
+        try {
+            Str::lowDash('fooBar');
+        } catch (\Throwable $e) {
+            $this->assertInstanceOf('PHPUnit_Framework_Error_Deprecated', $e);
+        } catch (\Exception $e) {
+            $this->fail();
+        }
+    }
+    
+    /** @test */
     public function itShouldSafeCompareStrings()
     {
         $a = 'secret';
