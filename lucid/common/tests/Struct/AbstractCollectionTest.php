@@ -114,7 +114,7 @@ class AbstractCollectionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * Test helper for filter and reject
-     * 
+     *
      * @param int $int
      * @return bool
      */
