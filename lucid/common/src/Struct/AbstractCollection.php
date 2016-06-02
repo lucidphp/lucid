@@ -101,6 +101,16 @@ abstract class AbstractCollection implements CollectionInterface
     /**
      * {@inheritdoc}
      */
+    public function reject(callable $filter = null, int $flag = null) : CollectionInterface
+    {
+        return $this->filter(function (...$args) use ($filter) {
+            return !$filter(...$args);
+        }, $flag);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function map(callable $map) : CollectionInterface
     {
         return new static(...array_map($map, $this->getData()));

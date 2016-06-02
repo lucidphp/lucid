@@ -57,13 +57,22 @@ interface CollectionInterface extends \Countable, \IteratorAggregate
     public function tail(int $max = 1) : self;
 
     /**
-     * filter
+     * Uses a callback function to filter values.
      *
-     * @param callable $filter
+     * @param callable $filter : bool
      *
      * @return CollectionInterface
      */
     public function filter(callable $filter = null, int $flag = null) : self;
+
+    /**
+     * Uses a callback function to reject values.
+     *
+     * @param callable $reject : bool
+     *
+     * @return CollectionInterface
+     */
+    public function reject(callable $reject = null, int $flag = null) : self;
 
     /**
      * map

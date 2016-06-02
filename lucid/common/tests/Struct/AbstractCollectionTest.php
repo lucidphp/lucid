@@ -90,14 +90,37 @@ class AbstractCollectionTest extends \PHPUnit_Framework_TestCase
         $data = [1, 2, 3, 4, 5];
         $collection = new IntegerCollection(...$data);
 
-        $new = $collection->filter(function (int $int) {
-            return $int > 2;
-        });
+        $new = $collection->filter([$this, 'filterAndReject']);
 
         $this->assertFalse($new === $collection);
 
         $result = $new->toArray();
         $this->assertSame([3, 4, 5], $result);
+    }
+
+    /** @test */
+    public function itShouldRejectValues()
+    {
+        $data = [1, 2, 3, 4, 5];
+        $collection = new IntegerCollection(...$data);
+
+        $new = $collection->reject([$this, 'filterAndReject']);
+
+        $this->assertFalse($new === $collection);
+
+        $result = $new->toArray();
+        $this->assertSame([1, 2], $result);
+    }
+
+    /**
+     * Test helper for filter and reject
+     * 
+     * @param int $int
+     * @return bool
+     */
+    public function filterAndReject(int $int) : bool
+    {
+        return $int > 2;
     }
 
     /** @test */

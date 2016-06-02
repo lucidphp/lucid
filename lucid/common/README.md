@@ -20,6 +20,174 @@ php >= 7.0
 $ composer require lucid/common
 ```
 
+## Data structures
+
+### Priority queue
+
+Fixes some issues with the default `SplPriorityQueue` and is the base class for the reversed priority queue.
+
+### Reversed priority queue
+
+Like `PriorityQueue`, but reverses priorities. 
+
+### Collections
+
+#### Creating typed collections
+
+
+```php
+<?php
+
+namespace Acme\Data;
+
+use Lucid\Common\Struct\AbstractCollection;
+
+class Integers extends AbstractCollection
+{
+    private $ints;
+    
+    public function reduce(callable $reduce) : int
+    {
+        return parent::reduce($reduce);
+    }
+
+    protected function getData() : array
+    {
+        return $this->ints;
+    }
+
+    protected function setData(int ...$data)
+    {
+        $this->ints = $data;
+    }
+
+    protected function getSetterMethod() : string
+    {
+        return 'setData';
+    }
+}
+```
+
+##### Collection methods
+
+**`map`** : `Lucid\Common\Struct\CollectionInterface`
+
+Returns a new Collection containing the mapped values of the origin collection.
+
+```php
+<?php
+
+$ints = new Integers(1, 2, 3, 4, 5, 6);
+
+
+$res = $ints->map(function(int $num) {
+    return $num * $num;
+})->toArray();
+
+// => [1, 4, 9, 16, 25, 36] 
+```
+
+**`filter`** : `Lucid\Common\Struct\CollectionInterface`
+
+Returns a new Collection containing the filtered values of the origin collection.
+`CollectionInterface:filter()` also takes an optional second argument `int $flag` which can be either `CollectionInterface::FILTER_USE_KEY` to filter by value keys, or `CollectionInterface::FILTER_USE_BOTH`, to filter by key and value.
+
+```php
+<?php
+
+$ints = new Integers(1, 2, 3, 4, 5, 6);
+
+
+$res = $ints->filter(function(int $num) {
+    return $num > 3;
+})->toArray();
+
+// => [4, 5, 6] 
+```
+
+**`slice`** : `Lucid\Common\Struct\CollectionInterface`
+
+Returns a new Collection containing a slice of the original collection. 
+
+```php
+<?php
+
+$ints = new Integers(1, 2, 3, 4, 5, 6);
+
+
+$res = $ints->slice(2)->toArray();
+// => [2, 4, 5, 6] 
+
+$res = $ints->slice(2, 2)->toArray();
+// => [2, 4]
+
+$res = $ints->slice(-1)->toArray();
+// => [6]
+```
+
+**`head`** : `Lucid\Common\Struct\CollectionInterface`
+
+Returns a new Collection containing the top portion of the original collection. `CollectionInterface::head()` also takes an optional argument `int $max`. 
+
+```php
+<?php
+
+$ints = new Integers(1, 2, 3, 4, 5, 6);
+
+
+$res = $ints->head()->toArray();
+// => [1] 
+
+$res = $ints->head(3)->toArray();
+// => [1, 2, 3] 
+```
+
+**`tail`** : `Lucid\Common\Struct\CollectionInterface`
+
+Returns a new Collection containing the tail portion of the original collection. `CollectionInterface::tail()` also takes an optional argument `int $max`.
+
+```php
+<?php
+
+$ints = new Integers(1, 2, 3, 4, 5, 6);
+
+
+$res = $ints->tail()->toArray();
+// => [6] 
+
+$res = $ints->tail(3)->toArray();
+// => [4, 5, 6] 
+```
+**`each`** : `Lucid\Common\Struct\CollectionInterface`
+
+```php
+<?php
+
+$ints = new Integers(1, 2, 3, 4, 5, 6);
+
+$ints->each(function (int $int) {
+    echo $int;
+});
+
+// you can also do
+foreach ($ints as $int) {
+    echo $int;
+}
+```
+
+### Items
+The `Items` class implements a `ListInterface` and is modeled after pythons `list`.
+
+
+```php
+<?php
+
+use Lucid\Common\Struct\Items;
+
+$list = new Items('foo', 'bar', ...);
+```
+
+
 ## Traits
 
 ### Getter
@@ -63,7 +231,7 @@ class Person
     
     public function getname() : string
     {
-        return $this->getDefault($this->data, 'name', function () {...});
+        return $this->getDefaultUsing($this->data, 'name', function () {...});
     }
 }
 ```
@@ -400,162 +568,4 @@ $arr = ['foo' => ['bar' => 'baz']]
 
 Arr::unsetKey($arr, 'foo.bar');
 // ['foo' => []]
-```
-## Data Structs
-
-### Collections
-
-#### Creating typed collections
-
-
-```php
-<?php
-
-namespace Acme\Data;
-
-use Lucid\Common\Struct\AbstractCollection;
-
-class Integers extends AbstractCollection
-{
-    private $ints;
-    
-    public function reduce(callable $reduce) : int
-    {
-        return parent::reduce($reduce);
-    }
-
-    protected function getData() : array
-    {
-        return $this->ints;
-    }
-
-    protected function setData(int ...$data)
-    {
-        $this->ints = $data;
-    }
-
-    protected function getSetterMethod() : string
-    {
-        return 'setData';
-    }
-}
-```
-
-##### Collection methods
-
-**`map`** : `Lucid\Common\Struct\CollectionInterface`
-
-Returns a new Collection containing the mapped values of the origin collection.
-
-```php
-<?php
-
-$ints = new Integers(1, 2, 3, 4, 5, 6);
-
-
-$res = $ints->map(function(int $num) {
-    return $num * $num;
-})->toArray();
-
-// => [1, 4, 9, 16, 25, 36] 
-```
-
-**`filter`** : `Lucid\Common\Struct\CollectionInterface`
-
-Returns a new Collection containing the filtered values of the origin collection.
-`CollectionInterface:filter()` also takes an optional second argument `int $flag` which can be either `CollectionInterface::FILTER_USE_KEY` to filter by value keys, or `CollectionInterface::FILTER_USE_BOTH`, to filter by key and value.
-
-```php
-<?php
-
-$ints = new Integers(1, 2, 3, 4, 5, 6);
-
-
-$res = $ints->filter(function(int $num) {
-    return $num > 3;
-})->toArray();
-
-// => [4, 5, 6] 
-```
-
-**`slice`** : `Lucid\Common\Struct\CollectionInterface`
-
-Returns a new Collection containing a slice of the original collection. 
-
-```php
-<?php
-
-$ints = new Integers(1, 2, 3, 4, 5, 6);
-
-
-$res = $ints->slice(2)->toArray();
-// => [2, 4, 5, 6] 
-
-$res = $ints->slice(2, 2)->toArray();
-// => [2, 4]
-
-$res = $ints->slice(-1)->toArray();
-// => [6]
-```
-
-**`head`** : `Lucid\Common\Struct\CollectionInterface`
-
-Returns a new Collection containing the top portion of the original collection. `CollectionInterface::head()` also takes an optional argument `int $max`. 
-
-```php
-<?php
-
-$ints = new Integers(1, 2, 3, 4, 5, 6);
-
-
-$res = $ints->head()->toArray();
-// => [1] 
-
-$res = $ints->head(3)->toArray();
-// => [1, 2, 3] 
-```
-
-**`tail`** : `Lucid\Common\Struct\CollectionInterface`
-
-Returns a new Collection containing the tail portion of the original collection. `CollectionInterface::tail()` also takes an optional argument `int $max`.
-
-```php
-<?php
-
-$ints = new Integers(1, 2, 3, 4, 5, 6);
-
-
-$res = $ints->tail()->toArray();
-// => [6] 
-
-$res = $ints->tail(3)->toArray();
-// => [4, 5, 6] 
-```
-**`each`** : `Lucid\Common\Struct\CollectionInterface`
-
-```php
-<?php
-
-$ints = new Integers(1, 2, 3, 4, 5, 6);
-
-$ints->each(function (int $int) {
-    echo $int;
-});
-
-// you can also do
-foreach ($ints as $int) {
-    echo $int;
-}
-```
-
-### Items
-The `Items` class implements a `ListInterface` and is modeled after pythons `list`.
-
-
-```php
-<?php
-
-use Lucid\Common\Struct\Items;
-
-$list = new Items('foo', 'bar', ...);
 ```
