@@ -46,7 +46,7 @@ abstract class AbstractCollection implements CollectionInterface
     public function getIterator() : Iterator
     {
         foreach ($this->getData() as $index => $item) {
-            yield $item;
+            yield $index => $item;
         }
     }
 
