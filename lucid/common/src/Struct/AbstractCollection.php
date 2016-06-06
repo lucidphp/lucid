@@ -29,7 +29,7 @@ abstract class AbstractCollection implements CollectionInterface
     public function __construct(...$data)
     {
         $this->getSetterMethod();
-        call_user_func_array([$this, $this->getSetterMethod()], $data);
+        ([$this, $this->getSetterMethod()])(...$data);
     }
 
     /**
