@@ -151,8 +151,12 @@ final class Arr
      */
     public static function get(array $array, string $namespace = null, string $separator = self::NS_SEPARATOR)
     {
-        if (!is_string($namespace) || array_key_exists($namespace, $array)) {
-            return $array;
+        if (null === $namespace) {
+            return null;
+        }
+
+        if (array_key_exists($namespace, $array)) {
+            return $array[$namespace];
         }
 
         $keys = explode($separator, $namespace);
@@ -168,9 +172,9 @@ final class Arr
     /**
      * Sets a segmented string to an array
      *
+     * @param array $input
      * @param string $namespace
-     * @param mixed  $value
-     * @param array  $array
+     * @param $value
      * @param string $separator
      *
      * @return array
@@ -200,10 +204,10 @@ final class Arr
      *
      * @return void
      */
-    public static function unsetKey(array &$array, $namespace, $separator = self::NS_SEPARATOR)
+    public static function unsetKey(array &$array, $namespace, $separator = self::NS_SEPARATOR) /*: void*/
     {
         if (!is_string($namespace)) {
-            return $array;
+            return;
         }
 
         $keys = explode($separator, $namespace);
