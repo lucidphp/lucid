@@ -41,7 +41,7 @@ class ContainerAwareDispatcher extends EventDispatcher
     /**
      * {@inheritdoc}
      */
-    protected function getHandler($handler)
+    protected function getHandler($handler) : callable
     {
         if (is_string($handler)) {
             $method = null;

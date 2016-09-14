@@ -12,11 +12,8 @@
 namespace Lucid\Signal;
 
 /**
- * @class ChainedEvent
- *
+ * Class ChainedEvent
  * @package Lucid\Signal
- * @version $Id$
- * @author iwyg <mail@thomas-appel.com>
  */
 class ChainedEvent extends Event implements ChainedEventInterface
 {
@@ -34,7 +31,7 @@ class ChainedEvent extends Event implements ChainedEventInterface
     /**
      * {@inheritdoc}
      */
-    final public function getDispatcher()
+    final public function getDispatcher() : ?EventDispatcherInterface
     {
         return $this->dispatcher;
     }

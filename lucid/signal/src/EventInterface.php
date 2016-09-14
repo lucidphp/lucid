@@ -25,14 +25,14 @@ interface EventInterface
      *
      * @return void
      */
-    public function stop();
+    public function stop() /*: void */;
 
     /**
      * Check if event delegation is stopped for this event.
      *
      * @return boolean
      */
-    public function isStopped();
+    public function isStopped() /*: bool */;
 
     /**
      * Set the name of the event.
@@ -41,19 +41,19 @@ interface EventInterface
      *
      * @return void
      */
-    public function setName($name);
+    public function setName($name) /*: void */;
 
     /**
      * Get the event name
      *
      * @return EventName
      */
-    public function getName();
+    public function getName() : EventName;
 
     /**
      * Get the event name
      *
      * @return EventName
      */
-    public function getOriginalName();
+    public function getOriginalName() : EventName;
 }

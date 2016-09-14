@@ -11,7 +11,6 @@
 
 namespace Lucid\Signal;
 
-use RuntimeException;
 use InvalidArgumentException;
 
 /**
@@ -29,31 +28,35 @@ class EventDispatcher implements EventDispatcherInterface
     /**
      * {@inheritdoc}
      */
-    public function addHandler($events, $handler, $priority = PriorityInterface::PRIORITY_NORMAL)
+    public function addHandler($events, $handler, int $priority = PriorityInterface::PRIORITY_NORMAL) : void
     {
         foreach ((array)$events as $event) {
-            $this->getHandlerQueue($event)->add($this->getHandler($handler), $priority);
+            $this->getHandlerQueue($event)->add($this->getHandler($handler), (int)$priority);
         }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function removeHandler($events, $handler = null)
+    public function removeHandler($events, $handler = null) : void
     {
         foreach ((array)$events as $event) {
             if (null === $handler) {
                 unset($this->handlers[$event]);
-            } elseif ($this->hasEvent($event)) {
+                continue;
+            }
+
+            if ($this->hasEvent($event)) {
                 $this->getHandlerQueue($event)->remove($this->getHandler($handler));
             }
         }
+
     }
 
     /**
      * {@inheritdoc}
      */
-    public function addSubscriber(SubscriberInterface $subscriber)
+    public function addSubscriber(SubscriberInterface $subscriber) : void
     {
         foreach ($subscriber->getSubscriptions() as $name => $methods) {
             if (is_array($methods) && 2 === count($methods) && is_int($methods[1])) {
@@ -72,7 +75,7 @@ class EventDispatcher implements EventDispatcherInterface
     /**
      * {@inheritdoc}
      */
-    public function removeSubscriber(SubscriberInterface $subscriber)
+    public function removeSubscriber(SubscriberInterface $subscriber) : void
     {
         foreach ($subscriber->getSubscriptions() as $name => $methods) {
             if (is_array($methods) && 2 === count($methods) && is_int($methods[1])) {
@@ -91,7 +94,7 @@ class EventDispatcher implements EventDispatcherInterface
     /**
      * {@inheritdoc}
      */
-    public function dispatchEvents(array $events)
+    public function dispatchEvents(array $events) : void
     {
         foreach ($events as $event) {
             $this->dispatchEvent($event);
@@ -101,7 +104,7 @@ class EventDispatcher implements EventDispatcherInterface
     /**
      * {@inheritdoc}
      */
-    public function dispatchEvent(EventInterface $event)
+    public function dispatchEvent(EventInterface $event) : void
     {
         $this->dispatch((string)(new EventName($event)), $event);
     }
@@ -109,7 +112,7 @@ class EventDispatcher implements EventDispatcherInterface
     /**
      * {@inheritdoc}
      */
-    public function dispatch($eventName, EventInterface $event = null)
+    public function dispatch($eventName, EventInterface $event = null) : void
     {
         $event = $event ?: new Event;
 
@@ -129,7 +132,7 @@ class EventDispatcher implements EventDispatcherInterface
                     break;
                 }
 
-                call_user_func($handler, $event);
+                $handler($event);
             }
         }
     }
@@ -137,7 +140,7 @@ class EventDispatcher implements EventDispatcherInterface
     /**
      * {@inheritdoc}
      */
-    public function getHandlers($events = null)
+    public function getHandlers($events = null) : array
     {
         $handlers = [];
 
@@ -159,7 +162,7 @@ class EventDispatcher implements EventDispatcherInterface
     /**
      * {@inheritdoc}
      */
-    public function hasEvent($event)
+    public function hasEvent($event) : bool
     {
         return array_key_exists($event, $this->handlers);
     }
@@ -167,12 +170,12 @@ class EventDispatcher implements EventDispatcherInterface
     /**
      * getHandler
      *
-     * @param  $handler
+     * @param  mixed $handler
      * @throws InvalidArgumentException
      *
      * @return callable
      */
-    protected function getHandler($handler)
+    protected function getHandler($handler) : callable
     {
         if ($handler instanceof HandlerInterface) {
             return [$handler, 'handleEvent'];
@@ -194,7 +197,7 @@ class EventDispatcher implements EventDispatcherInterface
      *
      * @return PriorityInterface
      */
-    private function getHandlerQueue($event)
+    private function getHandlerQueue($event) : PriorityInterface
     {
         if (!isset($this->handlers[$event])) {
             $this->handlers[$event] = new Priority;

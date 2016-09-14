@@ -25,5 +25,5 @@ interface SubscriberInterface
      *
      * @return array Array of event subscriptions
      */
-    public function getSubscriptions();
+    public function getSubscriptions() : array;
 }

@@ -12,6 +12,8 @@
 namespace Lucid\Signal\Tests;
 
 use Lucid\Signal\ChainedEvent;
+use Lucid\Signal\EventDispatcherInterface;
+use Lucid\Signal\EventDispatcher;
 
 /**
  * @class ChainedEventTest
@@ -27,10 +29,7 @@ class ChainedEventTest extends EventTest
     {
         $event = $this->newEvent();
 
-        $d = $this->getMockBuilder('Lucid\Signal\EventDispatcherInterface')
-            ->disableOriginalConstructor()
-            ->getMock();
-        $event->setDispatcher($d);
+        $event->setDispatcher($d = new EventDispatcher());
 
         $this->assertTrue($d === $event->getDispatcher());
     }

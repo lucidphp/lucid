@@ -34,7 +34,7 @@ class Priority implements PriorityInterface
     /**
      * {@inheritdoc}
      */
-    public function add($handler, $priority)
+    public function add($handler, int $priority) : void
     {
         $this->sorted = false;
         $this->handlers[$priority][] = $handler;
@@ -44,7 +44,7 @@ class Priority implements PriorityInterface
     /**
      * {@inheritdoc}
      */
-    public function remove($handler)
+    public function remove($handler) : bool
     {
         $str = $this->getHandlerString($handler);
 
@@ -64,7 +64,7 @@ class Priority implements PriorityInterface
     /**
      * {@inheritdoc}
      */
-    public function all()
+    public function all() : \Iterator
     {
         $this->sort();
 
@@ -78,17 +78,16 @@ class Priority implements PriorityInterface
     /**
      * {@inheritdoc}
      */
-    public function flush()
+    public function flush() : \Iterator
     {
         $this->sort();
-
-        foreach ($this->handlers as $handlers) {
-            foreach ($handlers as $handler) {
-                if ($this->remove($handler)) {
-                    yield $handler;
-                }
-            }
+        $pa = [];
+        foreach ($this->all() as $key => $handler) {
+            $this->remove($handler);
+            $pa[$key] = $handler;
         }
+
+        return new \ArrayIterator($pa);
     }
 
     /**
@@ -96,7 +95,7 @@ class Priority implements PriorityInterface
      *
      * @return array
      */
-    public function toArray()
+    public function toArray() : array
     {
         $handlers = [];
 

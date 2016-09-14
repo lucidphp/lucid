@@ -12,6 +12,7 @@
 namespace Lucid\Signal\Tests;
 
 use Lucid\Signal\Priority;
+use Lucid\Signal\PriorityInterface;
 
 /**
  * @class PriorityTest
@@ -25,21 +26,21 @@ class PriorityTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function itShouldBeInstantiable()
     {
-        $this->assertInstanceOf('Lucid\Signal\PriorityInterface', new Priority);
+        $this->assertInstanceOf(PriorityInterface::class, new Priority);
     }
 
     /** @test */
     public function allMustAlwaysReturnIterator()
     {
         $pri = new Priority;
-        $this->assertInstanceOf('\Iterator', $pri->all());
+        $this->assertInstanceOf(\Iterator::class, $pri->all());
     }
 
     /** @test */
     public function flushMustAlwaysReturnIterator()
     {
         $pri = new Priority;
-        $this->assertInstanceOf('\Iterator', $pri->flush());
+        $this->assertInstanceOf(\Iterator::class, $pri->flush());
     }
 
     /** @test */
@@ -51,8 +52,7 @@ class PriorityTest extends \PHPUnit_Framework_TestCase
         $pri->add('handlerC', 20);
         $pri->add('handlerB', 10);
 
-        foreach ($pri->flush() as $handler) {
-        }
+        $pri->flush();
 
         $this->assertEquals([], $pri->toArray());
     }
@@ -76,7 +76,7 @@ class PriorityTest extends \PHPUnit_Framework_TestCase
     public function itShouldAlwaysReturnAnIteratable()
     {
         $pri = new Priority;
-        $this->assertInstanceof('\Iterator', $pri->all());
+        $this->assertInstanceOf('\Iterator', $pri->all());
     }
 
 

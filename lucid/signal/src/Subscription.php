@@ -11,6 +11,8 @@
 
 namespace Lucid\Signal;
 
+use Iterator;
+
 /**
  * @class Subscription
  *
@@ -36,7 +38,7 @@ class Subscription implements SubscriptionInterface
     /**
      * {@inheritdoc}
      */
-    public function get()
+    public function get() : Iterator
     {
         foreach ($this->subscriptions as $e => $sub) {
             yield $e => $sub;

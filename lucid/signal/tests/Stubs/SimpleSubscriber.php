@@ -28,7 +28,7 @@ class SimpleSubscriber implements SubscriberInterface
         $this->subject = $subj;
     }
 
-    public function getSubscriptions()
+    public function getSubscriptions() : array
     {
         return [
             'eventA' => 'onA',

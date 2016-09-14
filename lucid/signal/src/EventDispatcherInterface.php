@@ -29,7 +29,7 @@ interface EventDispatcherInterface
      *
      * @return void
      */
-    public function addHandler($events, $handler, $priority = PriorityInterface::PRIORITY_NORMAL);
+    public function addHandler($events, $handler, int $priority = PriorityInterface::PRIORITY_NORMAL) : void;
 
     /**
      * Remove one or all handers for given events
@@ -39,7 +39,7 @@ interface EventDispatcherInterface
      *
      * @return void
      */
-    public function removeHandler($events, $handler = null);
+    public function removeHandler($events, $handler = null) : void;
 
     /**
      * Register a subscriber.
@@ -48,7 +48,7 @@ interface EventDispatcherInterface
      *
      * @return void
      */
-    public function addSubscriber(SubscriberInterface $subscriber);
+    public function addSubscriber(SubscriberInterface $subscriber) : void;
 
     /**
      * Remove a subscriber.
@@ -57,16 +57,16 @@ interface EventDispatcherInterface
      *
      * @return void
      */
-    public function removeSubscriber(SubscriberInterface $subscriber);
+    public function removeSubscriber(SubscriberInterface $subscriber) : void;
 
     /**
      * Check if a event has been registered.
      *
      * @param string $event
      *
-     * @return boolean
+     * @return bool
      */
-    public function hasEvent($event);
+    public function hasEvent($event) : bool;
 
     /**
      * Dispatches an array of Event objects.
@@ -75,7 +75,7 @@ interface EventDispatcherInterface
      *
      * @return void
      */
-    public function dispatchEvents(array $events);
+    public function dispatchEvents(array $events) : void;
 
     /**
      * Dispatches an event for a single Event object.
@@ -84,7 +84,7 @@ interface EventDispatcherInterface
      *
      * @return void
      */
-    public function dispatchEvent(EventInterface $event);
+    public function dispatchEvent(EventInterface $event) : void;
 
     /**
      * Dispatch one or multple events.
@@ -94,7 +94,7 @@ interface EventDispatcherInterface
      *
      * @return void
      */
-    public function dispatch($eventName, EventInterface $event = null);
+    public function dispatch($eventName, EventInterface $event = null) : void;
 
     /**
      * Get the handler for one or more events.
@@ -103,5 +103,5 @@ interface EventDispatcherInterface
      *
      * @return array
      */
-    public function getHandlers($event = null);
+    public function getHandlers($event = null) : array;
 }

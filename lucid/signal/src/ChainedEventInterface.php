@@ -34,5 +34,5 @@ interface ChainedEventInterface extends EventInterface
      *
      * @return EventDispatcherInterface|null
      */
-    public function getDispatcher();
+    public function getDispatcher() : ?EventDispatcherInterface;
 }

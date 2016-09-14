@@ -22,7 +22,11 @@ class SubscriptionTest extends \PHPUnit_Framework_TestCase
 
         $subscription = new Subscription($subs);
 
+        $ret = [];
         foreach ($subscription->get() as $event => $s) {
+            $ret[$event] = $s;
         }
+
+        $this->assertEquals($subs, $ret);
     }
 }

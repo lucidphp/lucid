@@ -13,6 +13,7 @@ namespace Lucid\Signal\Tests;
 
 use Lucid\Signal\Event;
 use Lucid\Signal\EventName;
+use Lucid\Signal\EventInterface;
 
 /**
  * @class EventNameTest
@@ -34,7 +35,7 @@ class EventNameTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame('tata', (string)$name);
 
-        $event = $this->getMockbuilder('Lucid\Signal\EventInterface')
+        $event = $this->getMockBuilder(EventInterface::class)
             ->disableOriginalConstructor()
             ->setMockClassName('MyGoofyEvent')
             ->getMock();

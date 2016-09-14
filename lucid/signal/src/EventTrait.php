@@ -40,7 +40,7 @@ trait EventTrait
     /**
      * {@inheritdoc}
      */
-    final public function stop()
+    final public function stop() : void
     {
         $this->isStopped = true;
     }
@@ -48,7 +48,7 @@ trait EventTrait
     /**
      * {@inheritdoc}
      */
-    final public function isStopped()
+    final public function isStopped() : bool
     {
         return $this->isStopped;
     }
@@ -56,15 +56,15 @@ trait EventTrait
     /**
      * {@inheritdoc}
      */
-    final public function setName($name)
+    final public function setName($name) : void
     {
-        $this->name = new EventName($this, $name);
+        $this->name = new EventName($this->getEventInstance(), $name);
     }
 
     /**
      * {@inheritdoc}
      */
-    final public function getName()
+    final public function getName() : EventName
     {
         return $this->name ?: $this->originalName;
     }
@@ -72,8 +72,10 @@ trait EventTrait
     /**
      * {@inheritdoc}
      */
-    final public function getOriginalName()
+    final public function getOriginalName() : EventName
     {
         return $this->originalName;
     }
+
+    abstract protected function getEventInstance() : EventInterface;
 }

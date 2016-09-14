@@ -12,11 +12,8 @@
 namespace Lucid\Signal;
 
 /**
- * @class EventName
- *
+ * Class EventName
  * @package Lucid\Signal
- * @version $Id$
- * @author iwyg <mail@thomas-appel.com>
  */
 class EventName
 {
@@ -32,7 +29,7 @@ class EventName
      * @param EventInterface $event
      * @name string $name
      */
-    public function __construct(EventInterface $event, $name = null)
+    public function __construct(EventInterface $event, string $name = null)
     {
         $this->event = $event;
         $this->name  = $name;
@@ -43,33 +40,37 @@ class EventName
      *
      * @return string
      */
-    public function getName()
+    public function getName() : string
     {
         if (!$this->isEmpty($this->name)) {
             return $this->name;
         }
 
+        $name = $this->doGetName();
+
+        return $this->name = $name ?: $this->parseEventName();
+    }
+
+    /**
+     * @return null|string
+     */
+    private function doGetName() : ?string
+    {
         foreach (['getName', 'getOriginalName'] as $fn) {
-            $name = call_user_func([$this->event, $fn]);
-
-            if ($this->isEmpty($name) || $name === $this) {
-                continue;
-            }
-
-            if ($name instanceof self) {
-                return $name = $name->getName();
-            }
+           if ($this !== ($name = $this->event->{$fn}())) {
+               return $name;
+           }
         }
 
-        return $this->name = $this->parseEventName();
+        return null;
     }
 
     /**
      * @see EventName#getName()
      */
-    public function __toString()
+    public function __toString() : string
     {
-        return (string)$this->getName();
+        return $this->getName();
     }
 
     /**
@@ -77,15 +78,19 @@ class EventName
      *
      * @return string
      */
-    private function parseEventName()
+    private function parseEventName() : string
     {
         $name = basename(strtr(get_class($this->event), ['\\' => '/']));
 
         return strtolower(preg_replace('#[A-Z]#', '.$0', lcfirst($name)));
     }
 
-    private function isEmpty($name)
+    /**
+     * @param $name
+     * @return bool
+     */
+    private function isEmpty($name) : bool
     {
-        return null === $name || empty($name);
+        return null === $name || (is_string($name) && empty($name));
     }
 }

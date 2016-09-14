@@ -11,6 +11,8 @@
 
 namespace Lucid\Signal;
 
+use Iterator;
+
 /**
  * @interface SubscriptionInterface
  *
@@ -23,7 +25,7 @@ interface SubscriptionInterface
     /**
      * Returns an iteratable list of subscriptions.
      *
-     * @return \Iterator
+     * @return Iterator
      */
-    public function get();
+    public function get() : Iterator;
 }

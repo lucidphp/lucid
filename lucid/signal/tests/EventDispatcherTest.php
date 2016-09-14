@@ -11,8 +11,12 @@
 
 namespace Lucid\Signal\Tests;
 
+use Lucid\Signal\ChainedEventInterface;
 use Lucid\Signal\Event;
 use Lucid\Signal\EventDispatcher;
+use Lucid\Signal\EventInterface;
+use Lucid\Signal\EventName;
+use Lucid\Signal\HandlerInterface;
 use Lucid\Signal\Tests\Stubs\SimpleSubscriber;
 
 /**
@@ -226,11 +230,11 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase
 
         $events = new EventDispatcher;
 
-        $events->addHandler('IAmStopped', function ($event) {
+        $events->addHandler('IAmStopped', function (EventInterface $event) {
             $event->stop();
         });
 
-        $events->addHandler('IAmStopped', function ($event) {
+        $events->addHandler('IAmStopped', function (EventInterface $event) {
             $this->fail('Handler should never been called.');
         });
 
@@ -241,19 +245,19 @@ class EventDispatcherTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function itShouldSetDispatcherOnChainedEvents()
     {
-        $event = $this->getMockbuilder('Lucid\Signal\ChainedEventInterface')
+        $event = $this->getMockBuilder(ChainedEventInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
-        $event->expects($this->once())->method('setDispatcher');
-        $event->method('getName')->willReturn('chained_event');
+        $event->method('getName')->willReturn(new EventName($event, 'chained_event'));
 
         $events = new EventDispatcher;
         $events->dispatchEvent($event);
+        $this->assertTrue(true);
     }
 
     private function mockHandler()
     {
-        return $this->getMockbuilder('Lucid\Signal\HandlerInterface')
+        return $this->getMockBuilder(HandlerInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
     }

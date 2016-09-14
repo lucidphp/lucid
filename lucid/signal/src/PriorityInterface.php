@@ -11,6 +11,8 @@
 
 namespace Lucid\Signal;
 
+use Iterator;
+
 /**
  * @interface PriorityInterface
  *
@@ -41,12 +43,12 @@ interface PriorityInterface
     /**
      * Adds a thing to the pool.
      *
-     * @param mixed $handler
+     * @param mixed $thing
      * @param int $priority
      *
      * @return void
      */
-    public function add($thing, $priority);
+    public function add($thing, int $priority) : void;
 
     /**
      * Removes a thing.
@@ -55,20 +57,20 @@ interface PriorityInterface
      *
      * @return bool
      */
-    public function remove($thing);
+    public function remove($thing) : bool;
 
     /**
      * Returns all things ordered by priority
      * by returning an Iterator.
      *
-     * @return \Iterator
+     * @return Iterator
      */
-    public function all();
+    public function all() : Iterator;
 
     /**
      * Like `all()`, but removes all things.
      *
-     * @return void
+     * @return Iterator
      */
-    public function flush();
+    public function flush() : Iterator;
 }
