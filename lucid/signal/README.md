@@ -42,7 +42,7 @@ $dispatcher->addHandler('my_event', function (EventInterface $event) {
 Eventhandlers can be any callable but must accept an instance of `EventInterface`
 as their first argument.
 
-Using handlers the implement the `HandlerInterface` will automatically call the `handleEvent` method on the handler if the event is dispatched.
+Using handlers that implement the `HandlerInterface` will automatically call the `handleEvent` method if the event is dispatched.
 
 ```php
 <?php
@@ -75,7 +75,7 @@ $dispatcher->addHandler('my_event', $handler);
 ### Event Delegation
 
 Events are fired subsequentially unless all handlers where adressed or until
-the Event object is being stopped. You can stop the eventdelegation in your
+the Event object is being stopped. You can stop event delegation in your
 handler by calling `$event->stop()`.
 
 ### Custom Events
