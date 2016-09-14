@@ -19,7 +19,7 @@ php >= 7.1
 You may install `lucid/signal` with composer.
 
 ```bash
-$ composer require lucid/signal --save
+$ composer require lucid/signal
 ```
 
 ## Usage
