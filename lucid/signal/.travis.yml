@@ -7,9 +7,8 @@ matrix:
   include:
     - php: 7.1
       env:
-      - CS_CHECK_ENABLED: true
+      #- CS_CHECK_ENABLED: true
       - CODE_COVERAGE_LOG: true
-    - php: hhvm
 
 before_install:
   - if [[ $CODE_COVERAGE_LOG != 'true' ]]; then phpenv config-rm xdebug.ini || return 0 ; fi
