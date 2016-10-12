@@ -47,28 +47,40 @@ class Reflector
     /** @var \Reflector **/
     private $reflector;
 
+    /** @var array  */
+    private $args;
+
     /**
      * Constructor.
      *
      * @param callable $handler
+     * @param array $args
      */
-    public function __construct(callable $handler, array $args = [])
+    public function __construct(callable $handler, ...$args)
     {
         $this->handler = $handler;
+        $this->args = $args;
     }
 
     /**
-     * getReflector
-     *
-     * @return ReflectionFunctionAbstract
+     * @return \ReflectionFunctionAbstract
      */
-    public function getReflector()
+    public function getReflector() : \ReflectionFunctionAbstract
     {
         if (null === $this->reflector) {
             $this->reflector = $this->doGetReflector();
         }
 
         return $this->reflector;
+    }
+
+    /**
+     * @param array ...$args
+     * @return mixed
+     */
+    public function __invoke(...$args)
+    {
+        return ($this->handler)(...$args);
     }
 
     /**
@@ -80,15 +92,15 @@ class Reflector
      */
     public function invokeArgs(array $args)
     {
-        return call_user_func_array($this->handler, $args);
+        return $this->__invoke(...$args);
     }
 
     /**
      * isFunction
      *
-     * @return boolean
+     * @return bool
      */
-    public function isFunction()
+    public function isFunction() : bool
     {
         return static::C_TYPE_FUNCTION === $this->getType();
     }
@@ -96,9 +108,9 @@ class Reflector
     /**
      * isClosure
      *
-     * @return boolean
+     * @return bool
      */
-    public function isClosure()
+    public function isClosure() : bool
     {
         return static::C_TYPE_CLOSURE === $this->getType();
     }
@@ -106,9 +118,9 @@ class Reflector
     /**
      * isMethod
      *
-     * @return boolean
+     * @return bool
      */
-    public function isMethod()
+    public function isMethod() : bool
     {
         return $this->isInstanceMethod() || $this->isStaticMethod();
     }
@@ -116,9 +128,9 @@ class Reflector
     /**
      * isInstanceMethod
      *
-     * @return boolean
+     * @return bool
      */
-    public function isInstanceMethod()
+    public function isInstanceMethod() : bool
     {
         return static::C_TYPE_INSTANCE_METHOD === $this->getType();
     }
@@ -126,9 +138,9 @@ class Reflector
     /**
      * isStaticMethod
      *
-     * @return boolean
+     * @return bool
      */
-    public function isStaticMethod()
+    public function isStaticMethod() : bool
     {
         return static::C_TYPE_STATIC_METHOD === $this->getType();
     }
@@ -136,9 +148,9 @@ class Reflector
     /**
      * isInvokedObject
      *
-     * @return boolean
+     * @return bool
      */
-    public function isInvokedObject()
+    public function isInvokedObject() : bool
     {
         return static::C_TYPE_INVOKED_OBJECT === $this->getType();
     }
@@ -148,7 +160,7 @@ class Reflector
      *
      * @return int
      */
-    public function getType()
+    public function getType() : int
     {
         if (null === $this->type) {
             $this->type = $this->getCallableType($this->handler);
@@ -164,7 +176,7 @@ class Reflector
      *
      * @return int
      */
-    private function getCallableType(callable $method)
+    private function getCallableType(callable $method) : int
     {
         if ($method instanceof \Closure) {
             return static::C_TYPE_CLOSURE;
@@ -195,7 +207,7 @@ class Reflector
      *
      * @return string
      */
-    private function getClass()
+    private function getClass() : string
     {
         $parts = $this->explodeCallable($this->handler);
 
@@ -211,7 +223,7 @@ class Reflector
      *
      * @return string
      */
-    private function getMethod()
+    private function getMethod() : string 
     {
         if (is_array($this->handler) && 2 === sizeof($this->handler)) {
             return $this->handler[1];
@@ -247,11 +259,10 @@ class Reflector
     }
 
     /**
-     * doGetReflector
-     *
-     * @return ReflectionMethod
+     * @return \ReflectionFunctionAbstract
+     * @throws \Exception
      */
-    private function doGetReflector()
+    private function doGetReflector() : \ReflectionFunctionAbstract
     {
         switch ($this->getType()) {
             case static::C_TYPE_FUNCTION:

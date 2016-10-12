@@ -23,18 +23,17 @@ abstract class Token implements TokenInterface
     /** @var string */
     public $value;
 
-    /** @var TI */
+    /** @var TokenInterface */
     public $prev;
 
-    /** @var TI */
+    /** @var TokenInterface */
     public $next;
 
     /**
-     * __construct
-     *
-     * @param mixed $value
-     * @param TI $prev
-     * @param TI $next
+     * Token constructor.
+     * @param $value
+     * @param TokenInterface|null $prev
+     * @param TokenInterface|null $next
      */
     public function __construct($value, TokenInterface $prev = null, TokenInterface $next = null)
     {

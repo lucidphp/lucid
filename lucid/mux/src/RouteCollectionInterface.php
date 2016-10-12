@@ -21,32 +21,13 @@ namespace Lucid\Mux;
 interface RouteCollectionInterface
 {
     /**
-     * add
-     *
-     * @param string $routeName
-     * @param RouteInterface $route
-     *
-     * @return void
-     */
-    public function add($routeName, RouteInterface $route);
-
-    /**
-     * Remove a route by its name.
-     *
-     * @param string $routeName
-     *
-     * @return void
-     */
-    public function remove($routeName);
-
-    /**
      * Get a route by name.
      *
      * @param string $routeName the name of the route.
      *
-     * @return Route
+     * @return RouteInterface
      */
-    public function get($routeName);
+    public function get(string $routeName) : RouteInterface;
 
     /**
      * Should check if a route exists with the given name.
@@ -55,14 +36,14 @@ interface RouteCollectionInterface
      *
      * @return bool
      */
-    public function has($routeName);
+    public function has(string $routeName) : bool;
 
     /**
      * Get all registered routes as array.
      *
-     * @return [string => RouteInterface]
+     * @return RouteInterface[]
      */
-    public function all();
+    public function all() : array;
 
     /**
      * findByMethod
@@ -71,7 +52,7 @@ interface RouteCollectionInterface
      *
      * @return RouteCollectionInterface
      */
-    public function findByMethod($method);
+    public function findByMethod(string $method) : self;
 
     /**
      * findByScheme
@@ -80,5 +61,5 @@ interface RouteCollectionInterface
      *
      * @return RouteCollectionInterface
      */
-    public function findByScheme($scheme);
+    public function findByScheme(string $scheme) : self;
 }

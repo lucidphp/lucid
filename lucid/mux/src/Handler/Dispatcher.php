@@ -22,15 +22,16 @@ use Lucid\Mux\Matcher\ContextInterface as Match;
  */
 class Dispatcher implements DispatcherInterface
 {
+    /** @var Resolver */
     private $resolver;
 
+    /** @var PassParameterMapper  */
     private $mapper;
 
     /**
-     * Constructor.
-     *
-     * @param ParserInterface $parser
-     * @param ParameterMapperInterface $mapper
+     * Dispatcher constructor.
+     * @param ResolverInterface|null $resolver
+     * @param ParameterMapperInterface|null $mapper
      */
     public function __construct(ResolverInterface $resolver = null, ParameterMapperInterface $mapper = null)
     {

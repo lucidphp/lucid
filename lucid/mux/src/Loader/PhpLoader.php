@@ -29,11 +29,13 @@ use Lucid\Resource\Exception\LoaderException;
  */
 class PhpLoader extends AbstractFileLoader implements LoaderInterface
 {
+    /** @var RouteCollectionBuilder  */
+    private $builder;
+
     /**
-     * Constructor.
-     *
-     * @param LocatorInterface $locator
-     * @param RouteCollectionInterface $routes
+     * PhpLoader constructor.
+     * @param RouteCollectionBuilder|null $builder
+     * @param LocatorInterface|null $locator
      */
     public function __construct(RouteCollectionBuilder $builder = null, LocatorInterface $locator = null)
     {
@@ -112,24 +114,19 @@ class PhpLoader extends AbstractFileLoader implements LoaderInterface
      * @param string $prefix
      * @param array $requirements
      * @param array $routes
-     *
-     * @return void
      */
-    private function loadGroup($prefix, array $requirements, array $routes)
+    private function loadGroup($prefix, array $requirements, array $routes) : void
     {
         $this->builder->group($prefix, $requirements);
         $this->addRoutes($routes);
         $this->builder->endGroup();
     }
+
     /**
-     * isGroup
-     *
-     * @param mixed $index
      * @param array $group
-     *
-     * @return void
+     * @return array
      */
-    private function getGroupKeys(array $group)
+    private function getGroupKeys(array $group) : array
     {
         return array_filter(array_keys($group), function ($i) {
             return is_int($i);
@@ -141,11 +138,15 @@ class PhpLoader extends AbstractFileLoader implements LoaderInterface
      *
      * @param string $name
      * @param array $route
-     *
-     * @return void
      */
-    private function addRoute($name, array $route)
+    private function addRoute(string $name, array $route) : void
     {
+        /**
+         * @var string $method
+         * @var string $pattern
+         * @var mixed  $handler
+         * @var array  $defaults
+         */
         extract($this->defaults($route));
 
         $requirements[RouteCollectionBuilder::K_NAME] = $name;
@@ -154,13 +155,11 @@ class PhpLoader extends AbstractFileLoader implements LoaderInterface
     }
 
     /**
-     * loadImports
+     * @param array $resources
      *
-     * @param array $routes
-     *
-     * @return void
+     * @throws \Lucid\Resource\Exception\LoaderException
      */
-    private function loadImports(array $resources)
+    private function loadImports(array $resources) : void
     {
         foreach ($resources as $resource) {
             if (!is_string($resource)) {

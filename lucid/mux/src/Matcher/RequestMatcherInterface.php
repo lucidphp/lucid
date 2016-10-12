@@ -12,6 +12,7 @@
 namespace Lucid\Mux\Matcher;
 
 use Lucid\Mux\RouteCollectionInterface;
+use Lucid\Mux\Matcher\Context as MatchContext;
 use Lucid\Mux\Request\ContextInterface as Request;
 
 /**
@@ -39,11 +40,12 @@ interface RequestMatcherInterface
     const NOMATCH_SCHEME = -4;
 
     /**
-     * matchRequest
+     * Matches an request context against a route collection.
      *
-     * @param RequestContextInterface $context
+     * @param Request $context
+     * @param RouteCollectionInterface $routes
      *
-     * @return ContextInterface
+     * @return MatchContext
      */
-    public function matchRequest(Request $context, RouteCollectionInterface $routes);
+    public function matchRequest(Request $context, RouteCollectionInterface $routes) : MatchContext;
 }

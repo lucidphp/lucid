@@ -26,31 +26,34 @@ use Lucid\Mux\Request\ContextInterface as Request;
 trait MatcherTrait
 {
     /**
-     * reduce
+     * Filters routes by schema and returns the result set as a new collection.
      *
      * @param RouteCollectionInterface $routes
-     * @param RequestContext $context
+     * @param Request $context
      *
      * @return RouteCollectionInterface
      */
-    private function filterByMethodAndScheme(RouteCollectionInterface $routes, Request $context)
-    {
+    private function filterByMethodAndScheme(
+        RouteCollectionInterface $routes,
+        Request $context
+    ) : RouteCollectionInterface {
         return $routes->findByMethod($context->getMethod())->findByScheme($context->getScheme());
     }
 
     /**
-     * getMatchFailureReason
+     * Determine the reason of a failed matching attempt.
      *
-     * @param array $nomatch
+     * @param array $noMatch
      * @param Request $request
      *
      * @return int
      */
-    private function getMatchFailureReason(array $nomatch, Request $request)
+    private function getMatchFailureReason(array $noMatch, Request $request) : int
     {
         $path = $request->getPath();
 
-        $reduce = array_filter($nomatch, function ($route) use ($path) {
+        /** @var RouteInterface[] $reduce */
+        $reduce = array_filter($noMatch, function (RouteInterface $route) use ($path) {
             return (bool)preg_match_all($route->getContext()->getRegex(), $path);
         });
 
@@ -71,7 +74,14 @@ trait MatcherTrait
         return RequestMatcherInterface::NOMATCH;
     }
 
-    private function matchHost(RouteContext $ctx, Request $request, $host = null)
+    /**
+     * @param \Lucid\Mux\RouteContextInterface $ctx
+     * @param \Lucid\Mux\Request\ContextInterface $request
+     * @param null $host
+     *
+     * @return bool
+     */
+    private function matchHost(RouteContext $ctx, Request $request, $host = null) : bool
     {
         if (null === $host) {
             return true;
@@ -88,7 +98,7 @@ trait MatcherTrait
      *
      * @return array
      */
-    private function getMatchedVars(RouteInterface $route, array $matches)
+    private function getMatchedVars(RouteInterface $route, array $matches) : array
     {
         $vars = $route->getContext()->getVars();
         $params = array_merge(
@@ -106,11 +116,9 @@ trait MatcherTrait
     }
 
     /**
-     * getValue
+     * @param array $val
      *
-     * @param string $val
-     *
-     * @return mixed string|int|float
+     * @return int|string
      */
     private function getValue(array $val)
     {

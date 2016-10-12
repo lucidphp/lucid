@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This File is part of the Lucid\Mux package
@@ -54,9 +54,9 @@ interface ContextInterface
     /**
      * Get the request Context.
      *
-     * @return string
+     * @return RequestContext
      */
-    public function getRequest();
+    public function getRequest() : RequestContext;
 
     /**
      * getPath

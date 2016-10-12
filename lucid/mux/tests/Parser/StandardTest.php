@@ -121,7 +121,7 @@ class StandardTest extends \PHPUnit_Framework_TestCase
 
     private function mockRoute()
     {
-        return $this->getMockbuilder(Route::class)
+        return $this->getMockBuilder(Route::class)
             ->disableOriginalConstructor()
             ->getMock();
     }

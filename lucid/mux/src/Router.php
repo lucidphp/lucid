@@ -12,11 +12,11 @@
 namespace Lucid\Mux;
 
 use SplStack;
-use InvalidArgumentException;
 use Lucid\Mux\Request\UrlGenerator;
 use Lucid\Mux\Matcher\RequestMatcher;
 use Lucid\Mux\Exception\MatchException;
 use Lucid\Mux\Request\PassResponseMapper;
+use Lucid\Mux\Handler\DispatcherInterface;
 use Lucid\Mux\Matcher\Context as MatchContext;
 use Lucid\Mux\Request\Context as RequestContext;
 use Lucid\Mux\Request\UrlGeneratorInterface as Url;
@@ -39,29 +39,28 @@ class Router implements RouterInterface
     /** @var RouteCollectionInterface */
     private $routes;
 
-    /** @var mixed */
+    /** @var \Lucid\Mux\Matcher\RequestMatcherInterface */
     private $matcher;
 
-    /** @var HandlerDispatcherInterface */
+    /** @var DispatcherInterface */
     private $dispatcher;
 
-    /** @var ResponseMapperInterface */
+    /** @var ResponseMapper */
     private $mapper;
 
-    /** @var UrlGeneratorInterface */
+    /** @var Url */
     private $url;
 
     /** @var SplStack */
     private $routeStack;
 
     /**
-     * Construtor.
-     *
+     * Router constructor.
      * @param RouteCollectionInterface $routes
-     * @param Matcher $matcher
-     * @param Dispatcher $dispatcher
-     * @param ResponseMapper $mapper
-     * @param Url $url
+     * @param Matcher|null $matcher
+     * @param Dispatcher|null $dispatcher
+     * @param ResponseMapper|null $mapper
+     * @param Url|null $url
      */
     public function __construct(
         RouteCollectionInterface $routes,
@@ -81,7 +80,7 @@ class Router implements RouterInterface
     /**
      * {@inheritdoc}
      */
-    public function match(RequestContextInterface $request)
+    public function match(RequestContextInterface $request) : MatchContextInterface
     {
         return $this->matcher->matchRequest($request, $this->routes);
     }
@@ -101,8 +100,7 @@ class Router implements RouterInterface
     /**
      * Dispatches a request.
      *
-     * @param RequestContextInterface $request
-     * @param MatchContextInterface $match
+     * @param \Lucid\Mux\Matcher\ContextInterface $match
      *
      * @return mixed the request response.
      */
@@ -129,70 +127,72 @@ class Router implements RouterInterface
     /**
      * {@inheritdoc}
      */
-    public function route($name, array $vars = [], array $options = [])
+    public function route(string $name, array $vars = [], array $options = [])
     {
-        $options = $this->getOptions($options);
-
-        $rel = 'localhost' === $options['host'] ? true : false;
-
-        $path    = $this->getUrl($name, $options['host'], $vars, $rel);
-        $request = $this->createRequestContextFromOptions($path, $options);
-
-        return $this->dispatchMatch($this->createMatchContextFromParameters($vars, $name, $request));
+        return $this->dispatchMatch(
+            $this->matchContextFromParameters(
+                $vars,
+                $name,
+                $this->requestContextFromOptions(
+                    $this->getUrl($name, $options['host'], $vars, 'localhost' === $options['host']),
+                    $this->getOptions($options)
+                )
+            )
+        );
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getFirstRoute()
+    public function getFirstRoute() : ?RouteInterface
     {
-        if (null === ($name = $this->getFirstRouteName())) {
-            return;
+        if (null === ($name = $this->getFirstRouteName()) || !$this->routes->has($name)) {
+            return null;
         }
 
-        if ($this->routes->has($name)) {
-            return $this->routes->get($name);
-        }
+        return $this->routes->get($name);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getFirstRouteName()
+    public function getFirstRouteName() : ?string
     {
-        if (0 < $this->routeStack->count()) {
-            return $this->routeStack->bottom();
+        if (!(bool)$this->routeStack->count()) {
+            return null;
         }
+
+        return $this->routeStack->bottom();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getCurrentRoute()
+    public function getCurrentRoute() : ?RouteInterface
     {
-        if (null === ($name = $this->getCurrentRouteName())) {
-            return;
+        if (null === ($name = $this->getCurrentRouteName()) || !$this->routes->has($name)) {
+            return null;
         }
 
-        if ($this->routes->has($name)) {
-            return $this->routes->get($name);
-        }
+        return $this->routes->get($name);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getCurrentRouteName()
+    public function getCurrentRouteName() : ?string
     {
-        if (0 < $this->routeStack->count()) {
-            return $this->routeStack->top();
+        if (!(bool)$this->routeStack->count()) {
+            return null;
         }
+
+        return $this->routeStack->top();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getUrl($name, $host = null, array $vars = [], $rel = true)
+    public function getUrl($name, $host = null, array $vars = [], $rel = true) : string
     {
         $rel = $rel ? $type = Url::RELATIVE_PATH : Url::ABSOLUTE_PATH;
 
@@ -200,13 +200,14 @@ class Router implements RouterInterface
     }
 
     /**
-     * createRequestContextFromOptions
+     * Creates a RequestContext from an options array
      *
+     * @param string $path
      * @param array $options
      *
      * @return RequestContextInterface
      */
-    private function createRequestContextFromOptions($path, array $options)
+    private function requestContextFromOptions(string $path, array $options) : RequestContextInterface
     {
         return new RequestContext(
             $path,
@@ -221,13 +222,17 @@ class Router implements RouterInterface
     /**
      * createMatchContextFromParameters
      *
-     * @param array $parameters
-     * @param string $url
+     * @param array $vars
+     * @param string $name
+     * @param \Lucid\Mux\Request\ContextInterface $request
      *
-     * @return MatchContextInterface
+     * @return \Lucid\Mux\Matcher\Context
      */
-    private function createMatchContextFromParameters(array $vars, $name, $request)
-    {
+    private function matchContextFromParameters(
+        array $vars,
+        string $name,
+        RequestContextInterface $request
+    ) : MatchContext {
         $handler = $this->routes->get($name)->getHandler();
 
         return new MatchContext(Matcher::MATCH, $name, $request, $handler, $vars);
@@ -240,7 +245,7 @@ class Router implements RouterInterface
      *
      * @return array
      */
-    private function getOptions(array $options)
+    private function getOptions(array $options) : array
     {
         return array_merge([
             'method'    => 'GET',

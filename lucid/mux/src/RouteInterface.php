@@ -23,41 +23,41 @@ use Serializable;
 interface RouteInterface extends Serializable
 {
     /**
-     * Get the supported methods
+     * Lists the supported methods.
      *
      * @return array a list of supported http methods
      */
-    public function getMethods();
+    public function getMethods() : array;
 
     /**
      * Tell if the route supports a given http method.
      *
      * @param string $method
      *
-     * @return boolean `TRUE` if the given method is supported, otherwise `FALSE`.
+     * @return bool `TRUE` if the given method is supported, otherwise `FALSE`.
      */
-    public function hasMethod($method);
+    public function hasMethod(string $method) : bool;
 
     /**
      * Get the route patter.
      *
      * @return string the route pattern
      */
-    public function getPattern();
+    public function getPattern() : string;
 
     /**
      * Get the host
      *
      * @return string the host name, `NULL` if none.
      */
-    public function getHost();
+    public function getHost() : ?string;
 
     /**
      * Get the default parameters.
      *
      * @return array Array with default route parameters.
      */
-    public function getDefaults();
+    public function getDefaults() : array;
 
     /**
      * Gets a value from the default parameters
@@ -66,37 +66,36 @@ interface RouteInterface extends Serializable
      *
      * @return mixed the parameter value.
      */
-    public function getDefault($var);
+    public function getDefault(string $var);
 
     /**
      * Get parameter constraints.
      *
      * @return array Associative array containing parameter constrains.
      */
-    public function getConstraints();
+    public function getConstraints() : array;
 
     /**
      * Get a parameter constraint by its parameter name.
      *
-     * @return array Associative array containing route constrains.
-     *
+     * @param string $param
      * @return string A constraint expression, typically a regular expression.
      */
-    public function getConstraint($param);
+    public function getConstraint(string $param) : string;
 
     /**
      * Get the route handler
      *
-     * @return mixed the route handler or its identifyer.
+     * @return mixed the route handler or its identifier.
      */
-    public function getHandler();
+    public function getHandler() /*callable | string */;
 
     /**
      * Gets the supported url schemes.
      *
      * @return array a list of supported url schemes
      */
-    public function getSchemes();
+    public function getSchemes() : array;
 
     /**
      * Tell if a given scheme is supported by this route.
@@ -105,19 +104,19 @@ interface RouteInterface extends Serializable
      *
      * @return boolean `TRUE` if the given scheme is supported, otherwise `FALSE`.
      */
-    public function hasScheme($scheme);
+    public function hasScheme(string $scheme) : bool;
 
     /**
      * Get the route context.
      *
      * If the context doesn't exists, the route will create a new context
      * object.
-     * The context object contains infomation about required variables and the
+     * The context object contains information about required variables and the
      * regexp matching patter.
      *
      * @see RouteContextInterface
      *
      * @return RouteContextInterface the route context object.
      */
-    public function getContext();
+    public function getContext() : RouteContextInterface;
 }

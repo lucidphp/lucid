@@ -27,7 +27,7 @@ interface DispatcherInterface
      *
      * @param ContextInterface $context
      *
-     * @return void
+     * @return mixed
      */
     public function dispatch(ContextInterface $context);
 }

@@ -42,7 +42,8 @@ class RouteCollectionBuilder
     private $routes;
 
     /**
-     * Constructor.
+     * RouteCollectionBuilder constructor.
+     * @param RouteCollectionInterface|null $routes
      */
     public function __construct(RouteCollectionInterface $routes = null)
     {
@@ -51,11 +52,11 @@ class RouteCollectionBuilder
     }
 
     /**
-     * getCollection
+     * Returns the built RouteCollection.
      *
      * @return RouteCollectionInterface
      */
-    public function getCollection()
+    public function getCollection() : RouteCollectionInterface
     {
         return $this->routes;
     }
@@ -63,77 +64,81 @@ class RouteCollectionBuilder
     /**
      * Adds a GET route to the collection.
      *
-     * @param string $pattern
-     * @param string $handler
-     * @param array  $requirements
-     * @param array  $defaults
-     *
-     * @return void
+     * @param array ...$args
+     * @see self::addRoute()
      */
-    public function get($pattern, $handler, array $requirements = [], array $defaults = [])
+    public function get(...$args) : void
     {
-        $this->addRoute('GET', $pattern, $handler, $requirements, $defaults);
+        $this->addRoute('GET', ...$args);
     }
 
     /**
-     * Adds a HEAD route to the collection
+     * Adds a HEAD route to the collection.
      *
-     * @see RouteCollectionBuilder#get()
+     * @param array ...$args
+     * @see self::addRoute()
      */
-    public function head($pattern, $handler, array $requirements = [], array $defaults = [])
+    public function head(...$args) : void
     {
-        $this->addRoute('HEAD', $pattern, $handler, $requirements, $defaults);
+        $this->addRoute('HEAD', ...$args);
     }
 
     /**
-     * Adds a POST route to the collection
+     * Adds a POST route to the collection.
      *
-     * @see RouteCollectionBuilder#get()
+     * @param array ...$args
+     * @see self::addRoute()
      */
-    public function post($pattern, $handler, array $requirements = [], array $defaults = [])
+    public function post(...$args) : void
     {
-        $this->addRoute('POST', $pattern, $handler, $requirements, $defaults);
+        $this->addRoute('POST', ...$args);
     }
 
     /**
-     * Adds a PUT route to the collection
+     * Adds a PUT route to the collection.
      *
-     * @see RouteCollectionBuilder#get()
+     * @param array ...$args
+     * @see self::addRoute()
      */
-    public function put($pattern, $handler, array $requirements = [], array $defaults = [])
+    public function put(...$args) : void
     {
-        $this->addRoute('PUT', $pattern, $handler, $requirements, $defaults);
+        $this->addRoute('PUT', ...$args);
     }
 
     /**
-     * Adds a PATCH route to the collection
+     * Adds a PATCH route to the collection.
      *
-     * @see RouteCollectionBuilder#get()
+     * @param array ...$args
+     * @see self::addRoute()
      */
-    public function patch($pattern, $handler, array $requirements = [], array $defaults = [])
+    public function patch(...$args) : void
     {
-        $this->addRoute('PATCH', $pattern, $handler, $requirements, $defaults);
+        $this->addRoute('PATCH', ...$args);
     }
 
     /**
-     * Adds a DELETE route to the collection
+     * Adds a DELETE route to the collection.
      *
-     * @see RouteCollectionBuilder#get()
+     * @param array ...$args
+     * @see self::addRoute()
      */
-    public function delete($pattern, $handler, array $requirements = [], array $defaults = [])
+    public function delete(...$args) : void
     {
-        $this->addRoute('DELETE', $pattern, $handler, $requirements, $defaults);
+        $this->addRoute('DELETE', ...$args);
     }
 
     /**
      * Adds a route to the collection that handles all available request
      * methods.
      *
-     * @see RouteCollectionBuilder#get()
+     * @param string $pattern
+     * @param $handler
+     * @param array $req requirements
+     * @param array $defaults
      */
-    public function any($pattern, $handler, array $requirements = [], array $defaults = [])
+    public function any(string $pattern, $handler, array $req = [], array $defaults = []) : void
     {
-        $this->addRoute('GET|HEAD|POST|PUT|PATCH|DELETE', $pattern, $handler, $requirements, $defaults);
+        $this->addRoute('GET|HEAD|POST|PUT|PATCH|DELETE', $pattern, $handler, $req, $defaults);
     }
 
     /**
@@ -143,15 +148,13 @@ class RouteCollectionBuilder
      * @param string $methods methods seperated by a pipe |.
      * @param string $pattern
      * @param string $handler
-     * @param array  $requirements
+     * @param array  $req
      * @param array  $defaults
-     *
-     * @return void
      */
-    public function addRoute($methods, $pattern, $handler, array $requirements = [], array $defaults = [])
+    public function addRoute(string $methods, string $pattern, $handler, array $req = [], array $defaults = []) : void
     {
         list ($name, $host, $schemes, $constraints) = $this->parseRequirements(
-            $this->extendRequirements($requirements),
+            $this->extendRequirements($req),
             $methods
         );
 
@@ -173,15 +176,16 @@ class RouteCollectionBuilder
      *
      * @param string $prefix
      * @param array $requirements
+     * @param callable $groupConstructor
      *
      * @return void
      */
-    public function group($prefix, array $requirements = [], callable $groupConstructor = null)
+    public function group($prefix, array $requirements = [], callable $groupConstructor = null) : void
     {
         $this->enterGroup($prefix, $requirements);
 
         if (null !== $groupConstructor) {
-            call_user_func($groupConstructor, $this);
+            $groupConstructor($this);
             $this->leaveGroup();
         }
     }
@@ -199,15 +203,15 @@ class RouteCollectionBuilder
     /**
      * parseRequirements
      *
-     * @param array $requirements
+     * @param array $rq
      * @param string $methods
      *
      * @return array
      */
-    private function parseRequirements(array $rq, $methods)
+    private function parseRequirements(array $rq, $methods) : array
     {
         $keys = [];
-        $constr = array_filter($this->mergeDefaults($rq, $methods), function ($val, $key) use (&$keys, $methods) {
+        $constraint = array_filter($this->mergeDefaults($rq, $methods), function ($val, $key) use (&$keys, $methods) {
             if (!in_array($key, self::$keys)) {
                 return true;
             }
@@ -218,17 +222,18 @@ class RouteCollectionBuilder
 
         extract($keys);
 
-        return [${self::K_NAME}, ${self::K_HOST}, ${self::K_SCHEME}, $constr];
+        return [${self::K_NAME}, ${self::K_HOST}, ${self::K_SCHEME}, $constraint];
     }
 
     /**
      * mergeDefaults
      *
      * @param array $given
+     * @param string $methods
      *
      * @return array
      */
-    private function mergeDefaults(array $given, $methods)
+    private function mergeDefaults(array $given, string $methods) : array
     {
         $defaults = array_merge(array_combine(self::$keys, array_pad([], count(self::$keys), null)), $given);
 
@@ -250,7 +255,7 @@ class RouteCollectionBuilder
      *
      * @return string
      */
-    private function generateName($methods)
+    private function generateName(string $methods) : string
     {
         return uniqid('route_' . strtr($methods, ['|' => '_']) . '_');
     }
@@ -260,12 +265,12 @@ class RouteCollectionBuilder
      *
      * @return RouteCollectionInterface
      */
-    private function newRouteCollection()
+    private function newRouteCollection() : RouteCollectionInterface
     {
         $class = $this->getCollectionClass();
 
-        if (!is_subclass_of($class, $i = __NAMESPACE__.'\RouteCollectionInterface')) {
-            throw new LogicException("Routecollection class must implement $i.");
+        if (!is_subclass_of($class, $i = RouteCollectionInterface::class)) {
+            throw new LogicException("RouteCollection class must implement $i.");
         }
 
         return new $class;
@@ -274,9 +279,9 @@ class RouteCollectionBuilder
     /**
      * getCollectionClass
      *
-     * @return void
+     * @return string
      */
-    private function getCollectionClass()
+    private function getCollectionClass() : string
     {
         return Routes::class;
     }
@@ -288,7 +293,7 @@ class RouteCollectionBuilder
      *
      * @return string
      */
-    private function prefixPattern($pattern)
+    private function prefixPattern($pattern) : string
     {
         $d = '/';
 
@@ -306,9 +311,9 @@ class RouteCollectionBuilder
      *
      * @param mixed $requirements
      *
-     * @return void
+     * @return array
      */
-    private function extendRequirements(array $requirements)
+    private function extendRequirements(array $requirements) : array
     {
         if (!$this->hasGroups()) {
             return $requirements;
@@ -318,11 +323,12 @@ class RouteCollectionBuilder
     }
 
     /**
-     * enterGroup
+     * @param $prefix
+     * @param array $requirements
      *
-     * @return RouteBuilder
+     * @return RouteCollectionBuilder
      */
-    private function enterGroup($prefix, array $requirements)
+    private function enterGroup($prefix, array $requirements) : self
     {
         $group = new RouteGroup($prefix, $requirements, $this->getParentGroup());
         $this->pushGroup($group);
@@ -333,21 +339,23 @@ class RouteCollectionBuilder
     /**
      * getParentGroup
      *
-     * @return null|GroupDefinition
+     * @return RouteGroup|null
      */
-    private function getParentGroup()
+    private function getParentGroup() : ?RouteGroup
     {
-        if ($this->hasGroups()) {
-            return $this->groups->top();
+        if (!$this->hasGroups()) {
+            return null;
         }
+
+        return $this->groups->top();
     }
 
     /**
      * leaveGroup
      *
-     * @return RouteBuilder
+     * @return RouteCollectionBuilder
      */
-    private function leaveGroup()
+    private function leaveGroup() : self
     {
         if ($this->hasGroups()) {
             $this->popGroup();
@@ -357,13 +365,9 @@ class RouteCollectionBuilder
     }
 
     /**
-     * pushGroup
-     *
-     * @param array $group
-     *
-     * @return void
+     * @param RouteGroup $group
      */
-    private function pushGroup(RouteGroup $group)
+    private function pushGroup(RouteGroup $group) : void
     {
         $this->groups->push($group);
     }
@@ -373,7 +377,7 @@ class RouteCollectionBuilder
      *
      * @return RouteGroup
      */
-    private function popGroup()
+    private function popGroup() : RouteGroup
     {
         return $this->groups->pop();
     }
@@ -383,7 +387,7 @@ class RouteCollectionBuilder
      *
      * @return RouteGroup
      */
-    private function getCurrentGroup()
+    private function getCurrentGroup() : RouteGroup
     {
         return $this->groups->top();
     }
@@ -393,7 +397,7 @@ class RouteCollectionBuilder
      *
      * @return bool
      */
-    private function hasGroups()
+    private function hasGroups() : bool
     {
         return $this->groups->count() > 0;
     }

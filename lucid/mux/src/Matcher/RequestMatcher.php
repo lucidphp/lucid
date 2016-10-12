@@ -24,34 +24,34 @@ use Lucid\Mux\Matcher\Context as MatchContext;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-class RequestMatcher implements RequestMatcherInterface
+final class RequestMatcher implements RequestMatcherInterface
 {
     use MatcherTrait;
 
     /**
-     * matchRequest
+     * Matches a
+     * @param \Lucid\Mux\Request\ContextInterface $request
+     * @param \Lucid\Mux\RouteCollectionInterface $routes
      *
-     * @param Request $request
-     *
-     * @return MatchContext
+     * @return \Lucid\Mux\Matcher\Context
      */
-    public function matchRequest(Request $request, RouteCollectionInterface $routes)
+    public function matchRequest(Request $request, RouteCollectionInterface $routes) : MatchContext
     {
         $path   = $request->getPath();
         $filtered = $this->filterByMethodAndScheme($routes, $request);
 
-        if ($filtered instanceof CachedCollectionInterface && 0 !== count($r = $route->findByStaticPath($path))) {
+        if ($filtered instanceof CachedCollectionInterface && 0 !== count($r = $routes->findByStaticPath($path))) {
             $filtered = $r;
         }
 
-        $nomatch = array_diff_key($routes->all(), $filtered->all());
+        $noMatch = array_diff_key($routes->all(), $filtered->all());
 
         foreach ($filtered->all() as $name => $route) {
             $rctx = $route->getContext();
 
             // does it match host?
             if (!$this->matchHost($rctx, $request, $route->getHost())) {
-                $nomatch[$name] = $route;
+                $noMatch[$name] = $route;
                 continue;
             }
 
@@ -68,9 +68,9 @@ class RequestMatcher implements RequestMatcherInterface
                 return new MatchContext(self::MATCH, $name, $request, $handler, $vars);
             }
 
-            $nomatch[$name] = $route;
+            $noMatch[$name] = $route;
         }
 
-        return new MatchContext($this->getMatchFailureReason($nomatch, $request), null, $request, null);
+        return new MatchContext($this->getMatchFailureReason($noMatch, $request), null, $request, null);
     }
 }

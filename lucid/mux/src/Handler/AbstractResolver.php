@@ -29,7 +29,7 @@ abstract class AbstractResolver implements ContainerAwareResolverInterface
     /**
      * {@inheritdoc}
      */
-    public function setContainer(ContainerInterface $container)
+    public function setContainer(ContainerInterface $container) : void
     {
         $this->container = $container;
     }
@@ -37,13 +37,13 @@ abstract class AbstractResolver implements ContainerAwareResolverInterface
     /**
      * {@inheritdoc}
      */
-    public function resolve($handler)
+    public function resolve($handler) : Reflector
     {
-        if (is_callable($callable = $this->findHandler($handler))) {
-            return new Reflector($callable);
-        };
-
-        throw new ResolverException('No routing handler could be found.');
+        try {
+            return new Reflector($this->findHandler($handler));
+        } catch (\TypeError $e) {
+            throw new ResolverException('No routing handler could be found.');
+        }
     }
 
     /**
@@ -53,7 +53,7 @@ abstract class AbstractResolver implements ContainerAwareResolverInterface
      *
      * @return callable
      */
-    abstract protected function findHandler($handler);
+    abstract protected function findHandler($handler) : callable;
 
     /**
      * getContainer
@@ -68,9 +68,11 @@ abstract class AbstractResolver implements ContainerAwareResolverInterface
     /**
      * @param string $id
      *
-     * @return Object|null
+     * @return mixed|null
+     * @throws \Interop\Container\Exception\ContainerException
+     * @throws \Interop\Container\Exception\NotFoundException
      */
-    protected function getService($id)
+    protected function getService(string $id)
     {
         $container = $this->getContainer();
 
@@ -88,7 +90,7 @@ abstract class AbstractResolver implements ContainerAwareResolverInterface
      *
      * @return ResolverException
      */
-    protected function newResolverException($msg)
+    protected function newResolverException($msg) : ResolverException
     {
         return new ResolverException('Can\'t resolve handler: '. $msg);
     }

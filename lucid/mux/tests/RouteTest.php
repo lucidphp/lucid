@@ -12,6 +12,8 @@
 namespace Lucid\Mux\Tests;
 
 use Lucid\Mux\Route;
+use Lucid\Mux\RouteContextInterface;
+use Lucid\Mux\RouteInterface;
 
 /**
  * @class RouteTest
@@ -99,7 +101,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($route->hasScheme('http'));
         $this->assertTrue($route->hasScheme('HTTPS'));
 
-        $route =  new Route('/', 'action', null, null, null, null, null, ['HTTP', 'https']);
+        $route =  new Route('/', 'action', null, null, null, null, ['HTTP', 'https']);
 
         $this->assertSame(['http', 'https'], $route->getSchemes());
     }
@@ -137,17 +139,18 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function itShouldCallParser()
     {
+        $ctx = $this->getMockBuilder(RouteContextInterface::Class)->getMock();
+        /** @var RouteInterface */
         $route = $this->getMockBuilder(Route::class)
             ->setConstructorArgs(['/', 'action'])
             ->setMethods(['getParserFunc'])
             ->getMock();
-        $route->method('getParserFunc')->willReturnCallback(function () {
-            return function () {
-                return 'RouteContext';
-            };
+        
+        $route->method('getParserFunc')->willReturn(function () use ($ctx) {
+            return $ctx;
         });
 
-        $this->assertSame('RouteContext', $route->getContext());
+        $this->assertSame($ctx, $route->getContext());
     }
 
     private function newRoute($path = '/', $handler = 'action')

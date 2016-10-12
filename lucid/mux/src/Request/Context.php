@@ -43,7 +43,6 @@ class Context implements ContextInterface
     /**
      * Constructor.
      *
-     * @param string $base
      * @param string $path
      * @param string $method
      * @param string $query
@@ -70,7 +69,7 @@ class Context implements ContextInterface
     /**
      * {@inheritdoc}
      */
-    public function getPath()
+    public function getPath() : string
     {
         return $this->path;
     }
@@ -78,7 +77,7 @@ class Context implements ContextInterface
     /**
      * {@inheritdoc}
      */
-    public function getMethod()
+    public function getMethod() : string
     {
         return $this->method;
     }
@@ -86,7 +85,7 @@ class Context implements ContextInterface
     /**
      * {@inheritdoc}
      */
-    public function getQueryString()
+    public function getQueryString() : string
     {
         return $this->query;
     }
@@ -94,7 +93,7 @@ class Context implements ContextInterface
     /**
      * {@inheritdoc}
      */
-    public function getHost()
+    public function getHost() : string
     {
         return $this->host;
     }
@@ -102,7 +101,7 @@ class Context implements ContextInterface
     /**
      * {@inheritdoc}
      */
-    public function getScheme()
+    public function getScheme() : string
     {
         return $this->scheme;
     }
@@ -112,7 +111,7 @@ class Context implements ContextInterface
      *
      * @return int
      */
-    public function getHttpPort()
+    public function getHttpPort() : int
     {
         return $this->port;
     }
@@ -122,9 +121,9 @@ class Context implements ContextInterface
      *
      * @param ServerRequestInterface $request
      *
-     * @return ServerRequestInterface
+     * @return self
      */
-    public static function fromPsrRequest(ServerRequestInterface $request)
+    public static function fromPsrRequest(ServerRequestInterface $request) : self
     {
         $uri    = $request->getUri();
         $server = $request->getServerParams();

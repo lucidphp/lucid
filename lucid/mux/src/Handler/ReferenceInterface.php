@@ -9,19 +9,15 @@
  * that was distributed with this package.
  */
 
-namespace Lucid\Mux\Parser;
+namespace Lucid\Mux;
 
 /**
- * @interface TokenInterface
+ * @interface ReferenceInterface
  *
- * @package Lucid\Routing
+ * @package Lucid\Mux
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-interface TokenInterface
+interface ReferenceInterface
 {
-    /**
-     * @return string
-     */
-    public function __toString();
 }

@@ -21,12 +21,9 @@ namespace Lucid\Mux\Handler;
 interface ParameterMapperInterface
 {
     /**
-     * map
-     *
-     * @param callable $handler
+     * @param Reflector $handler
      * @param array $parameters
-     *
-     * @return array
+     * @return mixed
      */
     public function map(Reflector $handler, array $parameters);
 }

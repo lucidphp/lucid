@@ -58,7 +58,7 @@ class UrlGeneratorTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('foo/bar?foo=bar', $url->currentUrl());
         $this->assertSame('http://example.com/foo/bar?foo=bar', $url->currentUrl(UrlGenerator::ABSOLUTE_PATH));
 
-        $this->assertNull($url->currentUrl('unknown_flag'));
+        $this->assertNull($url->currentUrl(677));
     }
 
     /** @test */
@@ -91,7 +91,7 @@ class UrlGeneratorTest extends \PHPUnit_Framework_TestCase
     {
         $url = new UrlGenerator();
         $url->setRoutes($routes = $this->mockRoutes());
-        $routes->method('get')->willReturn(null);
+        $routes->method('has')->with('index')->willReturn(false);
 
         try {
             $url->generate('index');

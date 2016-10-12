@@ -22,7 +22,11 @@ use LogicException;
  */
 class ParserException extends LogicException
 {
-    public static function nestedOptional($var)
+    /**
+     * @param string $var
+     * @return ParserException
+     */
+    public static function nestedOptional($var) : ParserException
     {
         return new self(sprintf('Nested optional variable {%s?} has no default value.', $var));
     }

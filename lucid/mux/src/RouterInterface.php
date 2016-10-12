@@ -11,6 +11,7 @@
 
 namespace Lucid\Mux;
 
+use Lucid\Mux\Exception\MatchException;
 use Lucid\Mux\Matcher\ContextInterface as MatchContext;
 use Lucid\Mux\Request\ContextInterface as RequestContext;
 
@@ -18,24 +19,43 @@ use Lucid\Mux\Request\ContextInterface as RequestContext;
  * @interface MultiplexerInterface
  *
  * @package Lucid\Mux
- * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
 interface RouterInterface
 {
+    /** @var int */
+    const R_PORT           = 80;
+
+    /** @var string */
+    const R_HOST           = 'localhost';
+
+    /** @var string */
+    const R_METHOD         = 'GET';
+
+    /** @var string */
+    const R_QUERY          = '';
+
+    /** @var string */
+    const R_SCHEME_DEFAULT = 'http';
+
+    /** @var string */
+    const R_SCHEME_SECURE  = 'https';
+
     /**
      * dispatch
      *
-     * @param ContextInterface $context
+     * @param RequestContext $context
      *
-     * @return void
+     * @throws MatchException
+     *
+     * @return mixed the request response.
      */
     public function dispatch(RequestContext $context);
 
     /**
      * Dispatches a match.
      *
-     * @param MatchContextInterface $match
+     * @param MatchContext $match
      *
      * @return mixed the request response.
      */
@@ -44,48 +64,49 @@ interface RouterInterface
     /**
      * match
      *
-     * @param ContextInterface $context
+     * @param RequestContext $context
      *
-     * @return Lucid\Mux\Matcher\ContextInterface
+     * @return MatchContext
      */
-    public function match(RequestContext $context);
+    public function match(RequestContext $context) : MatchContext;
 
     /**
-     * route
+     * Routes to a named route.
      *
-     * @param RouteInterface $route
-     *
-     * @return void
+     * @param string $name
+     * @param array $parameters
+     * @param array $options
+     * @return mixed
      */
-    public function route($name, array $parameters = [], array $options = []);
+    public function route(string $name, array $parameters = [], array $options = []);
 
     /**
      * Get the first route that's been dispatched.
      *
      * @return RouteInterface the route object, `NULL` if none.
      */
-    public function getFirstRoute();
+    public function getFirstRoute() : ?RouteInterface;
 
     /**
      * Get the first route name that's been dispatched.
      *
      * @return string the route name, `NULL` if none.
      */
-    public function getFirstRouteName();
+    public function getFirstRouteName() : ?string;
 
     /**
      * Get the current dispatched route.
      *
      * @return RouteInterface a route object.
      */
-    public function getCurrentRoute();
+    public function getCurrentRoute() : ?RouteInterface;
 
     /**
      * Get the current dispatched route name.
      *
      * @return string the route name.
      */
-    public function getCurrentRouteName();
+    public function getCurrentRouteName() : ?string;
 
     /**
      * Generates a http url for a given route name.
@@ -94,6 +115,8 @@ interface RouterInterface
      * @param string $host
      * @param array $vars
      * @param bool $rel
+     *
+     * @return string
      */
-    public function getUrl($name, $host = null, array $vars = [], $rel = true);
+    public function getUrl($name, $host = null, array $vars = [], $rel = true) : string;
 }

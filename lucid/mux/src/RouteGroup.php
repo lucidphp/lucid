@@ -12,13 +12,10 @@
 namespace Lucid\Mux;
 
 /**
+ * Class RouteGroup
  * Helper class for generating RoutCollection objects.
  *
- * @class RouteGroup
- *
  * @package Lucid\Mux
- * @version $Id$
- * @author Thomas Appel <mail@thomas-appel.com>
  */
 class RouteGroup
 {
@@ -49,9 +46,9 @@ class RouteGroup
     /**
      * Tell if the group has a parent group.
      *
-     * @return boolean
+     * @return bool
      */
-    public function hasParent()
+    public function hasParent() : bool
     {
         return null !== $this->parent;
     }
@@ -61,7 +58,7 @@ class RouteGroup
      *
      * @return string the prefix.
      */
-    public function getPrefix()
+    public function getPrefix() : string
     {
         return $this->prefix;
     }
@@ -71,7 +68,7 @@ class RouteGroup
      *
      * @return array the group requirements
      */
-    public function getRequirements()
+    public function getRequirements() : array
     {
         return $this->requirements;
     }
@@ -81,7 +78,7 @@ class RouteGroup
      *
      * @return void
      */
-    private function setPrefix($prefix)
+    private function setPrefix($prefix) : void
     {
         if (0 === strlen($prefix)) {
             throw new \InvalidArgumentException('Group prefix may not be empty.');
@@ -95,9 +92,11 @@ class RouteGroup
     /**
      * Set the group requirements
      *
+     * @param array $requirements
+     *
      * @return void
      */
-    private function setRequirements(array $requirements)
+    private function setRequirements(array $requirements) : void
     {
         $requirements = $this->filterRequirements($requirements);
 
@@ -113,7 +112,7 @@ class RouteGroup
      *
      * @return array the filtered requirements.
      */
-    private function filterRequirements(array $requirements)
+    private function filterRequirements(array $requirements) : array
     {
         $keys = ['host', 'schemes'];
 

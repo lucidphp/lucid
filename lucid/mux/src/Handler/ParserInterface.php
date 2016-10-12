@@ -9,19 +9,16 @@
  * that was distributed with this package.
  */
 
-namespace Lucid\Mux\Parser;
+namespace Lucid\Mux\Handler;
 
 /**
- * @interface TokenInterface
+ * @interface ParserInterface
  *
- * @package Lucid\Routing
+ * @package Lucid\Mux
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-interface TokenInterface
+interface ParserInterface
 {
-    /**
-     * @return string
-     */
-    public function __toString();
+    public function parse(ReferenceInterface $handler);
 }

@@ -38,16 +38,20 @@ class Context implements ContextInterface
     private $vars;
 
     /**
-     * Constructor.
-     *
+     * Context constructor.
      * @param int $type
      * @param string $name
-     * @param string $url
-     * @param mixed $handler
+     * @param RequestContext $request
+     * @param $handler
      * @param array $vars
      */
-    public function __construct($type, $name, RequestContext $request, $handler, array $vars = [])
-    {
+    public function __construct(
+        int $type,
+        ?string $name,
+        RequestContext $request,
+        $handler,
+        array $vars = []
+    ) {
         $this->type    = $type;
         $this->name    = $name;
         $this->request = $request;
@@ -58,7 +62,7 @@ class Context implements ContextInterface
     /**
      * {@inheritdoc}
      */
-    public function isMatch()
+    public function isMatch() : bool
     {
         return RequestMatcherInterface::MATCH === $this->type;
     }
@@ -66,7 +70,7 @@ class Context implements ContextInterface
     /**
      * {@inheritdoc}
      */
-    public function isHostMissmatch()
+    public function isHostMissmatch() : bool
     {
         return RequestMatcherInterface::NOMATCH_HOST === $this->type;
     }
@@ -74,7 +78,7 @@ class Context implements ContextInterface
     /**
      * {@inheritdoc}
      */
-    public function isMethodMissmatch()
+    public function isMethodMissMatch() : bool
     {
         return RequestMatcherInterface::NOMATCH_METHOD === $this->type;
     }
@@ -90,7 +94,7 @@ class Context implements ContextInterface
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName() : string
     {
         return $this->name;
     }
@@ -98,7 +102,7 @@ class Context implements ContextInterface
     /**
      * {@inheritdoc}
      */
-    public function getRequest()
+    public function getRequest() : RequestContext
     {
         return $this->request;
     }
@@ -106,7 +110,7 @@ class Context implements ContextInterface
     /**
      * {@inheritdoc}
      */
-    public function getPath()
+    public function getPath() : string
     {
         return $this->request->getPath();
     }
@@ -122,7 +126,7 @@ class Context implements ContextInterface
     /**
      * {@inheritdoc}
      */
-    public function getVars()
+    public function getVars() : array
     {
         return $this->vars;
     }

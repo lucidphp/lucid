@@ -13,6 +13,9 @@ namespace Lucid\Mux;
 
 use Closure;
 use LogicException;
+use Lucid\Mux\Meta\Attributes;
+use Lucid\Mux\Meta\AttributesInterface;
+use Lucid\Mux\Parser\Standard;
 
 /**
  * @class
@@ -45,6 +48,9 @@ class Route implements RouteInterface
     /** @var RouteContextInterface */
     private $context;
 
+    /** @var AttributesInterface */
+    private $attributes;
+
     /** @var array */
     private static $keys = [
         'pattern',  'handler',     'methods', 'host',
@@ -54,28 +60,30 @@ class Route implements RouteInterface
     /**
      * Constructor.
      *
-     * @param string $pattern        the route pattern
-     * @param mixed $handler         the route handler
-     * @param string|array $methods  the supported http methods.
-     * @param string $host           the required host
-     * @param array $defaults        default parameters
-     * @param array $constraints     parameter constraints
-     * @param array $schemes         supported url schemes
+     * @param string $pattern     the route pattern
+     * @param mixed $handler      the route handler
+     * @param array $methods      the supported http methods.
+     * @param string $host        the required host
+     * @param array $defaults     default parameters
+     * @param array $constraints  parameter constraints
+     * @param array $schemes      supported url schemes
      */
     public function __construct(
-        $pattern,
+        string $pattern,
         $handler,
         array $methods = null,
-        $host = null,
+        string $host = null,
         array $defaults = null,
         array $constraints = null,
-        array $schemes = null
+        array $schemes = null,
+        AttributesInterface $attrs = null
     ) {
         $this->pattern     = $pattern;
         $this->handler     = $handler;
         $this->host        = $host;
         $this->defaults    = $defaults ?: [];
         $this->constraints = $constraints ?: [];
+        $this->attributes  = $attrs ?: new Attributes;
 
         $this->setMethods($methods ?: ['GET']);
         $this->setSchemes($schemes ?: ['http', 'https']);
@@ -84,7 +92,7 @@ class Route implements RouteInterface
     /**
      * {@inheritdoc}
      */
-    public function getMethods()
+    public function getMethods() : array
     {
         return $this->methods;
     }
@@ -92,7 +100,7 @@ class Route implements RouteInterface
     /**
      * {@inheritdoc}
      */
-    public function hasMethod($method)
+    public function hasMethod(string $method) : bool
     {
         return in_array(strtoupper($method), $this->methods);
     }
@@ -100,7 +108,7 @@ class Route implements RouteInterface
     /**
      * {@inheritdoc}
      */
-    public function getHandler()
+    public function getHandler() /*: callable | string */
     {
         return $this->handler;
     }
@@ -108,7 +116,7 @@ class Route implements RouteInterface
     /**
      * {@inheritdoc}
      */
-    public function getSchemes()
+    public function getSchemes() : array
     {
         return $this->schemes;
     }
@@ -116,15 +124,15 @@ class Route implements RouteInterface
     /**
      * {@inheritdoc}
      */
-    public function hasScheme($scheme)
+    public function hasScheme(string $scheme) : bool
     {
         return in_array(strtolower($scheme), $this->schemes);
     }
 
     /**
      * {@inheritdoc}
-     */
-    public function getPattern()
+    */
+    public function getPattern() : string
     {
         return $this->pattern;
     }
@@ -132,7 +140,7 @@ class Route implements RouteInterface
     /**
      * {@inheritdoc}
      */
-    public function getHost()
+    public function getHost() : ?string
     {
         return $this->host;
     }
@@ -140,7 +148,7 @@ class Route implements RouteInterface
     /**
      * {@inheritdoc}
      */
-    public function getDefaults()
+    public function getDefaults() : array
     {
         return $this->defaults;
     }
@@ -148,7 +156,7 @@ class Route implements RouteInterface
     /**
      * {@inheritdoc}
      */
-    public function getDefault($var)
+    public function getDefault(string $var) /*: ?mixed*/
     {
         return isset($this->defaults[$var]) ? $this->defaults[$var] : null;
     }
@@ -156,7 +164,7 @@ class Route implements RouteInterface
     /**
      * {@inheritdoc}
      */
-    public function getConstraints()
+    public function getConstraints() : array
     {
         return $this->constraints;
     }
@@ -164,15 +172,20 @@ class Route implements RouteInterface
     /**
      * {@inheritdoc}
      */
-    public function getConstraint($param)
+    public function getConstraint(string $param) : string
     {
         return isset($this->constraints[$param]) ? $this->constraints[$param] : null;
+    }
+
+    public function getAttributes() : AttributesInterface
+    {
+        return $this->attributes;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getContext()
+    public function getContext() : RouteContextInterface
     {
         if (null === $this->context) {
             $this->context = call_user_func($this->getParserFunc(), $this);
@@ -186,19 +199,19 @@ class Route implements RouteInterface
      *
      * @return string the serialized data of this route.
      */
-    public function serialize()
+    public function serialize() : string
     {
         if ($this->getHandler() instanceof Closure) {
             throw new LogicException('Cannot serialize handler.');
         }
 
         return serialize(array_combine(static::$keys, array_map(function ($key) {
-            return call_user_func([$this, 'get'.ucfirst($key)]);
+            return $this->{'get'.ucfirst($key)}();
         }, static::$keys)));
     }
 
     /**
-     * Unserializes the route
+     * De-serializes the route.
      *
      * @param string $data
      *
@@ -208,7 +221,7 @@ class Route implements RouteInterface
     {
         $data = unserialize($data);
 
-        foreach (static::$keys as $key) {
+        foreach (self::$keys as $key) {
             $this->{$key} = $data[$key];
         }
     }
@@ -218,9 +231,9 @@ class Route implements RouteInterface
      *
      * @return callable
      */
-    protected function getParserFunc()
+    protected function getParserFunc() : callable
     {
-        return __NAMESPACE__.'\Parser\Standard::parse';
+        return Standard::class . '::parse';
     }
 
     /**
@@ -231,7 +244,7 @@ class Route implements RouteInterface
      *
      * @return void
      */
-    private function setMethods(array $methods)
+    private function setMethods(array $methods) : void
     {
         $this->methods = array_keys(array_change_key_case(array_flip($methods), CASE_UPPER));
     }
@@ -239,12 +252,12 @@ class Route implements RouteInterface
     /**
      * Sets the schemes.
      *
-     * @param mixed $schemes string or array of strings containing accepted
+     * @param array $schemes array of strings containing accepted
      * schemes.
      *
      * @return void
      */
-    private function setSchemes(array $schemes)
+    private function setSchemes(array $schemes) : void
     {
         $this->schemes = array_keys(array_change_key_case(array_flip($schemes), CASE_LOWER));
     }

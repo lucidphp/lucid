@@ -35,16 +35,22 @@ class Variable extends Token
     private $default;
 
     /**
-     * Constructor.
-     *
-     * @param string $name       the variable name
-     * @param bool   $required   the variable is requiered
-     * @param string $constraint a regex constraint.
-     * @param TokenInterface     $prev       the previous token
-     * @param TokenInterface     $next       the next token
+     * Variable constructor.
+     * @param string $name
+     * @param bool $required
+     * @param string $constr
+     * @param TokenInterface $prev
+     * @param TokenInterface$next
+     * @param string $def
      */
-    public function __construct($name, $required = true, $constr = null, TI $prev = null, TI $next = null, $def = '/')
-    {
+    public function __construct(
+        $name,
+        $required = true,
+        $constr = null,
+        TokenInterface $prev = null,
+        TokenInterface $next = null,
+        $def = '/'
+    ) {
         $this->required   = $required;
         $this->constraint = $constr;
         $this->default    = $def;

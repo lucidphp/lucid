@@ -11,7 +11,6 @@
 
 namespace Lucid\Mux\Handler;
 
-use RuntimeException;
 use Interop\Container\ContainerInterface;
 use Lucid\Mux\Exception\ResolverException;
 
@@ -31,21 +30,20 @@ class Resolver extends AbstractResolver
      */
     public function __construct(ContainerInterface $container = null)
     {
-        if (null !== $container) {
-            $this->setContainer($container);
-        }
+        null !== $container && $this->setContainer($container);
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function findHandler($handler)
+    protected function findHandler($handler) : callable
     {
         // if the handler is callable, return it immediately:
         if (is_callable($handler)) {
             return $handler;
         }
 
+        // on this point, not being a string… not callable
         if (!is_string($handler)) {
             throw new ResolverException(sprintf('Cannot resolver handler of type "%s".', gettype($handler)));
         }
@@ -61,27 +59,13 @@ class Resolver extends AbstractResolver
         if (!class_exists($handler)) {
             return [$handler, $method];
         }
-        $err = null;
 
-        set_error_handler(function ($errno, $msg) {
-            throw $this->newResolverException($msg);
-        });
-
+        // kay thx bye
         try {
-            $resolvedHandler = [new $handler, $method];
-        } catch (ResolverException $e) {
-            $err = $e;
+            return [new $handler, $method];
         } catch (\Throwable $t) {
-            $err = $this->newResolverException($t->getMessage());
+            throw $this->newResolverException($t->getMessage());
         }
-
-        restore_error_handler();
-
-        if (null !== $err) {
-            throw $err;
-        }
-
-        return $resolvedHandler;
     }
 
     /**
