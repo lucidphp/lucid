@@ -8,7 +8,6 @@
 
 namespace Lucid\Mux;
 
-
 interface RouteCollectionMutableInterface extends RouteCollectionInterface
 {
     /**

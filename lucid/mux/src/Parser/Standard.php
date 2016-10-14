@@ -262,7 +262,6 @@ REGEX;
         $n = $var->next;
 
         while (null !== $n) {
-
             if (!$n instanceof Variable) {
                 $n = $n->next;
                 $nextIsOpt = true;

@@ -42,7 +42,6 @@ class ContextTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('example.com', $ctx->getHost());
         $this->assertSame(80, $ctx->getHttpPort());
         $this->assertSame('http', $ctx->getScheme());
-
     }
 
     private function newContext()

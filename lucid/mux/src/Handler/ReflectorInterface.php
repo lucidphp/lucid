@@ -7,7 +7,6 @@
  */
 namespace Lucid\Mux\Handler;
 
-
 /**
  * @class   Reflector
  *

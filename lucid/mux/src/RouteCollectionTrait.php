@@ -31,7 +31,8 @@ trait RouteCollectionTrait
     /**
      * @throws \DomainException
      */
-    public function __clone() {
+    public function __clone()
+    {
         throw new \DomainException('You may not clone a route collection.');
     }
 

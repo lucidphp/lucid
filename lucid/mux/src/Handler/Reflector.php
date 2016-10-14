@@ -186,7 +186,7 @@ class Reflector implements ReflectorInterface
      *
      * @return string
      */
-    private function getMethod() : string 
+    private function getMethod() : string
     {
         if (is_array($this->handler) && 2 === sizeof($this->handler)) {
             return $this->handler[1];

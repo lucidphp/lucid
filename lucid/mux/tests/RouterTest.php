@@ -63,7 +63,9 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         );
 
         $url->expects($this->once())->method('generate')->willReturnCallback(function ($name) {
-            if ('foo' !== $name) { $this->fail(); }
+            if ('foo' !== $name) {
+                $this->fail();
+            }
 
             return '/foo/bar';
         });
