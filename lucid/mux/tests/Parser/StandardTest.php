@@ -2,7 +2,7 @@
 
 namespace Lucid\Mux\Tests\Parser;
 
-use Lucid\Mux\Route;
+use Lucid\Mux\RouteInterface;
 use Lucid\Mux\Parser\Standard as Parser;
 use Lucid\Mux\Parser\DefaultParser;
 use Lucid\Mux\Parser\ParserInterface;
@@ -121,7 +121,7 @@ class StandardTest extends \PHPUnit_Framework_TestCase
 
     private function mockRoute()
     {
-        return $this->getMockBuilder(Route::class)
+        return $this->getMockBuilder(RouteInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
     }

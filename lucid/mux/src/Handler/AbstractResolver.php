@@ -37,7 +37,7 @@ abstract class AbstractResolver implements ContainerAwareResolverInterface
     /**
      * {@inheritdoc}
      */
-    public function resolve($handler) : Reflector
+    public function resolve($handler) : ReflectorInterface
     {
         try {
             return new Reflector($this->findHandler($handler));

@@ -21,11 +21,11 @@ namespace Lucid\Mux\Handler;
 interface ResolverInterface
 {
     /**
-     * resolve
+     * Resolves a handler.
      *
-     * @param mixed $handler
+     * @param string|callable $handler
      *
-     * @return Lucid\Mux\Handler\Reflector
+     * @return ReflectorInterface
      */
-    public function resolve($handler);
+    public function resolve($handler) : ReflectorInterface;
 }

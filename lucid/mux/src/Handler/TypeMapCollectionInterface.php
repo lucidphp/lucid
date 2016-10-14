@@ -23,11 +23,11 @@ interface TypeMapCollectionInterface
     /**
      * Sets an array of typemapper objects.
      *
-     * @param array $typeMappers
+     * @param TypeMapperInterface[] $typeMappers
      *
      * @return void
      */
-    public function set(array $typeMappers);
+    public function set(array $typeMappers) : void;
 
     /**
      * Add a typemapper object to the collection.
@@ -36,16 +36,16 @@ interface TypeMapCollectionInterface
      *
      * @return void
      */
-    public function add(TypeMapperInterface $typeMapper);
+    public function add(TypeMapperInterface $typeMapper) : void;
 
     /**
      * Check if a mapper for a given type exists.
      *
      * @param string $type
      *
-     * @return boolean
+     * @return bool
      */
-    public function has($type);
+    public function has(string $type) : bool;
 
     /**
      * Get the object for a given type.
@@ -54,7 +54,7 @@ interface TypeMapCollectionInterface
      *
      * @return Object
      */
-    public function get($type);
+    public function get(string $type);
 
     /**
      * Get the mapper for a given type.
@@ -63,5 +63,5 @@ interface TypeMapCollectionInterface
      *
      * @return TypeMapperInterface
      */
-    public function getMapper($type);
+    public function getMapper(string $type) : ?TypeMapperInterface;
 }

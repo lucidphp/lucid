@@ -58,11 +58,38 @@ $builder->get('/', 'Acme\FrontController@getIndex');
 // adds a POST route
 $builder->post('/user', 'Acme\UserController@createUser');
 
-// adds a UPDATE route
-$builder->update('/user/{id}', 'Acme\UserController@updateUser');
+// adds a PUT route
+$builder->put('/user/{id}', 'Acme\UserController@updateUser');
+
+// adds a PATCH route
+$builder->patch('/user/{id}', 'Acme\UserController@updateUser');
 
 // adds a DELETE route
 $builder->delete('/user/{id}', 'Acme\UserController@deleteUser');
+
+// adds a HEAD route
+$builder->head('/user/{id}', 'Acme\UserController@pingUser');
+
+```
+
+```php
+<?php
+
+use Lucid\Mux\RouteCollectionBuilder;
+use Lucid\Mux\Cache\Routes as ImmutableCollection;
+
+function loadRoutes(string $builderFile, string $routesFiles) : RouteCollectionInterface
+{
+    if (!file_exists($routesFiles) || filemtime($builderFile) > filemtime($routesFile)) {
+        require $builderFile;
+        $routes = new ImmutableCollection($builder->getCollection());
+        file_put_contents($routesFile, serialize($routes);
+        
+        return $routes;
+    }
+    
+    return unserialize(file_get_contents($routesFiles));
+}
 ```
 
 #### Using the route loader  

@@ -22,11 +22,11 @@ use Lucid\Mux\Parser\TokenInterface as TI;
  */
 class Variable extends Token
 {
-    /** @var bool */
-    public $required;
-
     /** @var string */
     public $regex;
+
+    /** @var bool */
+    public $required;
 
     /** @var string */
     private $constraint;
@@ -44,12 +44,12 @@ class Variable extends Token
      * @param string $def
      */
     public function __construct(
-        $name,
-        $required = true,
-        $constr = null,
+        string $name,
+        bool $required = true,
+        string $constr = null,
         TokenInterface $prev = null,
         TokenInterface $next = null,
-        $def = '/'
+        string $def = '/'
     ) {
         $this->required   = $required;
         $this->constraint = $constr;
@@ -61,7 +61,7 @@ class Variable extends Token
     /**
      * {@inheritdoc}
      */
-    public function __toString()
+    public function __toString() : string
     {
         return $this->getRegex();
     }
@@ -71,7 +71,7 @@ class Variable extends Token
      *
      * @return string
      */
-    public function getRegex()
+    public function getRegex() : string
     {
         if (null === $this->constraint) {
             $delim = $this->next instanceof Delimiter ? (string)$this->next : '';

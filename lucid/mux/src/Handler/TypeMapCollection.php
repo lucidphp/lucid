@@ -20,29 +20,31 @@ namespace Lucid\Mux\Handler;
  */
 class TypeMapCollection implements TypeMapCollectionInterface
 {
+    /** @var TypeMapperInterface[] */
+    private $mappers;
+
     /**
-     * Constructor.
+     * TypeMapCollection constructor.
      *
-     * @param array $mappers
+     * @param TypeMapperInterface[] $mappers
      */
-    public function __construct(array $mappers = [])
+    public function __construct($mappers = [])
     {
-        $this->set($mappers);
+        $this->doSet(...$mappers);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function set(array $mappers)
+    public function set(array $mappers) : void
     {
-        $this->mappers = [];
-        array_map([$this, 'add'], $mappers);
+        $this->doSet(...$mappers);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function add(TypeMapperInterface $mapper)
+    public function add(TypeMapperInterface $mapper) : void
     {
         $this->mappers[$this->sanitize($mapper->getType())] = $mapper;
     }
@@ -50,7 +52,7 @@ class TypeMapCollection implements TypeMapCollectionInterface
     /**
      * {@inheritdoc}
      */
-    public function has($type)
+    public function has(string $type) : bool
     {
         return isset($this->mappers[$this->sanitize($type)]);
     }
@@ -58,7 +60,7 @@ class TypeMapCollection implements TypeMapCollectionInterface
     /**
      * {@inheritdoc}
      */
-    public function get($type)
+    public function get(string $type)
     {
         return $this->getMapper($type)->getObject();
     }
@@ -66,15 +68,17 @@ class TypeMapCollection implements TypeMapCollectionInterface
     /**
      * {@inheritdoc}
      */
-    public function getMapper($type)
+    public function getMapper(string $type) : ?TypeMapperInterface
     {
-        if ($this->has($type)) {
-            return $this->mappers[$this->sanitize($type)];
+        if (!$this->has($type)) {
+            return null;
         }
+
+        return $this->mappers[$this->sanitize($type)];
     }
 
     /**
-     * Sanitize class name.
+     * Sanitize class names.
      *
      * @param string $type
      *
@@ -83,5 +87,15 @@ class TypeMapCollection implements TypeMapCollectionInterface
     private function sanitize($type)
     {
         return '\\'.ltrim($type, '\\');
+    }
+
+    /**
+     * @param \Lucid\Mux\Handler\TypeMapperInterface[] ...$mappers
+     */
+    private function doSet(TypeMapperInterface ...$mappers) : void
+    {
+        $this->mappers = array_combine(array_map(function (TypeMapperInterface $mapper) {
+            return $this->sanitize($mapper->getType());
+        }, $mappers), $mappers);
     }
 }

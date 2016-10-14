@@ -23,5 +23,15 @@ interface TokenInterface
     /**
      * @return string
      */
-    public function __toString();
+    public function __toString() : string;
+
+    /**
+     * @return \Lucid\Mux\Parser\TokenInterface|null
+     */
+    public function prev() : ?self;
+
+    /**
+     * @return \Lucid\Mux\Parser\TokenInterface|null
+     */
+    public function next() : ?self;
 }

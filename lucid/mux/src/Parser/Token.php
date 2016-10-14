@@ -35,11 +35,21 @@ abstract class Token implements TokenInterface
      * @param TokenInterface|null $prev
      * @param TokenInterface|null $next
      */
-    public function __construct($value, TokenInterface $prev = null, TokenInterface $next = null)
+    public function __construct(string $value, TokenInterface $prev = null, TokenInterface $next = null)
     {
         $this->value = $value;
         $this->prev = $prev;
         $this->next = $next;
+    }
+
+    public function next() : ?TokenInterface
+    {
+        return $this->next;
+    }
+
+    public function prev() : ?TokenInterface
+    {
+        return $this->prev;
     }
 
     /**

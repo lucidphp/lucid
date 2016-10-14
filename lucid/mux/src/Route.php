@@ -52,7 +52,7 @@ class Route implements RouteInterface
     private $attributes;
 
     /** @var array */
-    private static $keys = [
+    private const KEYS = [
         'pattern',  'handler',     'methods', 'host',
         'defaults', 'constraints', 'schemes', 'context',
     ];
@@ -67,6 +67,7 @@ class Route implements RouteInterface
      * @param array $defaults     default parameters
      * @param array $constraints  parameter constraints
      * @param array $schemes      supported url schemes
+     * @param array $attrs        route  attributes
      */
     public function __construct(
         string $pattern,
@@ -76,17 +77,17 @@ class Route implements RouteInterface
         array $defaults = null,
         array $constraints = null,
         array $schemes = null,
-        AttributesInterface $attrs = null
+        array $attrs = null
     ) {
         $this->pattern     = $pattern;
         $this->handler     = $handler;
         $this->host        = $host;
         $this->defaults    = $defaults ?: [];
         $this->constraints = $constraints ?: [];
-        $this->attributes  = $attrs ?: new Attributes;
+        $this->attributes  = $attrs ?: $attrs;
 
-        $this->setMethods($methods ?: ['GET']);
-        $this->setSchemes($schemes ?: ['http', 'https']);
+        $this->setMethods($methods ?: explode('|', self::DEFAULT_METHODS));
+        $this->setSchemes($schemes ?: explode('|', self::DEFAULT_SCHEMES));
     }
 
     /**
@@ -201,13 +202,13 @@ class Route implements RouteInterface
      */
     public function serialize() : string
     {
-        if ($this->getHandler() instanceof Closure) {
+        if (!is_string($this->getHandler())) {
             throw new LogicException('Cannot serialize handler.');
         }
 
-        return serialize(array_combine(static::$keys, array_map(function ($key) {
+        return serialize(array_combine(self::KEYS, array_map(function ($key) {
             return $this->{'get'.ucfirst($key)}();
-        }, static::$keys)));
+        }, self::KEYS)));
     }
 
     /**
@@ -217,11 +218,11 @@ class Route implements RouteInterface
      *
      * @return void.
      */
-    public function unserialize($data)
+    public function unserialize($data) : void
     {
         $data = unserialize($data);
 
-        foreach (self::$keys as $key) {
+        foreach (self::KEYS as $key) {
             $this->{$key} = $data[$key];
         }
     }

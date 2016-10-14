@@ -25,7 +25,7 @@ interface TypeMapperInterface
      *
      * @return string
      */
-    public function getType();
+    public function getType() : string;
 
     /**
      * getObject

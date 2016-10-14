@@ -18,26 +18,8 @@ namespace Lucid\Mux\Handler;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-class Reflector
+class Reflector implements ReflectorInterface
 {
-    /** @var int */
-    const C_TYPE_ERROR           = 0;
-
-    /** @var int */
-    const C_TYPE_CLOSURE         = 1;
-
-    /** @var int */
-    const C_TYPE_FUNCTION        = 2;
-
-    /** @var int */
-    const C_TYPE_INSTANCE_METHOD = 3;
-
-    /** @var int */
-    const C_TYPE_STATIC_METHOD   = 4;
-
-    /** @var int */
-    const C_TYPE_INVOKED_OBJECT  = 5;
-
     /** @var int */
     private $type;
 
@@ -63,7 +45,7 @@ class Reflector
     }
 
     /**
-     * @return \ReflectionFunctionAbstract
+     * {@inheritdoc}
      */
     public function getReflector() : \ReflectionFunctionAbstract
     {
@@ -75,8 +57,7 @@ class Reflector
     }
 
     /**
-     * @param array ...$args
-     * @return mixed
+     * {@inheritdoc}
      */
     public function __invoke(...$args)
     {
@@ -84,11 +65,7 @@ class Reflector
     }
 
     /**
-     * invokeArgs
-     *
-     * @param array $args
-     *
-     * @return mixed
+     * {@inheritdoc}
      */
     public function invokeArgs(array $args)
     {
@@ -96,29 +73,23 @@ class Reflector
     }
 
     /**
-     * isFunction
-     *
-     * @return bool
+     * {@inheritdoc}
      */
     public function isFunction() : bool
     {
-        return static::C_TYPE_FUNCTION === $this->getType();
+        return self::C_TYPE_FUNCTION === $this->getType();
     }
 
     /**
-     * isClosure
-     *
-     * @return bool
+     * {@inheritdoc}
      */
     public function isClosure() : bool
     {
-        return static::C_TYPE_CLOSURE === $this->getType();
+        return self::C_TYPE_CLOSURE === $this->getType();
     }
 
     /**
-     * isMethod
-     *
-     * @return bool
+     * {@inheritdoc}
      */
     public function isMethod() : bool
     {
@@ -126,39 +97,31 @@ class Reflector
     }
 
     /**
-     * isInstanceMethod
-     *
-     * @return bool
+     * {@inheritdoc}
      */
     public function isInstanceMethod() : bool
     {
-        return static::C_TYPE_INSTANCE_METHOD === $this->getType();
+        return self::C_TYPE_INSTANCE_METHOD === $this->getType();
     }
 
     /**
-     * isStaticMethod
-     *
-     * @return bool
+     * {@inheritdoc}
      */
     public function isStaticMethod() : bool
     {
-        return static::C_TYPE_STATIC_METHOD === $this->getType();
+        return self::C_TYPE_STATIC_METHOD === $this->getType();
     }
 
     /**
-     * isInvokedObject
-     *
-     * @return bool
+     * {@inheritdoc}
      */
     public function isInvokedObject() : bool
     {
-        return static::C_TYPE_INVOKED_OBJECT === $this->getType();
+        return self::C_TYPE_INVOKED_OBJECT === $this->getType();
     }
 
     /**
-     * getType
-     *
-     * @return int
+     * {@inheritdoc}
      */
     public function getType() : int
     {
@@ -179,27 +142,27 @@ class Reflector
     private function getCallableType(callable $method) : int
     {
         if ($method instanceof \Closure) {
-            return static::C_TYPE_CLOSURE;
+            return self::C_TYPE_CLOSURE;
         }
 
         $callable = $this->explodeCallable($method);
 
         if (1 === count($callable)) {
             if (is_object($callable[0])) {
-                return static::C_TYPE_INVOKED_OBJECT;
+                return self::C_TYPE_INVOKED_OBJECT;
             }
-            return static::C_TYPE_FUNCTION;
+            return self::C_TYPE_FUNCTION;
         } else {
             if (is_object($callable[0])) {
-                return static::C_TYPE_INSTANCE_METHOD;
+                return self::C_TYPE_INSTANCE_METHOD;
             }
 
             if (is_string($callable[0])) {
-                return static::C_TYPE_STATIC_METHOD;
+                return self::C_TYPE_STATIC_METHOD;
             }
         }
 
-        return static::C_TYPE_ERROR;
+        return self::C_TYPE_ERROR;
     }
 
     /**
@@ -265,15 +228,15 @@ class Reflector
     private function doGetReflector() : \ReflectionFunctionAbstract
     {
         switch ($this->getType()) {
-            case static::C_TYPE_FUNCTION:
-            case static::C_TYPE_CLOSURE:
+            case self::C_TYPE_FUNCTION:
+            case self::C_TYPE_CLOSURE:
                 return new \ReflectionFunction($this->handler);
-            case static::C_TYPE_STATIC_METHOD:
-            case static::C_TYPE_INSTANCE_METHOD:
+            case self::C_TYPE_STATIC_METHOD:
+            case self::C_TYPE_INSTANCE_METHOD:
                 return new \ReflectionMethod($this->getClass(), $this->getMethod());
-            case static::C_TYPE_INVOKED_OBJECT:
+            case self::C_TYPE_INVOKED_OBJECT:
                 return new \ReflectionMethod($this->getClass(), '__invoke');
-            case static::C_TYPE_ERROR:
+            case self::C_TYPE_ERROR:
                 throw new \Exception;
                 break;
         }

@@ -47,9 +47,9 @@ REGEX;
      *
      * @param RouteInterface $route
      *
-     * @return RouteContextInterface
+     * @return ContextInterface
      */
-    public static function parse(RouteInterface $route)
+    public static function parse(RouteInterface $route) : ContextInterface
     {
         extract(self::transpilePattern($route->getPattern(), false, $route->getConstraints(), $route->getDefaults()));
         $host = self::parseHostVars($route);
@@ -60,21 +60,23 @@ REGEX;
     /**
      * Transpiles the the given pattern into a useful format.
      *
-     * @param RouteInterface $route
      * @param string $pattern
-     * @param bool $isHost
+     * @param bool $host
+     * @param array $requirements
+     * @param array $defaults
      *
      * @return array
      */
-    public static function transpilePattern($pattern, $host = false, array $requirements = [], array $defaults = [])
-    {
-        $tokens = self::tokenizePattern($pattern, $host, $requirements, $defaults);
-
+    public static function transpilePattern(
+        string $pattern,
+        bool $host = false,
+        array $requirements = [],
+        array $defaults = []
+    ) : array {
+        $tokens     = self::tokenizePattern($pattern, $host, $requirements, $defaults);
         $staticPath = !$tokens[0] instanceof Variable ? $tokens[0]->value : '/';
 
-        $regex = self::transpileMatchRegex($tokens);
-
-        return self::getCompact($staticPath, $regex, $tokens);
+        return self::getCompact($staticPath, self::transpileMatchRegex($tokens), $tokens);
     }
 
     /**
@@ -85,10 +87,14 @@ REGEX;
      * @param array $requirements
      * @param array $defaults
      *
-     * @return array
+     * @return TokenInterface[]
      */
-    public static function tokenizePattern($pattern, $isHost = false, array $requirements = [], array $defaults = [])
-    {
+    public static function tokenizePattern(
+        string $pattern,
+        bool $isHost = false,
+        array $requirements = [],
+        array $defaults = []
+    ) : array {
         // left pad pattern with separator
         if (!$isHost && false === self::isSeparator(substr($pattern, 0, 1))) {
             $pattern = '/'.$pattern;
@@ -179,7 +185,7 @@ REGEX;
      *
      * @return bool
      */
-    public static function isSeparator($test)
+    public static function isSeparator(string $test) : bool
     {
         return 1 === strlen($test) && false !== strpos(Ps::SEPARATORS, $test);
     }
@@ -191,7 +197,7 @@ REGEX;
      *
      * @return string
      */
-    public static function transpileMatchRegex(array $tokens)
+    public static function transpileMatchRegex(array $tokens) : string
     {
         $regex = [];
 
@@ -216,16 +222,16 @@ REGEX;
      *
      * @return string will reuturn `null` if no matches are found.
      */
-    private static function makeOptGrp(Variable $var)
+    private static function makeOptGrp(Variable $var) : ?string
     {
         if ($var->required) {
-            return;
+            return null;
         }
 
         list ($next, $nextIsOpt) = self::findNextOpt($var);
 
         if (!$nextIsOpt) {
-            return;
+            return null;
         }
 
         //$nextOpt = null !== $next ? self::makeOptGrp($next) : null;
@@ -252,14 +258,17 @@ REGEX;
         $nextIsOpt = true;
 
         $next = null;
+        /** @var Token $n */
         $n = $var->next;
 
         while (null !== $n) {
+
             if (!$n instanceof Variable) {
                 $n = $n->next;
                 $nextIsOpt = true;
                 continue;
             }
+
             if (!$n->required) {
                 $nextIsOpt = true;
                 $next = $n;

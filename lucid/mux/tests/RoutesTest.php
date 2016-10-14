@@ -2,6 +2,9 @@
 
 namespace Lucid\Mux\Tests;
 
+use Lucid\Mux\RouteCollectionInterface;
+use Lucid\Mux\RouteCollectionMutableInterface;
+use Lucid\Mux\RouteInterface;
 use Lucid\Mux\Routes;
 
 class RoutesTest extends \PHPUnit_Framework_TestCase
@@ -10,7 +13,8 @@ class RoutesTest extends \PHPUnit_Framework_TestCase
     public function itShouldBeInstantiable()
     {
         $routes = $this->newRoutes();
-        $this->assertInstanceof('Lucid\Mux\RouteCollectionInterface', $routes);
+        $this->assertInstanceOf(RouteCollectionInterface::class, $routes);
+        $this->assertInstanceOf(RouteCollectionMutableInterface::class, $routes);
     }
 
     /** @test */
@@ -71,17 +75,6 @@ class RoutesTest extends \PHPUnit_Framework_TestCase
     }
 
     /** @test */
-    public function itShouldThrowOnInvalidRouteName()
-    {
-        $routes = $this->newRoutes();
-        try {
-            $routes->add(12, $this->mockRoute());
-        } catch (\InvalidArgumentException $e) {
-            $this->assertEquals('Routename must be string.', $e->getMessage());
-        }
-    }
-
-    /** @test */
     public function itShouldFindARoutesByScheme()
     {
 
@@ -94,13 +87,15 @@ class RoutesTest extends \PHPUnit_Framework_TestCase
 
     protected function mockRoute(array $methods = ['GET'], array $schemes = ['http', 'https'])
     {
-        $route = $this->getMockBuilder('Lucid\Mux\RouteInterface')
-            ->setConstructorArgs([], ['/', 'handler', $methods])
+        $route = $this->getMockBuilder(RouteInterface::class)
+            ->disableOriginalConstructor()
             ->getMock();
 
-
+        $route->method('getPattern')->willReturn('/');
         $route->method('getSchemes')->willReturn($schemes);
         $route->method('getMethods')->willReturn($methods);
+        $route->method('getHost')->willReturn(null);
+        $route->method('getHandler')->willReturn('handler');
 
         $route->method('hasMethod')->willReturnCallback(function ($m) use ($methods) {
             return in_array(strtoupper($m), $methods);

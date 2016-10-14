@@ -22,23 +22,22 @@ class RouteGroup
     /** @var string */
     private $prefix;
 
-    /** @var parent */
+    /** @var RouteGroup */
     private $parent;
 
     /** @var array */
     private $requirements;
 
     /**
-     * Constructor.
+     * RouteGroup constructor.
      *
      * @param string $prefix the group prefix.
      * @param array $requirements the group requirements.
      * @param RouteGroup $parent the parent group.
      */
-    public function __construct($prefix, array $requirements, RouteGroup $parent = null)
+    public function __construct(string $prefix, array $requirements, RouteGroup $parent = null)
     {
         $this->parent = $parent;
-
         $this->setPrefix($prefix);
         $this->setRequirements($requirements);
     }
@@ -74,11 +73,11 @@ class RouteGroup
     }
 
     /**
-     * Set the group prefix
+     * Set the group prefix.
      *
-     * @return void
+     * @param string $prefix group prefix.
      */
-    private function setPrefix($prefix) : void
+    private function setPrefix(string $prefix) : void
     {
         if (0 === strlen($prefix)) {
             throw new \InvalidArgumentException('Group prefix may not be empty.');
@@ -93,8 +92,6 @@ class RouteGroup
      * Set the group requirements
      *
      * @param array $requirements
-     *
-     * @return void
      */
     private function setRequirements(array $requirements) : void
     {

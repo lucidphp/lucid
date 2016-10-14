@@ -22,6 +22,12 @@ use Serializable;
  */
 interface RouteInterface extends Serializable
 {
+    /** @var string */
+    const DEFAULT_METHODS = 'GET';
+
+    /** @var string */
+    const DEFAULT_SCHEMES = 'http|https';
+
     /**
      * Lists the supported methods.
      *
@@ -32,14 +38,17 @@ interface RouteInterface extends Serializable
     /**
      * Tell if the route supports a given http method.
      *
-     * @param string $method
+     * @param string $method a valid http method such as GET, POST, DELETE, etc.
      *
-     * @return bool `TRUE` if the given method is supported, otherwise `FALSE`.
+     * @return bool `true` if the given method is supported, otherwise `false`.
      */
     public function hasMethod(string $method) : bool;
 
     /**
      * Get the route patter.
+     *
+     * A route pattern represents the path of the route and can contain various
+     * placeholder marks enclosed by curly braces such as  `/user/{id}` or `/user/{id?}`.
      *
      * @return string the route pattern
      */
@@ -102,7 +111,7 @@ interface RouteInterface extends Serializable
      *
      * @param string $scheme
      *
-     * @return boolean `TRUE` if the given scheme is supported, otherwise `FALSE`.
+     * @return bool `TRUE` if the given scheme is supported, otherwise `FALSE`.
      */
     public function hasScheme(string $scheme) : bool;
 
