@@ -36,5 +36,5 @@ interface ParserInterface
      *
      * @return ContextInterface
      */
-    public static function parse(RouteInterface $route);
+    public static function parse(RouteInterface $route) : ContextInterface;
 }

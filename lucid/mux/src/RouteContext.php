@@ -11,6 +11,7 @@
 
 namespace Lucid\Mux;
 
+use Lucid\Mux\Parser\VariableInterface;
 use Serializable;
 use Lucid\Mux\Parser\Variable;
 use Lucid\Mux\Parser\TokenInterface;
@@ -34,7 +35,7 @@ class RouteContext implements RouteContextInterface, Serializable
     /** @var array */
     private $vars;
 
-    /** @var array */
+    /** @var TokenInterface[] */
     private $tokens;
 
     /** @var string */
@@ -43,27 +44,33 @@ class RouteContext implements RouteContextInterface, Serializable
     /** @var array */
     private $hostVars;
 
-    /** @var array */
+    /** @var TokenInterface[] */
     private $hostTokens;
 
     /**
      * RouteContext constructor.
-     * @param $staticPath
-     * @param $regex
-     * @param array $tokens
-     * @param null $hostRegex
-     * @param array $hostTokens
+     *
+     * @param string $staticPath
+     * @param string $regex
+     * @param TokenInterface[] $tokens
+     * @param string|null $hostRegex
+     * @param TokenInterface[] $hostTokens
      */
-    public function __construct($staticPath, $regex, array $tokens = [], $hostRegex = null, array $hostTokens = [])
-    {
+    public function __construct(
+        string $staticPath,
+        string $regex,
+        array $tokens = [],
+        string $hostRegex = null,
+        array $hostTokens = []
+    ) {
         $this->staticPath = $staticPath;
         $this->regex      = $regex;
-        $this->tokens     = $tokens;
         $this->hostRegex  = $hostRegex;
-        $this->hostTokens = $hostTokens;
 
-        $this->vars       = $this->filterVars($tokens);
-        $this->hostVars   = $this->filterVars($hostTokens);
+        $this->doSetTokens(...$tokens);
+        $this->doSetHostTokens(...$hostTokens);
+        $this->vars       = $this->filterVars(...$this->tokens);
+        $this->hostVars   = $this->filterVars(...$this->hostTokens);
     }
 
     /**
@@ -171,15 +178,32 @@ class RouteContext implements RouteContextInterface, Serializable
     }
 
     /**
-     * @param array $tokens
+     * @param \Lucid\Mux\Parser\TokenInterface[] ...$tokens
+     */
+    private function doSetTokens(TokenInterface ...$tokens) : void
+    {
+        $this->tokens = $tokens;
+    }
+
+    /**
+     * @param \Lucid\Mux\Parser\TokenInterface[] ...$tokens
+     */
+    private function doSetHostTokens(TokenInterface ...$tokens) : void
+    {
+        $this->hostTokens = $tokens;
+    }
+
+    /**
+     * @param \Lucid\Mux\Parser\TokenInterface[] ...$tokens
+     *
      * @return array
      */
-    private function filterVars(array $tokens) : array
+    private function filterVars(TokenInterface ...$tokens) : array
     {
-        return array_values(array_map(function (Variable $token) {
-            return $token->value;
+        return array_values(array_map(function (VariableInterface $token) {
+            return $token->value();
         }, array_filter($tokens, function (TokenInterface $token) {
-            return $token instanceof Variable;
+            return $token instanceof VariableInterface;
         })));
     }
 }

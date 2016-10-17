@@ -47,7 +47,7 @@ interface RouteContextInterface
      * getTokens
      *
      *
-     * @return array `Lucid\Mux\Parser\TokenInterface[]`
+     * @return \Lucid\Mux\Parser\TokenInterface[]
      */
     public function getTokens() : array;
 
@@ -71,7 +71,7 @@ interface RouteContextInterface
     /**
      * getHostTokens
      *
-     * @return array `Lucid\Mux\Parser\TokenInterface[]`
+     * @return \Lucid\Mux\Parser\TokenInterface[]
      */
     public function getHostTokens() : array;
 }

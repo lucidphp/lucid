@@ -111,7 +111,6 @@ class RequestMatcherTest extends \PHPUnit_Framework_TestCase
         $result = $matcher->matchRequest($request, $routes);
 
         $vars = $result->getVars();
-        var_dump($result->isMatch());
         $this->assertArrayHasKey('id', $vars);
         $this->assertSame(12, $vars['id']);
     }

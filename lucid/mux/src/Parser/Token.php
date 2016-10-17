@@ -31,7 +31,8 @@ abstract class Token implements TokenInterface
 
     /**
      * Token constructor.
-     * @param $value
+     *
+     * @param mixed               $value
      * @param TokenInterface|null $prev
      * @param TokenInterface|null $next
      */
@@ -42,11 +43,25 @@ abstract class Token implements TokenInterface
         $this->next = $next;
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function value()
+    {
+        return $this->value;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function next() : ?TokenInterface
     {
         return $this->next;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function prev() : ?TokenInterface
     {
         return $this->prev;
@@ -55,7 +70,7 @@ abstract class Token implements TokenInterface
     /**
      * {@inheritdoc}
      */
-    public function __toString()
+    public function __toString() : string
     {
         return preg_quote($this->value, ParserInterface::EXP_DELIM);
     }

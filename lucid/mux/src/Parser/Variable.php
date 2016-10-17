@@ -11,8 +11,6 @@
 
 namespace Lucid\Mux\Parser;
 
-use Lucid\Mux\Parser\TokenInterface as TI;
-
 /**
  * @class Variable
  *
@@ -20,13 +18,13 @@ use Lucid\Mux\Parser\TokenInterface as TI;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-class Variable extends Token
+class Variable extends Token implements VariableInterface
 {
     /** @var string */
-    public $regex;
+    private $regex;
 
     /** @var bool */
-    public $required;
+    private $required;
 
     /** @var string */
     private $constraint;
@@ -41,7 +39,7 @@ class Variable extends Token
      * @param string $constr
      * @param TokenInterface $prev
      * @param TokenInterface$next
-     * @param string $def
+     * @param string $default
      */
     public function __construct(
         string $name,
@@ -49,11 +47,11 @@ class Variable extends Token
         string $constr = null,
         TokenInterface $prev = null,
         TokenInterface $next = null,
-        string $def = '/'
+        string $default = '/'
     ) {
         $this->required   = $required;
         $this->constraint = $constr;
-        $this->default    = $def;
+        $this->default    = $default;
 
         parent::__construct($name, $prev, $next);
     }
@@ -67,15 +65,24 @@ class Variable extends Token
     }
 
     /**
-     * getRegex
-     *
-     * @return string
+     * {@inheritdoc}
+     */
+    public function isRequired() : bool
+    {
+        return $this->required;
+    }
+
+    /**
+     * {@inheritdoc}
      */
     public function getRegex() : string
     {
         if (null === $this->constraint) {
-            $delim = $this->next instanceof Delimiter ? (string)$this->next : '';
-            $this->constraint = sprintf('[^%s%s]++', preg_quote($this->default, ParserInterface::EXP_DELIM), $delim);
+            $this->constraint = sprintf(
+                '[^%s%s]++',
+                preg_quote($this->default, ParserInterface::EXP_DELIM),
+                $this->next instanceof Delimiter ? (string)$this->next : ''
+            );
         }
 
         return $this->regex = sprintf('(?P<%s>%s)', $this->value, $this->constraint);

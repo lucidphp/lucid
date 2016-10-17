@@ -42,7 +42,7 @@ class ReflectorTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function itShouldBeTypeMethod()
     {
-        $r = new Reflector([$this, 'testMethod']);
+        $r = new Reflector([$this, 'tMethod']);
 
         $this->assertTrue($r->isMethod());
         $this->assertTrue($r->isInstanceMethod());
@@ -88,7 +88,7 @@ class ReflectorTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function itShouldBeInvokable()
     {
-        $r = new Reflector([$this, 'testMethod']);
+        $r = new Reflector([$this, 'tMethod']);
 
         $this->assertTrue($r->invokeArgs([]));
     }
@@ -97,7 +97,7 @@ class ReflectorTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function itShouldReturnRightReflector()
     {
-        $r = new Reflector([$this, 'testMethod']);
+        $r = new Reflector([$this, 'tMethod']);
 
         $this->assertInstanceof('ReflectionMethod', $r->getReflector());
 
@@ -106,7 +106,8 @@ class ReflectorTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceof('ReflectionFunction', $r->getReflector());
     }
 
-    public function testMethod()
+    /** @skip */
+    public function tMethod()
     {
         return true;
     }

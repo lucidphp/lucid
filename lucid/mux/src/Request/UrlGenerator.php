@@ -203,14 +203,14 @@ class UrlGenerator implements UrlGeneratorInterface
         $vars  = $this->getRouteVars($context, $parameters);
         $parts = array_map(function (Token $token) use ($vars) {
             if (!($token instanceof Variable)) {
-                return $token->value;
+                return $token->value();
             }
 
-            if ($token->required && !isset($vars[$token->value])) {
-                throw new \InvalidArgumentException(sprintf('{%s} is a required parameter.', $token->value));
+            if ($token->isRequired() && !isset($vars[$token->value()])) {
+                throw new \InvalidArgumentException(sprintf('{%s} is a required parameter.', $token->value()));
             }
 
-            return $vars[$token->value];
+            return $vars[$token->value()];
         }, $context->getTokens());
 
         return $this->getPrefixed(implode('', $parts), $prefix);

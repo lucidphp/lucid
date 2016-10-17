@@ -34,4 +34,9 @@ interface TokenInterface
      * @return \Lucid\Mux\Parser\TokenInterface|null
      */
     public function next() : ?self;
+
+    /**
+     * @return mixed
+     */
+    public function value();
 }

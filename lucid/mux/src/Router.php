@@ -36,6 +36,14 @@ use Lucid\Mux\Request\ContextInterface as RequestContextInterface;
  */
 class Router implements RouterInterface
 {
+    private const DEFAULT_OPTIONS = [
+        'method'    => 'GET',
+        'host'      => 'localhost',
+        'port'      => 80,
+        'query'     => '',
+        'scheme'    => 'http'
+    ];
+
     /** @var RouteCollectionInterface */
     private $routes;
 
@@ -129,13 +137,15 @@ class Router implements RouterInterface
      */
     public function route(string $name, array $vars = [], array $options = [])
     {
+        $opts = array_merge(self::DEFAULT_OPTIONS, $options);
+
         return $this->dispatchMatch(
             $this->matchContextFromParameters(
                 $vars,
                 $name,
                 $this->requestContextFromOptions(
-                    $this->getUrl($name, $options['host'], $vars, 'localhost' === $options['host']),
-                    $this->getOptions($options)
+                    $this->getUrl($name, $opts['host'], $vars, 'localhost' === $opts['host']),
+                    $opts
                 )
             )
         );
@@ -236,23 +246,5 @@ class Router implements RouterInterface
         $handler = $this->routes->get($name)->getHandler();
 
         return new MatchContext(Matcher::MATCH, $name, $request, $handler, $vars);
-    }
-
-    /**
-     * getOptions
-     *
-     * @param array $options
-     *
-     * @return array
-     */
-    private function getOptions(array $options) : array
-    {
-        return array_merge([
-            'method'    => 'GET',
-            'host'      => 'localhost',
-            'port'      => 80,
-            'query'     => '',
-            'scheme'    => 'http'
-        ], $options);
     }
 }

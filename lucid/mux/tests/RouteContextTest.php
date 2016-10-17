@@ -3,13 +3,15 @@
 namespace Lucid\Mux\Tests;
 
 use Lucid\Mux\RouteContext as Ctx;
+use Lucid\Mux\RouteContextInterface;
+use Lucid\Mux\Parser\VariableInterface;
 
 class RouteContextTest extends \PHPUnit_Framework_TestCase
 {
     /** @test */
     public function itShouldBeInstantiable()
     {
-        $this->assertInstanceOf('Lucid\Mux\RouteContextInterface', new Ctx('/foo', []));
+        $this->assertInstanceOf(RouteContextInterface::class, new Ctx('/foo', '.*'));
     }
 
     /** @test */
@@ -23,8 +25,8 @@ class RouteContextTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function itShouldExtractVarsFromTokens()
     {
-        $a = $this->mockToken('Lucid\Mux\Parser\Variable');
-        $a->value = 'bar';
+        $a = $this->mockToken(VariableInterface::class);
+        $a->method('value')->willReturn('bar');
         $b = $this->mockToken();
 
         $ctx = new Ctx('', '', $tokens = [$b, $a]);

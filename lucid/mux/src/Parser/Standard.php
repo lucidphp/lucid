@@ -51,6 +51,11 @@ REGEX;
      */
     public static function parse(RouteInterface $route) : ContextInterface
     {
+        /**
+         * @var string $staticPath
+         * @var string $expression
+         * @var TokenInterface[] $tokens
+         */
         extract(self::transpilePattern($route->getPattern(), false, $route->getConstraints(), $route->getDefaults()));
         $host = self::parseHostVars($route);
 
@@ -74,7 +79,7 @@ REGEX;
         array $defaults = []
     ) : array {
         $tokens     = self::tokenizePattern($pattern, $host, $requirements, $defaults);
-        $staticPath = !$tokens[0] instanceof Variable ? $tokens[0]->value : '/';
+        $staticPath = !$tokens[0] instanceof Variable ? $tokens[0]->value() : '/';
 
         return self::getCompact($staticPath, self::transpileMatchRegex($tokens), $tokens);
     }
@@ -224,7 +229,7 @@ REGEX;
      */
     private static function makeOptGrp(Variable $var) : ?string
     {
-        if ($var->required) {
+        if ($var->isRequired()) {
             return null;
         }
 
@@ -268,7 +273,7 @@ REGEX;
                 continue;
             }
 
-            if (!$n->required) {
+            if (!$n->isRequired()) {
                 $nextIsOpt = true;
                 $next = $n;
                 break;
