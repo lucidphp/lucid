@@ -8,9 +8,7 @@
 
 namespace Lucid\Mux\Tests;
 
-
 use Lucid\Mux\RouteGroup;
-
 
 class RouteGroupTest extends \PHPUnit_Framework_TestCase
 {
@@ -25,7 +23,6 @@ class RouteGroupTest extends \PHPUnit_Framework_TestCase
     {
         $group  = new RouteGroup('group/', []);
         $this->assertSame('/group', $group->getPrefix());
-
     }
 
     /** @test */
