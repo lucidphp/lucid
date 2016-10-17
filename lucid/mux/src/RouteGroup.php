@@ -111,8 +111,6 @@ class RouteGroup
      */
     private function filterRequirements(array $requirements) : array
     {
-        $keys = ['host', 'schemes'];
-
-        return array_intersect_key($requirements, array_flip($keys));
+        return array_intersect_key($requirements, array_flip(['host', 'schemes']));
     }
 }

@@ -42,6 +42,7 @@ interface ReflectorInterface
     public function __invoke(...$args);
 
     /**
+     * Must either return a reflection method, or Reflection function.
      * @return \ReflectionFunctionAbstract
      */
     public function getReflector(): \ReflectionFunctionAbstract;

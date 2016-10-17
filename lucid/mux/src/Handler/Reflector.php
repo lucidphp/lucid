@@ -152,14 +152,14 @@ class Reflector implements ReflectorInterface
                 return self::C_TYPE_INVOKED_OBJECT;
             }
             return self::C_TYPE_FUNCTION;
-        } else {
-            if (is_object($callable[0])) {
-                return self::C_TYPE_INSTANCE_METHOD;
-            }
+        }
 
-            if (is_string($callable[0])) {
-                return self::C_TYPE_STATIC_METHOD;
-            }
+        if (is_object($callable[0])) {
+            return self::C_TYPE_INSTANCE_METHOD;
+        }
+
+        if (is_string($callable[0])) {
+            return self::C_TYPE_STATIC_METHOD;
         }
 
         return self::C_TYPE_ERROR;
@@ -192,13 +192,9 @@ class Reflector implements ReflectorInterface
             return $this->handler[1];
         }
 
-        if ($this->isStaticMethod()) {
-            list (, $method) = explode('::', $this->handler);
+        list (, $method) = explode('::', $this->handler);
 
-            return $method;
-        }
-
-        return '';
+        return $method;
     }
 
     /**
