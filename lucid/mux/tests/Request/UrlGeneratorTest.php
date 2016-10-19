@@ -2,14 +2,17 @@
 
 namespace Lucid\Mux\Tests\Request;
 
+use Lucid\Mux\Request\UrlGeneratorInterface;
 use Lucid\Mux\Route;
+use Lucid\Mux\RouteCollectionInterface;
+use Lucid\Mux\RouteInterface;
 use Lucid\Mux\Routes;
 use Lucid\Mux\Request\UrlGenerator;
 use Lucid\Mux\Request\Context as RequestContext;
 
 class UrlGeneratorTest extends \PHPUnit_Framework_TestCase
 {
-        /** @test */
+    /** @test */
     public function itShouldBeInstantiable()
     {
         $this->assertInstanceof('Lucid\Mux\Request\UrlGeneratorInterface', new UrlGenerator($this->mockRoutes()));
@@ -87,7 +90,7 @@ class UrlGeneratorTest extends \PHPUnit_Framework_TestCase
     }
 
     /** @test */
-    public function generateShouldFail()
+    public function generateShouldFailIfRouteIsNotDefined()
     {
         $url = new UrlGenerator();
         $url->setRoutes($routes = $this->mockRoutes());
@@ -97,8 +100,85 @@ class UrlGeneratorTest extends \PHPUnit_Framework_TestCase
             $url->generate('index');
         } catch (\InvalidArgumentException $e) {
             $this->assertSame('A route with name "index" could not be found.', $e->getMessage());
+            return;
         }
+        $this->fail('Test slipped');
     }
+
+    /** @test */
+    public function itShouldThrowIfRouteRequiresHost()
+    {
+        $url = new UrlGenerator();
+        $url->setRoutes($routes = $this->mockRoutes());
+        $routes->method('has')->with('index')->willReturn(true);
+        $routes->method('get')->with('index')->willReturn(
+            new Route('/', 'handler', ['GET'], 'example.com')
+        );
+
+        try {
+            $url->generate('index', [], null, UrlGeneratorInterface::RELATIVE_PATH);
+        } catch (\LogicException $e) {
+            $this->assertEquals(
+                'Can\'t create relative path because route "index" requires a dedicated hostname.',
+                $e->getMessage()
+            );
+            return;
+        }
+
+        $this->fail('Test slipped');
+    }
+
+    /** @test */
+    public function itShouldThrowIfProtocolsMismatch()
+    {
+        $url = new UrlGenerator(
+            $routes = $this->mockRoutes(),
+            new RequestContext('/', 'GET', '', '', 'spdy')
+        );
+
+        $routes->method('has')->with('index')->willReturn(true);
+        $routes->method('get')->with('index')->willReturn(
+            new Route('/', 'handler', ['GET'])
+        );
+
+        try {
+            $url->generate('index', [], null, UrlGeneratorInterface::ABSOLUTE_PATH);
+        } catch (\LogicException $e) {
+            $this->assertEquals(
+                'Request protocol "spdy" mismatches any protocol required by route (http, https).',
+                $e->getMessage()
+            );
+            return;
+        }
+
+        $this->fail('Test slipped');
+    }
+
+    /** @test */
+    public function itShouldThrowIfHostRegexDoesNotMatchGivenHost()
+    {
+        $url = new UrlGenerator();
+        $url->setRoutes($routes = $this->mockRoutes());
+        $routes->method('has')->with('index')->willReturn(true);
+        $routes->method('get')->with('index')->willReturn(
+            new Route('/', 'handler', ['GET'], 'example.{tld}', [], [
+                'tld' => '(net|de)'
+            ])
+        );
+
+        try {
+            $url->generate('index', [], null, UrlGeneratorInterface::ABSOLUTE_PATH);
+        } catch (\LogicException $e) {
+            $this->assertEquals(
+                'Host requirement does not match given host.',
+                $e->getMessage()
+            );
+            return;
+        }
+
+        $this->fail('Test slipped');
+    }
+
 
     public function generatorProvider()
     {
@@ -112,6 +192,11 @@ class UrlGeneratorTest extends \PHPUnit_Framework_TestCase
 
     protected function mockRoutes()
     {
-        return $this->createMock('Lucid\Mux\RouteCollectionInterface');
+        return $this->createMock(RouteCollectionInterface::class);
+    }
+
+    protected function mockRoute()
+    {
+        return $this->createMock(RouteInterface::class);
     }
 }

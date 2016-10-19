@@ -18,6 +18,28 @@ class RoutesTest extends \PHPUnit_Framework_TestCase
     }
 
     /** @test */
+    public function itShouldNotBeCloneable()
+    {
+        $routes = $this->newRoutes();
+        try {
+            $clone = clone $routes;
+        } catch (\DomainException $e) {
+            $this->assertEquals('You may not clone a route collection.', $e->getMessage());
+        }
+    }
+
+    /** @test */
+    public function itShouldTrowIfGettingAnNoneExistingRoute()
+    {
+        $routes = $this->newRoutes();
+        try {
+            $route = $routes->get('foo');
+        } catch (\LogicException $e) {
+            $this->assertEquals('Route "foo" does not exist.', $e->getMessage());
+        }
+    }
+
+    /** @test */
     public function routesShouldBeAddable()
     {
         $routes = $this->newRoutes();

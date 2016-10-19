@@ -188,7 +188,7 @@ class UrlGenerator implements UrlGeneratorInterface
         string $name
     ) : string {
         if ($this->isRelPath($type) && null !== $route->getHost()) {
-            throw new \InvalidArgumentException(
+            throw new \LogicException(
                 sprintf('Can\'t create relative path because route "%s" requires a dedicated hostname.', $name)
             );
         }
@@ -255,6 +255,8 @@ class UrlGenerator implements UrlGeneratorInterface
      * @param RouteInterface $route
      * @param string $host
      *
+     * @throws \LogicException if route requires a host and the host regex does not match
+     *
      * @return string
      */
     private function getPathPrefix(RouteInterface $route, string $host = null) : string
@@ -264,7 +266,7 @@ class UrlGenerator implements UrlGeneratorInterface
         }
 
         if (null !== $route->getHost() && !(bool)preg_match($route->getContext()->getHostRegex(), $host)) {
-            throw new \InvalidArgumentException('Host requirement does not match given host.');
+            throw new \LogicException('Host requirement does not match given host.');
         }
 
         return sprintf('%s://%s', $this->getRouteProtocol($route, $this->getRequest()), $host);
@@ -276,19 +278,29 @@ class UrlGenerator implements UrlGeneratorInterface
      * @param RouteInterface $route
      * @param RequestContextInterface $request
      *
+     * @throws \LogicException if request protocol and route protocol mismatch.
+     *
      * @return string
      */
-    private function getRouteProtocol(RouteInterface $route, RequestContextInterface $request)
+    private function getRouteProtocol(RouteInterface $route, RequestContextInterface $request) : string
     {
+        var_dump($request->getScheme());
         $requestScheme = $request->getScheme();
 
         $schemes = $route->getSchemes();
+
 
         if (in_array($requestScheme, $schemes)) {
             return $requestScheme;
         }
 
-        return current($schemes) ?: 'http';
+        throw new \LogicException(
+            sprintf(
+                'Request protocol "%s" mismatches any protocol required by route (%s).',
+                $requestScheme,
+                implode(', ', $schemes)
+            )
+        );
     }
 
     /**
@@ -325,10 +337,10 @@ class UrlGenerator implements UrlGeneratorInterface
      *
      * @return string
      */
-    private function getPathAndQuery(RequestContextInterface $req) : string
-    {
-        return $this->getReqPath($req).$this->getQueryString($req);
-    }
+    //private function getPathAndQuery(RequestContextInterface $req) : string
+    //{
+    //    return $this->getReqPath($req).$this->getQueryString($req);
+    //}
 
     /**
      * getQueryString
