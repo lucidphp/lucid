@@ -284,11 +284,8 @@ class UrlGenerator implements UrlGeneratorInterface
      */
     private function getRouteProtocol(RouteInterface $route, RequestContextInterface $request) : string
     {
-        var_dump($request->getScheme());
         $requestScheme = $request->getScheme();
-
-        $schemes = $route->getSchemes();
-
+        $schemes       = $route->getSchemes();
 
         if (in_array($requestScheme, $schemes)) {
             return $requestScheme;
