@@ -58,7 +58,7 @@ trait RouteCollectionTrait
     public function get(string $routeName) : RouteInterface
     {
         if (!$this->has($routeName)) {
-            throw new \LogicException(sprintf('Route %s does not exists', $routeName));
+            throw new \LogicException(sprintf('Route "%s" does not exist.', $routeName));
         }
 
         return $this->routes[$routeName];
