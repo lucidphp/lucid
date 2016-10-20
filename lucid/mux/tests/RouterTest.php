@@ -11,6 +11,7 @@
 
 namespace Lucid\Mux\Tests;
 
+use Lucid\Mux\Matcher\ContextInterface;
 use Lucid\Mux\Router;
 use Lucid\Mux\Routes;
 use Lucid\Mux\RouteInterface;
@@ -148,6 +149,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         try {
             $router->dispatch($req);
         } catch (MatchException $e) {
+            $this->assertInstanceOf(ContextInterface::class, $e->getMatchContext());
             $this->assertEquals('No route found for requested resource "/foo".', $e->getMessage());
         }
     }

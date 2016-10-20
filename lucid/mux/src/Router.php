@@ -98,11 +98,13 @@ class Router implements RouterInterface
      */
     public function dispatch(RequestContextInterface $request)
     {
-        if (($match = $this->match($request)) && $match->isMatch()) {
-            return $this->dispatchMatch($match);
+        $match = $this->match($request);
+
+        if (!$match->isMatch()) {
+            throw MatchException::noRouteMatch($request, $match);
         }
 
-        throw MatchException::noRouteMatch($request);
+        return $this->dispatchMatch($match);
     }
 
     /**
