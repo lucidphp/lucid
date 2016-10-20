@@ -36,6 +36,7 @@ use Lucid\Mux\Request\ContextInterface as RequestContextInterface;
  */
 class Router implements RouterInterface
 {
+    /** @var array */
     private const DEFAULT_OPTIONS = [
         'method'    => 'GET',
         'host'      => 'localhost',
@@ -98,9 +99,7 @@ class Router implements RouterInterface
      */
     public function dispatch(RequestContextInterface $request)
     {
-        $match = $this->match($request);
-
-        if (!$match->isMatch()) {
+        if (($match = $this->match($request)) && !$match->isMatch()) {
             throw MatchException::noRouteMatch($request, $match);
         }
 
