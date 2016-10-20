@@ -29,7 +29,7 @@ script:
   - if [[ $CS_CHECK_ENABLED == 'true' ]]; then php vendor/bin/phpcs --standard=PSR2 --ignore=vendor/* --ignore=*/Fixures src tests; fi
 
 after_script:
-  - if [[ $CODE_COVERAGE_LOG == 'true' ]]; then php vendor/bin/coveralls; fi
+  - if [[ $CODE_COVERAGE_LOG == 'true' ]]; then php vendor/bin/coveralls --coverage_clover coverage/clover.xml; fi
 
 notififation:
   on_success: never
