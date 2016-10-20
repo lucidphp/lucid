@@ -18,7 +18,7 @@ namespace Lucid\Mux\Tests\Request\Fixures;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-class Server 
+class Server
 {
     public static function mock(array $server = [])
     {
@@ -56,6 +56,6 @@ class Server
           'PHP_SELF' => '/index.php',
           'REQUEST_TIME_FLOAT' => $time,
           'REQUEST_TIME' => (int)$time,
-      ], $server);
+        ], $server);
     }
 }
