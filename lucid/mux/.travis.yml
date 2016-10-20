@@ -1,15 +1,13 @@
 sudo: false
-
 language: php
-
+php:
+  - 7.1
+  - hhvm
+env:
+  - CS_CHECK_ENABLED: true
+  - CODE_COVERAGE_LOG: true
 matrix:
   fast_finish: true
-  include:
-    - php: 7.1
-      env:
-      - CS_CHECK_ENABLED: true
-      - CODE_COVERAGE_LOG: true
-    - php: hhvm
   allow_failures:
     - php: hhvm
 
