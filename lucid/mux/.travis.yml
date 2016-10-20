@@ -25,7 +25,7 @@ install:
 script:
   #- if [[ $CODE_COVERAGE_LOG != 'true' ]]; then php vendor/bin/phpunit --verbose; fi;
   - if [[ $CODE_COVERAGE_LOG == 'true' ]]; then php vendor/bin/phpunit --disallow-test-output --report-useless-tests --coverage-clover coverage/clover.xml --group=Coverage; fi;
-  - if [[ $CODE_COVERAGE_LOG == 'true' ]]; then php vendor/bin/phpunit --disallow-test-output --report-useless-tests --exclude-group=Coverage; fi;
+  #- if [[ $CODE_COVERAGE_LOG == 'true' ]]; then php vendor/bin/phpunit --disallow-test-output --report-useless-tests --exclude-group=Coverage; fi;
   - if [[ $CS_CHECK_ENABLED == 'true' ]]; then php vendor/bin/phpcs --standard=PSR2 --ignore=vendor/* --ignore=*/Fixures src tests; fi
 
 after_script:
