@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This File is part of the Lucid\Mux\Cache package
@@ -11,11 +11,13 @@
 
 namespace Lucid\Mux\Cache\Matcher;
 
+use Lucid\Mux\Cache\CachedCollectionInterface;
 use RuntimeException;
 use Lucid\Mux\Matcher\MatcherTrait;
 use Lucid\Mux\RouteCollectionInterface;
 use Lucid\Mux\Matcher\RequestMatcherInterface;
 use Lucid\Mux\Matcher\Context as Match;
+use Lucid\Mux\Matcher\ContextInterface;
 use Lucid\Mux\Request\ContextInterface as Request;
 use Lucid\Mux\Cache\CachedCollectionInterface as CachedCollection;
 
@@ -26,11 +28,11 @@ use Lucid\Mux\Cache\CachedCollectionInterface as CachedCollection;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-class FastMatcher implements RequestMatcherInterface
+final class FastMatcher implements RequestMatcherInterface
 {
     use MatcherTrait;
 
-    /** @var MapLaoder */
+    /** @var MapLoader */
     private $loader;
 
     /**
@@ -45,9 +47,16 @@ class FastMatcher implements RequestMatcherInterface
 
     /**
      * {@inheritdoc}
+     *
+     * NOTE: Passing a none cached collection to this matcher
+     * will blow up in your face.
      */
-    public function matchRequest(Request $request, RouteCollectionInterface $routes)
+    public function matchRequest(Request $request, RouteCollectionInterface $routes) : Match
     {
+        if (!$routes instanceof CachedCollectionInterface) {
+            throw new \DomainException('need to be fast, cannot match this.');
+        }
+
         $map = $this->loader->load($routes);
 
         $routes = $this->preFilterRoutes($request, $routes);
@@ -84,7 +93,7 @@ class FastMatcher implements RequestMatcherInterface
      * @param RouteCollectionInterface $routes
      * @param array $matches
      *
-     * @return Lucid\Mux\Matcher\ContextInterface
+     * @return \Lucid\Mux\Matcher\ContextInterface
      */
     protected function postFilterRoutes(Request $request, RouteCollectionInterface $routes, array $map, array $matches)
     {
@@ -103,9 +112,13 @@ class FastMatcher implements RequestMatcherInterface
     }
 
     /**
-     * noMatch
+     * Creates no match context.
      *
-     * @return \Lucid\Mux\Matcher\ContextInterface
+     * @param \Lucid\Mux\Request\ContextInterface $context
+     * @param int $reason
+     * @param string $name
+     *
+     * @return \Lucid\Mux\Matcher\Context
      */
     protected function noMatch(Request $context, $reason = self::NOMATCH, $name = null)
     {
@@ -119,7 +132,7 @@ class FastMatcher implements RequestMatcherInterface
      * @param array $matches
      * @param array $map
      *
-     * @return array [Lucid\Mux\RouteInterface, array]
+     * @return array [string, Lucid\Mux\RouteInterface, array]
      */
     private function reverseMapRoute(RouteCollectionInterface $routes, array $matches, array $map = [])
     {
@@ -132,16 +145,14 @@ class FastMatcher implements RequestMatcherInterface
                 continue;
             }
 
-
-            list ($index, $name, $prefix) = $map[$key];
+            list (, $name, $prefix) = $map[$key];
             try {
-                $route = $routes->get($name);
+                $routes->get($name);
             } catch (\Exception $e) {
-                throw new RuntimeException('Route does not exists.');
+                throw new RuntimeException(sprintf('Route "%s" does not exist.', $name));
             }
 
             $route = $routes->get($name);
-            $args  = [];
 
             $keys = $route->getContext()->getVars();
             $args = array_combine($keys, array_map(function ($key) use ($matches, $prefix) {

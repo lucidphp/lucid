@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This File is part of the Lucid\Mux\Cache package
@@ -11,10 +11,9 @@
 
 namespace Lucid\Mux\Cache;
 
-use DateTime;
-use LogicException;
+use Lucid\Mux\RouteCollectionTrait;
 use RuntimeException;
-use Lucid\Mux\RouteInterface;
+use DateTimeImmutable;
 use Lucid\Mux\RouteCollectionInterface;
 use Lucid\Mux\Routes as RouteCollection;
 
@@ -25,16 +24,18 @@ use Lucid\Mux\Routes as RouteCollection;
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-class Routes extends RouteCollection implements CachedCollectionInterface
+final class Routes implements CachedCollectionInterface
 {
-    /** @var array */
-    private $mMap;
+    use RouteCollectionTrait;
 
     /** @var array */
-    private $spMap;
+    private $methodMap;
 
     /** @var array */
-    private $scMap;
+    private $sPathMap;
+
+    /** @var array */
+    private $schemaMap;
 
     /** @var int */
     private $timestamp;
@@ -46,62 +47,53 @@ class Routes extends RouteCollection implements CachedCollectionInterface
      */
     public function __construct(RouteCollectionInterface $routes)
     {
-        $this->mMap   = [];
-        $this->spMap  = [];
-        $this->scMap  = [];
+        $this->methodMap  = [];
+        $this->schemaMap  = [];
+        $this->sPathMap   = [];
+        
         $this->routes = $routes->all();
         $this->createMaps($routes);
-        $this->timestamp = time();
+        $this->timestamp  = time();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function add($routeName, RouteInterface $route)
+    public function findByMethod(string $method) : RouteCollectionInterface
     {
-        throw new LogicException('Can\'t add routes to a cached collection.');
+        return new RouteCollection($this->slice($this->methodMap[$method] ?? []));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function remove($routeName)
+    public function findByScheme(string $scheme) : RouteCollectionInterface
     {
-        throw new LogicException('Can\'t remove routes from a cached collection.');
+        return new RouteCollection($this->slice($this->schemaMap[$scheme] ?? []));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function findByMethod($method)
+    public function findByStaticPath(string $path) : RouteCollectionInterface
     {
-        return new RouteCollection(isset($this->mMap[$method]) ? $this->slice($this->mMap[$method]) : []);
+        return new RouteCollection($this->slice($this->sPathMap[$path] ?? []));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function findByScheme($scheme)
-    {
-        return new RouteCollection(isset($this->scMap[$scheme]) ? $this->slice($this->scMap[$scheme]) : []);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function findByStaticPath($path)
-    {
-        return new RouteCollection(isset($this->spMap[$path]) ? $this->slice($this->spMap[$path]) : []);
-    }
-
-    public function getTimestamp()
+    public function getTimestamp() : int
     {
         return $this->timestamp;
     }
 
-    public function getCreationDate()
+    /**
+     * {@inheritdoc}
+     */
+    public function getCreationDate() : \DateTimeInterface
     {
-        if ($date = (new DateTime)->setTimestamp($this->getTimestamp())) {
+        if ($date = (new DateTimeImmutable())->setTimestamp($this->getTimestamp())) {
             return $date;
         }
 
@@ -113,12 +105,12 @@ class Routes extends RouteCollection implements CachedCollectionInterface
      *
      * @return string
      */
-    public function serialize()
+    public function serialize() : string
     {
         return serialize([
-            'sp_map'    => $this->spMap,
-            'sc_map'    => $this->scMap,
-            'm_map'     => $this->mMap,
+            'sp_map'    => $this->sPathMap,
+            'sc_map'    => $this->schemaMap,
+            'm_map'     => $this->methodMap,
             'routes'    => $this->routes,
             'timestamp' => $this->timestamp
         ]);
@@ -131,13 +123,13 @@ class Routes extends RouteCollection implements CachedCollectionInterface
      *
      * @return void
      */
-    public function unserialize($data)
+    public function unserialize($data) : void
     {
         $data = unserialize($data);
 
-        $this->mMap      = $data['m_map'];
-        $this->scMap     = $data['sc_map'];
-        $this->spMap     = $data['sp_map'];
+        $this->methodMap = $data['m_map'];
+        $this->schemaMap = $data['sc_map'];
+        $this->sPathMap  = $data['sp_map'];
         $this->routes    = $data['routes'];
         $this->timestamp = $data['timestamp'];
     }
@@ -149,18 +141,18 @@ class Routes extends RouteCollection implements CachedCollectionInterface
      *
      * @return void
      */
-    private function createMaps(RouteCollectionInterface $routes)
+    private function createMaps(RouteCollectionInterface $routes) : void
     {
         foreach ($routes->all() as $name => $route) {
             foreach ($route->getMethods() as $method) {
-                $this->mMap[$method][] = $name;
+                $this->methodMap[$method][] = $name;
             }
 
             foreach ($route->getSchemes() as $scheme) {
-                $this->scMap[$scheme][] = $name;
+                $this->schemaMap[$scheme][] = $name;
             }
 
-            $this->spMap[$route->getContext()->getStaticPath()][] = $name;
+            $this->sPathMap[$route->getContext()->getStaticPath()][] = $name;
         }
     }
 
@@ -173,6 +165,10 @@ class Routes extends RouteCollection implements CachedCollectionInterface
      */
     private function slice(array $array)
     {
+        if (empty($array)) {
+            return $array;
+        }
+
         return array_intersect_key($this->routes, array_flip($array));
     }
 }

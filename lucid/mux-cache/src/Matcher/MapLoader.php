@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This File is part of the Lucid\Mux\Cache package
@@ -12,6 +12,8 @@
 namespace Lucid\Mux\Cache\Matcher;
 
 use DateTime;
+use Lucid\Mux\RouteCollectionInterface;
+use Lucid\Mux\RouteCollectionMutableInterface;
 use RuntimeException;
 use Lucid\Mux\Cache\CachedCollectionInterface;
 
@@ -49,14 +51,16 @@ class MapLoader
     }
 
     /**
-     * Get the statuc route map.
+     * Get the static route map.
      *
+     * @TODO handle none static collections
      * @param CachedCollectionInterface $routes.
      *
      * @return array
      */
-    public function load(CachedCollectionInterface $routes)
+    public function load(CachedCollectionInterface $routes) : array
     {
+
         if (!is_file($file = $this->getFilePath($routes)) || filemtime($file) < $routes->getTimestamp()) {
             $this->dumpMap($routes, $file);
         }
@@ -71,9 +75,10 @@ class MapLoader
      *
      * @return string
      */
-    private function getFilePath(CachedCollectionInterface $routes)
+    private function getFilePath(CachedCollectionInterface $routes) : string
     {
-        $name = $this->prefix . hash('sha1', $time = $routes->getTimestamp());
+        $name = $this->prefix . hash('sha1', (string)$routes->getTimestamp());
+
         return $this->dumpPath . DIRECTORY_SEPARATOR . $name . '.php';
     }
 
@@ -87,7 +92,7 @@ class MapLoader
      *
      * @return void
      */
-    private function dumpMap(CachedCollectionInterface $routes, $file)
+    private function dumpMap(CachedCollectionInterface $routes, $file) : void
     {
         // try to create dump path.
         if (!is_dir($path = dirname($file))) {
@@ -104,7 +109,7 @@ class MapLoader
      *
      * @return array
      */
-    private function loadMap($file)
+    private function loadMap(string $file) : array
     {
         return require $file;
     }

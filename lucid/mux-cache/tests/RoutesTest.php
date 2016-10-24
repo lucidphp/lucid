@@ -11,21 +11,27 @@
 
 namespace Lucid\Mux\Cache\Tests;
 
-use LogicException;
+use Lucid\Mux\Route;
 use Lucid\Mux\Cache\Routes;
-use Lucid\Mux\Tests\RoutesTest as RouteCollectionTest;
+use Lucid\Mux\RouteInterface;
+use Lucid\Mux\Routes as Collection;
+use Lucid\Mux\RouteCollectionInterface;
 
-class RoutesTest extends RouteCollectionTest
+class RoutesTest extends \PHPUnit_Framework_TestCase
 {
+    /** @test */
+    public function itShouldBeInstantiable()
+    {
+        $this->assertInstanceOf(RouteCollectionInterface::class, new Routes(new Collection([])));
+    }
+
     /** @test */
     public function itShouldFindRoutesByStaticPath()
     {
-        $ra = $this->mockRoute();
-        $ra->getContext()->method('getStaticPath')->willReturn('/foo/bar');
-        $rb = $this->mockRoute();
-        $rb->getContext()->method('getStaticPath')->willReturn('/');
+        $ra = $this->mockRoute('/foo/bar');
+        $rb = $this->mockRoute('/');
 
-        $routes = $this->newRoutes(['foo' => $ra, 'bar' => $rb]);
+        $routes = new Routes(new Collection(['foo' => $ra, 'bar' => $rb]));
 
         $a = $routes->findByStaticPath('/');
         $b = $routes->findByStaticPath('/foo/bar');
@@ -34,48 +40,15 @@ class RoutesTest extends RouteCollectionTest
         $this->assertSame([$rb], array_values($a->all()));
     }
 
-    /** @test */
-    public function itShouldThrowOnInvalidRouteName()
+    /**
+     * @param array $methods
+     * @param array $schemes
+     *
+     * @return RouteInterface
+     */
+    protected function mockRoute(string $path, array $methods = ['GET'], array $schemes = ['http', 'https'])
     {
-        try {
-            parent::routesShouldBeAddable();
-        } catch (LogicException $e) {
-            $this->assertEquals('Can\'t add routes to a cached collection.', $e->getMessage());
-        }
-    }
-
-    /** @test */
-    public function routesShouldBeAddable()
-    {
-        try {
-            parent::routesShouldBeAddable();
-        } catch (LogicException $e) {
-            $this->assertEquals('Can\'t add routes to a cached collection.', $e->getMessage());
-        }
-    }
-
-    /** @test */
-    public function itShouldRemoveRoutes()
-    {
-        try {
-            parent::itShouldRemoveRoutes();
-        } catch (LogicException $e) {
-            $this->assertEquals('Can\'t remove routes from a cached collection.', $e->getMessage());
-        }
-    }
-
-    protected function newRoutes($routes = [])
-    {
-        return new Routes(parent::newRoutes($routes));
-    }
-
-    protected function mockRoute(array $methods = ['GET'], array $schemes = ['http', 'https'])
-    {
-        $route = parent::mockRoute($methods, $schemes);
-        $route->method('getContext')->willReturn(
-            $this->getMockBuilder('Lucid\Mux\RouteContext')
-            ->disableOriginalConstructor()->getMock()
-        );
+        $route = new Route($path, 'handler', $methods, null, $schemes);
 
         return $route;
     }

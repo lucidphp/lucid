@@ -1,7 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
- * This File is part of the Lucid\Mux\Cache\Storage package
+ * This File is part of the Lucid\Mux\Cache package
  *
  * (c) iwyg <mail@thomas-appel.com>
  *
@@ -34,10 +34,10 @@ trait StorageTrait
      *
      * @return CachedCollectionInterface
      */
-    private function getCollection(RouteCollectionInterface $routes)
+    private function getCollection(RouteCollectionInterface $routes) : CachedCollectionInterface
     {
         if (!$routes instanceof CachedCollectionInterface) {
-            $routes = new Routes($routes);
+            return new Routes($routes);
         }
 
         return $routes;

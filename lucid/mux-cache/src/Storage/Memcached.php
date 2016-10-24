@@ -1,7 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
- * This File is part of the Lucid\Mux\Cache\Storage package
+ * This File is part of the Lucid\Mux\Cache package
  *
  * (c) iwyg <mail@thomas-appel.com>
  *
@@ -14,6 +14,7 @@ namespace Lucid\Mux\Cache\Storage;
 use Memcached as MemcachedClient;
 use Lucid\Mux\Cache\StorageInterface;
 use Lucid\Mux\RouteCollectionInterface;
+use Lucid\Mux\Cache\CachedCollectionInterface;
 
 /**
  * @class Memcached
@@ -30,12 +31,12 @@ class Memcached implements StorageInterface
     private $memcached;
 
     /**
-     * Constructor.
+     * Memcached constructor.
      *
-     * @param RedisClient $redis
-     * @param string $storeId
+     * @param \Memcached $memcached
+     * @param mixed $storeId
      */
-    public function __construct(MemcachedClient $memcached, $storeId = self::DEFAULT_PREFIX)
+    public function __construct(MemcachedClient $memcached, string $storeId = self::DEFAULT_PREFIX)
     {
         $this->memcached = $memcached;
         $this->storeId   = $storeId;
@@ -44,10 +45,10 @@ class Memcached implements StorageInterface
     /**
      * {@inheritdoc}
      */
-    public function read()
+    public function read() : ?CachedCollectionInterface
     {
         if (!$this->exists()) {
-            return;
+            return null;
         }
 
         $routes = $this->memcached->get($this->storeId);
@@ -58,7 +59,7 @@ class Memcached implements StorageInterface
     /**
      * {@inheritdoc}
      */
-    public function write(RouteCollectionInterface $routes)
+    public function write(RouteCollectionInterface $routes) : void
     {
         $routes = $this->getCollection($routes);
 
@@ -72,7 +73,7 @@ class Memcached implements StorageInterface
     /**
      * {@inheritdoc}
      */
-    public function isValid($time)
+    public function isValid(int $time) : bool
     {
         return $this->getLastWriteTime() < $time;
     }
@@ -80,7 +81,7 @@ class Memcached implements StorageInterface
     /**
      * {@inheritdoc}
      */
-    public function exists()
+    public function exists() : bool
     {
         if (false === $this->memcached->get($this->storeId)) {
             return MemcachedClient::RES_SUCCESS === $this->memcached->getResultCode();
@@ -92,26 +93,27 @@ class Memcached implements StorageInterface
     /**
      * {@inheritdoc}
      */
-    public function getLastWriteTime()
+    public function getLastWriteTime() : int
     {
         if (!$this->exists()) {
             return time();
         }
 
-        return $this->$this->memcached->get($this->storeId.'.lastmod');
+        return $this->memcached->get($this->storeId.'.lastmod');
     }
 
     /**
      * store
      *
      * @param RouteCollectionInterface $routes
-     * @param mixed $method
+     * @param string $method
      *
      * @return void
      */
-    private function store(RouteCollectionInterface $routes, $method)
+    private function store(RouteCollectionInterface $routes, string $method) : void
     {
-        call_user_func_array([$this->memcached, $method], [$this->storeId, $routes]);
-        call_user_func_array([$this->memcached, $method], [$this->storeId.'.lastmod', time()]);
+        foreach ([[$this->storeId, $routes], [$this->storeId.'.lastmod', time()]] as $args) {
+            $this->memcached->{$method}(...$args);
+        }
     }
 }

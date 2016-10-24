@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This File is part of the Lucid\Mux\Cache package
@@ -26,20 +26,20 @@ interface StorageInterface
     const DEFAULT_PREFIX = 'lucid_mux_cache_storage';
 
     /**
-     * Reads a routecollection from cache.
+     * Reads a RouteCollection from cache.
      *
-     * @return RouteCacheInterface
+     * @return CachedCollectionInterface
      */
-    public function read();
+    public function read() : ?CachedCollectionInterface;
 
     /**
-     * Writes a routecollection to cache.
+     * Writes a RouteCollection to the cache.
      *
      * @param RouteCollectionInterface $routes
      *
      * @return void
      */
-    public function write(RouteCollectionInterface $routes);
+    public function write(RouteCollectionInterface $routes) : void;
 
     /**
      * Determine if the cache is still valid.
@@ -48,19 +48,19 @@ interface StorageInterface
      *
      * @return bool
      */
-    public function isValid($time);
+    public function isValid(int $time) : bool;
 
     /**
      * Determine if the cache already exists.
      *
      * @return bool
      */
-    public function exists();
+    public function exists() : bool;
 
     /**
      * Gets the timestamp the last time the cache was written to.
      *
      * @return int
      */
-    public function getLastWriteTime();
+    public function getLastWriteTime() : int;
 }

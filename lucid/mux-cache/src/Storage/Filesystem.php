@@ -1,7 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
- * This File is part of the Lucid\Mux\Cache\Storage package
+ * This File is part of the Lucid\Mux\Cache package
  *
  * (c) iwyg <mail@thomas-appel.com>
  *
@@ -14,6 +14,8 @@ namespace Lucid\Mux\Cache\Storage;
 use InvalidArgumentException;
 use Lucid\Mux\Cache\StorageInterface;
 use Lucid\Mux\RouteCollectionInterface;
+use Lucid\Mux\Cache\CachedCollectionInterface;
+
 
 /**
  * @class Filesystem
@@ -33,15 +35,15 @@ class Filesystem implements StorageInterface
     private $prefix;
 
     /** @var string */
-    private $exists;
+    private $doesExist;
 
     /**
-     * Constructor.
+     * Filesystem constructor.
      *
      * @param string $path
      * @param string $prefix
      */
-    public function __construct($path, $prefix = self::DEFAULT_PREFIX)
+    public function __construct(string $path, string $prefix = self::DEFAULT_PREFIX)
     {
         $this->prefix = $prefix;
         $this->ensureExists($path);
@@ -52,24 +54,24 @@ class Filesystem implements StorageInterface
     /**
      * {@inheritdoc}
      */
-    public function read()
+    public function read() : ?CachedCollectionInterface
     {
-        return $this->exists ? $this->getContent($this->getFilePath()) : null;
+        return $this->doesExist ? $this->getContent($this->getFilePath()) : null;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function write(RouteCollectionInterface $routes)
+    public function write(RouteCollectionInterface $routes) : void
     {
-        $this->putContent($this->getFilePath(), $this->getCollection($routes));
-        $this->exists = true;
+        $this->doesExist =
+            (bool)$this->putContent($this->getFilePath(), $this->getCollection($routes));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function isValid($time)
+    public function isValid(int $time) : bool
     {
         return $this->getLastWriteTime() <= $time;
     }
@@ -77,15 +79,15 @@ class Filesystem implements StorageInterface
     /**
      * {@inheritdoc}
      */
-    public function exists()
+    public function exists() : bool
     {
-        return $this->exists = file_exists($this->getFilePath());
+        return $this->doesExist = file_exists($this->getFilePath());
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getLastWriteTime()
+    public function getLastWriteTime() : int
     {
         if ($this->exists()) {
             return filemtime($this->getFilePath());
@@ -97,12 +99,11 @@ class Filesystem implements StorageInterface
     /**
      * getContent
      *
-     * @param mixed $file
+     * @param string $file
      *
-     * @access private
-     * @return mixed
+     * @return CachedCollectionInterface
      */
-    private function getContent($file)
+    private function getContent($file) : CachedCollectionInterface
     {
         return unserialize(file_get_contents($file));
     }
@@ -110,13 +111,12 @@ class Filesystem implements StorageInterface
     /**
      * putContent
      *
-     * @param mixed $file
-     * @param mixed $content
+     * @param string $file
+     * @param string $content
      *
-     * @access private
-     * @return boolean
+     * @return int
      */
-    private function putContent($file, $content)
+    private function putContent($file, $content) : int
     {
         $this->ensureExists(dirname($file));
         touch($file);
@@ -131,13 +131,13 @@ class Filesystem implements StorageInterface
      *
      * @return void
      */
-    private function ensureExists($dir)
+    private function ensureExists($dir) : void
     {
         if (!is_dir($dir)) {
             mkdir($dir, 0755, true);
         }
 
-        return $this->validatePath($dir);
+        $this->validatePath($dir);
     }
 
     /**
@@ -145,7 +145,7 @@ class Filesystem implements StorageInterface
      *
      * @return string
      */
-    private function getFilePath()
+    private function getFilePath() : string
     {
         return $this->path . DIRECTORY_SEPARATOR . $this->prefix . '.routes';
     }
@@ -153,15 +153,15 @@ class Filesystem implements StorageInterface
     /**
      * @param string $path
      *
-     * @return bool
+     * @throws \InvalidArgumentException
+     * @return void
      */
-    private function validatePath($path)
+    private function validatePath(string $path) : void
     {
         if (is_readable($path) && is_writable($path)) {
-            return true;
+            return;
         }
 
         throw new InvalidArgumentException(sprintf('Invalid path "%s".', $path));
-
     }
 }

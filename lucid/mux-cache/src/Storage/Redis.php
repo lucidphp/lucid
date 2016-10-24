@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This File is part of the Lucid\Mux\Cache package
@@ -11,6 +11,7 @@
 
 namespace Lucid\Mux\Cache\Storage;
 
+use Lucid\Mux\Cache\CachedCollectionInterface;
 use Redis as RedisClient;
 use Lucid\Mux\Cache\StorageInterface;
 use Lucid\Mux\RouteCollectionInterface;
@@ -26,13 +27,16 @@ class Redis implements StorageInterface
 {
     use StorageTrait;
 
+    /** @var \Redis  */
+    private $redis;
+
     /**
      * Constructor.
      *
      * @param RedisClient $redis
      * @param string $storeId
      */
-    public function __construct(RedisClient $redis = null, $storeId = 'lucid_routes')
+    public function __construct(RedisClient $redis = null, string $storeId = 'lucid_routes')
     {
         $this->redis = $redis ?: new RedisClient;
         $this->storeId = $storeId;
@@ -41,10 +45,10 @@ class Redis implements StorageInterface
     /**
      * {@inheritdoc}
      */
-    public function read()
+    public function read() : ?CachedCollectionInterface
     {
         if (false === $routes = $this->redis->get($this->storeId)) {
-            return;
+            return null;
         }
 
         return unserialize($routes);
@@ -53,16 +57,19 @@ class Redis implements StorageInterface
     /**
      * {@inheritdoc}
      */
-    public function write(RouteCollectionInterface $routes)
+    public function write(RouteCollectionInterface $routes) : void
     {
-        $this->redis->set($id, serialize($this->getCollection($routes)));
-        $this->redis->set($id.'.lastmod', time());
+        $storeArgs =
+            [[$this->storeId, serialize($this->getCollection($routes))], [$this->storeId.'.lastmod', time()]];
+        foreach ($storeArgs as $args) {
+            $this->redis->set(...$args);
+        }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function isValid($time)
+    public function isValid(int $time) : bool
     {
         return $this->getLastWriteTime() < $time;
     }
@@ -70,7 +77,7 @@ class Redis implements StorageInterface
     /**
      * {@inheritdoc}
      */
-    public function exists()
+    public function exists() : bool
     {
         return false !== $this->redis->get($this->storeId);
     }
@@ -78,7 +85,7 @@ class Redis implements StorageInterface
     /**
      * {@inheritdoc}
      */
-    public function getLastWriteTime()
+    public function getLastWriteTime() : int
     {
         if (false !== $time = $this->redis->get($this->storeId.'.lastmod')) {
             return $time;

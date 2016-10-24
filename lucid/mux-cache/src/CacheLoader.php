@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This File is part of the Lucid\Routing\Cache package
@@ -53,11 +53,11 @@ class CacheLoader implements ListenerInterface
     private $metaCache;
 
     /**
-     * Constructor.
+     * CacheLoader constructor.
      *
-     * @param mixed $resources
-     * @param Storage $storage
-     * @param stringixed $manifest
+     * @param $resources
+     * @param \Lucid\Mux\Cache\StorageInterface $storage
+     * @param string $manifest
      * @param bool $debug
      */
     public function __construct($resources, StorageInterface $storage, $manifest = 'routes', $debug = true)
@@ -113,7 +113,7 @@ class CacheLoader implements ListenerInterface
      * Collects files that've been included during the loading process of the
      * main resource files.
      *
-     * @param string $resource
+     * @param ResourceInterface $resource
      *
      * @return void
      */
@@ -124,7 +124,7 @@ class CacheLoader implements ListenerInterface
         }
 
         $this->ensureCollector($this->current);
-        $this->meta[$this->current]->addResource($resource);
+        $this->meta[(string)$this->current]->addResource($resource);
     }
 
     /**
@@ -159,7 +159,7 @@ class CacheLoader implements ListenerInterface
     /**
      * Loads the main resources and caches the results.
      *
-     * If debuggin, all included resources will be put into a manifest file to
+     * If debugging, all included resources will be put into a manifest file to
      * keep track of their changes.
      *
      * @return void
@@ -169,7 +169,7 @@ class CacheLoader implements ListenerInterface
         $collection = [];
 
         foreach ($this->resources->all() as $i => $resource) {
-            // dont't add the prmary resource to
+            // don't add the primary resource too
             $this->current = (string)$resource;
 
             if ($loaded = $loader->loadRoutes($resource)) {
@@ -212,6 +212,7 @@ class CacheLoader implements ListenerInterface
     private function writeManifest($file, ResourcesInterface $resources)
     {
         $mask = 0775 & ~umask();
+
         if (!is_dir($dir = dirname($file))) {
             if (false === mkdir($dir, $mask, true)) {
                 throw new RuntimeException('Creating manifest for router cache failed.');
@@ -244,7 +245,7 @@ class CacheLoader implements ListenerInterface
      *
      * @return bool
      */
-    private function validateManifest()
+    private function validateManifest() : bool
     {
         foreach ($this->resources->all() as $resource) {
             if (!file_exists($file = $this->getManifestFileName((string)$resource))) {
@@ -261,6 +262,7 @@ class CacheLoader implements ListenerInterface
 
         return true;
     }
+
     /**
      * getManifestFileName
      *
@@ -268,14 +270,14 @@ class CacheLoader implements ListenerInterface
      *
      * @return string
      */
-    private function getManifestFileName($file)
+    private function getManifestFileName($file) : string
     {
         if (!isset($this->metaCache[$file])) {
             $ds = DIRECTORY_SEPARATOR;
             $base = sha1_file($file) . '_'.basename($file) . '.manifest';
             $name = substr_replace(substr_replace($base, $ds, 4, 0), $ds, 2, 0);
 
-            $this->metaCache[$file] = sprintf('%s%s%s', $this->manifest, $ds, $name);
+            $this->metaCache[$file] = sprintf('%s%s%s', $this->getManifest(), $ds, $name);
         }
 
         return $this->metaCache[$file];
@@ -285,7 +287,7 @@ class CacheLoader implements ListenerInterface
      *
      * @return string
      */
-    private function getManifest()
+    private function getManifest() : string
     {
         return $this->manifest;
     }

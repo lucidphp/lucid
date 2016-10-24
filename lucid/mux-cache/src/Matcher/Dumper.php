@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This File is part of the Lucid\Mux\Cache package
@@ -11,9 +11,10 @@
 
 namespace Lucid\Mux\Cache\Matcher;
 
-use Lucid\Writer\FormatterHelper;
 use Lucid\Mux\RouteCollectionInterface;
 use Lucid\Mux\Parser\ParserInterface as Ps;
+use Lucid\Mux\RouteContext;
+use Lucid\Mux\RouteInterface;
 
 /**
  * @class Dumper
@@ -34,7 +35,7 @@ class Dumper
      *
      * @return string
      */
-    public function dump(RouteCollectionInterface $routes)
+    public function dump(RouteCollectionInterface $routes) : string
     {
         $map = $this->createMap($routes);
 
@@ -48,7 +49,7 @@ class Dumper
      *
      * @return array
      */
-    private function createMap(RouteCollectionInterface $routes)
+    private function createMap(RouteCollectionInterface $routes) : array
     {
         $i    = 0;
         $m    = [];
@@ -68,6 +69,10 @@ class Dumper
             $expr[$mn]['map'] = [];
             $regex = [];
 
+            /**
+             * @var RouteInterface $rt
+             * @var RouteContext $ctx
+             */
             foreach ($rts as $rn => $rt) {
                 $ctx      = $rt->getContext();
                 $index    = $pfx.'_'.$this->replaceRouteName($rn, $i);
@@ -84,7 +89,7 @@ class Dumper
         return $expr;
     }
 
-    private function extractParams(array $params)
+    private function extractParams(array $params) : string
     {
         return var_export($params, true);
     }
@@ -92,13 +97,13 @@ class Dumper
     /**
      * replaceRouteName
      *
-     * @param mixed $name
-     * @param mixed $i
+     * @param string $name
+     * @param string $i
      *
      * @return string
      */
-    private function replaceRouteName($name, $i)
+    private function replaceRouteName(string $name, int $i) : string
     {
-        return (string)$i.'_'.preg_replace('~[^\w+]~', '_', $name);
+        return ((string)$i).'_'.preg_replace('~[^\w+]~', '_', $name);
     }
 }
