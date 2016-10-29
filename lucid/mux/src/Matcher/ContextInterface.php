@@ -23,33 +23,42 @@ use Lucid\Mux\Request\ContextInterface as RequestContext;
 interface ContextInterface
 {
     /**
-     * isMatch
+     * Tells you if this match result is a match.
      *
      * @return bool
      */
-    public function isMatch();
+    public function isMatch() : bool;
 
     /**
+     * Tells, if a failed match is because of mismatched host.
+     *
      * @return bool
      */
-    public function isHostMissmatch();
+    public function isHostMismatch() : bool;
 
     /**
+     * Tells, if a failed match is because of mismatched
+     * http method.
+     *
      * @return bool
      */
-    public function isMethodMissmatch();
+    public function isMethodMismatch() : bool;
 
     /**
+     *
+     * Tells, if a failed match is because of mismatched
+     * protocol.
+     *
      * @return bool
      */
-    public function isSchemeMissMatch();
+    public function isSchemeMisMatch() : bool;
 
     /**
-     * getName
+     * Get the matched route name.
      *
      * @return string
      */
-    public function getName();
+    public function getName() : string;
 
     /**
      * Get the request Context.
@@ -59,23 +68,23 @@ interface ContextInterface
     public function getRequest() : RequestContext;
 
     /**
-     * getPath
+     * Get the matched path.
      *
      * @return string
      */
-    public function getPath();
+    public function getPath() : string;
 
     /**
-     * getHandler
+     * Get the handler of the match
      *
      * @return mixed|string
      */
     public function getHandler();
 
     /**
-     * getParameters
+     * Get passed parameters if any.
      *
      * @return array
      */
-    public function getVars();
+    public function getVars() : array;
 }

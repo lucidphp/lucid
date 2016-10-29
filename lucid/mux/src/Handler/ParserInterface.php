@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This File is part of the Lucid\Mux package
@@ -9,15 +9,16 @@
  * that was distributed with this package.
  */
 
-namespace Lucid\Mux;
+namespace Lucid\Mux\Handler;
 
 /**
- * @interface ReferenceInterface
+ * @interface ParserInterface
  *
  * @package Lucid\Mux
  * @version $Id$
  * @author iwyg <mail@thomas-appel.com>
  */
-interface ReferenceInterface
+interface ParserInterface
 {
+    public function parse(ReferenceInterface $handler);
 }

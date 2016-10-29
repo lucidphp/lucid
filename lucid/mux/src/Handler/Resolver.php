@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This File is part of the Lucid\Mux package
@@ -43,14 +43,14 @@ class Resolver extends AbstractResolver
             return $handler;
         }
 
-        // on this point, not being a string… not callable
+        // on this point, not being a string = not callable
         if (!is_string($handler)) {
             throw new ResolverException(sprintf('Cannot resolver handler of type "%s".', gettype($handler)));
         }
 
         list ($handler, $method) = $this->resolveHandlerAndMethod($handler);
 
-        // if the service parameter is registererd as service, return the
+        // if the service parameter is registered as service, return the
         // service object and its method as callable:
         if ($service = $this->getService($handler)) {
             return null === $method ? $service : [$service, $method];

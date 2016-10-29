@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Lucid\Mux\Tests\Matcher;
 
@@ -36,7 +36,7 @@ class RequestMatcherTest extends \PHPUnit_Framework_TestCase
     }
 
     /** @test */
-    public function itShouldReturnCorrectMissmatchReason()
+    public function itShouldReturnCorrectMismatchReason()
     {
         $matcher = new Matcher();
 
@@ -54,7 +54,7 @@ class RequestMatcherTest extends \PHPUnit_Framework_TestCase
 
         $result = $matcher->matchRequest($request, $routes);
 
-        $this->assertTrue($result->isMethodMissmatch(), 'Reason should be method missmatch.');
+        $this->assertTrue($result->isMethodMismatch(), 'Reason should be method mismatch.');
 
         // replace delete
         $routes = new Routes;
@@ -72,7 +72,7 @@ class RequestMatcherTest extends \PHPUnit_Framework_TestCase
 
         $result = $matcher->matchRequest($request, $routes);
 
-        $this->assertTrue($result->isHostMissmatch(), 'Reason should be host missmatch.');
+        $this->assertTrue($result->isHostMismatch(), 'Reason should be host mismatch.');
 
         // replace delete
         $routes = new Routes;
@@ -89,7 +89,7 @@ class RequestMatcherTest extends \PHPUnit_Framework_TestCase
 
         $result = $matcher->matchRequest($request, $routes);
 
-        $this->assertTrue($result->isSchemeMissmatch(), 'Reason should be scheme missmatch.');
+        $this->assertTrue($result->isSchemeMismatch(), 'Reason should be scheme mismatch.');
     }
 
     /** @test */

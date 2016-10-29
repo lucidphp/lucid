@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This File is part of the Lucid\Mux package
@@ -11,9 +11,7 @@
 
 namespace Lucid\Mux;
 
-use Closure;
 use LogicException;
-use Lucid\Mux\Meta\Attributes;
 use Lucid\Mux\Meta\AttributesInterface;
 use Lucid\Mux\Parser\Standard;
 

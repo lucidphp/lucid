@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This File is part of the Lucid\Mux\Tests\Handler package
@@ -56,6 +56,7 @@ class ReflectorTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($r->isMethod());
         $this->assertTrue($r->isStaticMethod());
 
+        /** @var \ReflectionMethod $rf */
         $rf = $r->getReflector();
         $res = $rf->invokeArgs($this, $args = [1, 2]);
         $this->assertSame($res, $args);
@@ -65,6 +66,7 @@ class ReflectorTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($r->isMethod());
         $this->assertTrue($r->isStaticMethod());
 
+        /** @var \ReflectionMethod $rf */
         $rf = $r->getReflector();
         $res = $rf->invokeArgs($this, $args = [3, 4]);
         $this->assertSame($res, $args);

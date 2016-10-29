@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This File is part of the Lucid\Mux package
@@ -64,31 +64,31 @@ class Context implements ContextInterface
      */
     public function isMatch() : bool
     {
-        return RequestMatcherInterface::MATCH === $this->type;
+        return  $this->type === RequestMatcherInterface::MATCH;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function isHostMissmatch() : bool
+    public function isHostMismatch() : bool
     {
-        return RequestMatcherInterface::NOMATCH_HOST === $this->type;
+        return $this->type === RequestMatcherInterface::NOMATCH_HOST;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function isMethodMissMatch() : bool
+    public function isMethodMisMatch() : bool
     {
-        return RequestMatcherInterface::NOMATCH_METHOD === $this->type;
+        return $this->type === RequestMatcherInterface::NOMATCH_METHOD;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function isSchemeMissMatch()
+    public function isSchemeMisMatch() : bool
     {
-        return RequestMatcherInterface::NOMATCH_SCHEME === $this->type;
+        return $this->type === RequestMatcherInterface::NOMATCH_SCHEME;
     }
 
     /**

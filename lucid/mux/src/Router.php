@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This File is part of the Lucid\Mux package
@@ -38,11 +38,11 @@ class Router implements RouterInterface
 {
     /** @var array */
     private const DEFAULT_OPTIONS = [
-        'method'    => 'GET',
-        'host'      => 'localhost',
-        'port'      => 80,
-        'query'     => '',
-        'scheme'    => 'http'
+        'method' => 'GET',
+        'host'   => 'localhost',
+        'port'   => 80,
+        'query'  => '',
+        'scheme' => 'http'
     ];
 
     /** @var RouteCollectionInterface */
