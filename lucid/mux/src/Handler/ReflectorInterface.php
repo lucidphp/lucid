@@ -12,7 +12,7 @@ namespace Lucid\Mux\Handler;
  *
  * @package Lucid\Mux
  * @version $Id$
- * @author  iwyg <mail@thomas-appel.com>
+ * @author  Thomas Appel <mail@thomas-appel.com>
  */
 interface ReflectorInterface
 {

@@ -3,7 +3,7 @@
 /*
  * This File is part of the Lucid\Mux\Loader package
  *
- * (c) iwyg <mail@thomas-appel.com>
+ * (c) Thomas Appel <mail@thomas-appel.com>
  *
  * For full copyright and license information, please refer to the LICENSE file
  * that was distributed with this package.
@@ -18,7 +18,7 @@ use Lucid\Resource\Loader\LoaderInterface as BaseLoaderInterface;
  *
  * @package Lucid\Mux\Loader
  * @version $Id$
- * @author iwyg <mail@thomas-appel.com>
+ * @author Thomas Appel <mail@thomas-appel.com>
  */
 interface LoaderInterface extends BaseLoaderInterface
 {

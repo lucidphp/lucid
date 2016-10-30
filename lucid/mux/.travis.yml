@@ -20,7 +20,7 @@ before_install:
 
 install:
   - php -n `which composer` install --prefer-source --no-interaction
-  - if [[ $CODE_COVERAGE_LOG == 'true' ]]; then mkdir -p coverage; fi
+  - if [[ $CODE_COVERAGE_LOG == 'true' ]]; then pecl install xdebug && mkdir -p coverage; fi
 
 script:
   - if [[ $CODE_COVERAGE_LOG != 'true' ]]; then php vendor/bin/phpunit --verbose; fi;
