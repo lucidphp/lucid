@@ -160,4 +160,3 @@ class PhlistTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals([1, 2, 3, 4, 5, 'red', 'green'], $listA->toArray());
     }
 }
-
