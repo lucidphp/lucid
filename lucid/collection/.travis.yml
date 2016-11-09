@@ -1,0 +1,33 @@
+sudo: false
+
+language: php
+
+matrix:
+  fast_finish: true
+  include:
+    - php: 7.1
+      env:
+      - CS_CHECK_ENABLED: true
+      - CODE_COVERAGE_LOG: true
+
+before_install:
+  - php -n `which composer` self-update
+  - if [[ $CODE_COVERAGE_LOG == 'true' ]]; then composer require --no-update satooshi/php-coveralls:0.7.*; fi
+  - if [[ $CS_CHECK_ENABLED == 'true' ]]; then composer require squizlabs/php_codesniffer:~2.5; fi
+
+install:
+  - php -n `which composer` install --prefer-source --no-interaction
+  - if [[ $CODE_COVERAGE_LOG == 'true' ]]; then pecl install xdebug && mkdir -p coverage; fi
+
+script:
+  - if [[ $CODE_COVERAGE_LOG != 'true' ]]; then php vendor/bin/phpunit --verbose; fi;
+  - if [[ $CODE_COVERAGE_LOG == 'true' ]]; then php vendor/bin/phpunit --disallow-test-output --report-useless-tests --coverage-clover coverage/clover.xml --group=Coverage; fi;
+  - if [[ $CS_CHECK_ENABLED == 'true' ]]; then php vendor/bin/phpcs --standard=PSR2 --ignore=vendor/* --ignore=*/Fixures src tests; fi
+  - if [[ $CODE_COVERAGE_LOG == 'true' ]]; then ls -la coverage; fi;
+
+after_script:
+  - if [[ $CODE_COVERAGE_LOG == 'true' ]]; then php vendor/bin/coveralls --coverage_clover coverage/clover.xml; fi
+
+notififation:
+  on_success: never
+  on_failure: always
