@@ -152,5 +152,4 @@ abstract class AbstractCollection implements CollectionInterface
 
         return new static(...$ret);
     }
-
 }
