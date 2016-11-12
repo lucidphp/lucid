@@ -71,11 +71,13 @@ interface ListInterface
     public function countValue($value) : int;
 
     /**
-     * sort
+     * Sorts the list.
+     *
+     * @param callable $sort user defined sort callback.
      *
      * @return self
      */
-    public function sort() : self;
+    public function sort(callable $sort = null) : self;
 
     /**
      * reverse

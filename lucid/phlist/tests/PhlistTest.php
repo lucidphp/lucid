@@ -22,7 +22,6 @@ use InvalidArgumentException;
  */
 class PhlistTest extends \PHPUnit_Framework_TestCase
 {
-
     /** @test */
     public function testPush()
     {
@@ -120,6 +119,14 @@ class PhlistTest extends \PHPUnit_Framework_TestCase
         $list = new Phlist(120, -1, 3, 20, -110);
 
         $list->sort();
+
+        $this->assertEquals([-110, -1, 3, 20, 120], $list->toArray());
+
+        $list = new Phlist(120, -1, 3, 20, -110);
+
+        $list->sort(function ($a, $b) {
+            return $a > $b ? 1 : -1;
+        });
 
         $this->assertEquals([-110, -1, 3, 20, 120], $list->toArray());
     }

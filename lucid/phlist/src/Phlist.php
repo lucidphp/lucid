@@ -101,8 +101,12 @@ class Phlist implements ListInterface, ArrayAccess, Countable, IteratorAggregate
     /**
      * {@inheritdoc}
      */
-    public function sort() : ListInterface
+    public function sort(callable $sort = null) : ListInterface
     {
+        if ($sort !== null) {
+            return $this->usort($sort);
+        }
+
         sort($this->data);
 
         return $this;
@@ -179,5 +183,15 @@ class Phlist implements ListInterface, ArrayAccess, Countable, IteratorAggregate
         foreach ($this->data as $key => $value) {
             yield $key => $value;
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    private function usort(callable $sort)
+    {
+        usort($this->data, $sort);
+
+        return $this;
     }
 }
