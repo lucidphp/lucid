@@ -29,6 +29,9 @@ interface CollectionInterface extends \Countable, \IteratorAggregate
     const FILTER_USE_KEY = ARRAY_FILTER_USE_KEY;
 
     /** @var int */
+    const MAP_USE_DEFAULT = 128;
+
+    /** @var int */
     const MAP_USE_BOTH = 256;
 
     /**
@@ -44,7 +47,7 @@ interface CollectionInterface extends \Countable, \IteratorAggregate
      *
      * @param int $max maximum size of the head.
      *
-     * @return CollectionInterface
+     * @return CollectionInterface Must return a new collection with the described data set.
      */
     public function head(int $max = null) : self;
 
@@ -54,7 +57,7 @@ interface CollectionInterface extends \Countable, \IteratorAggregate
      *
      * @param int $max maximum size of the tail.
      *
-     * @return CollectionInterface
+     * @return CollectionInterface Must return a new collection with the described data set.
      */
     public function tail(int $max = null) : self;
 
@@ -64,7 +67,7 @@ interface CollectionInterface extends \Countable, \IteratorAggregate
      * @param callable $filter : bool
      * @param int $flag
      *
-     * @return CollectionInterface
+     * @return CollectionInterface Must return a new collection with the described data set.
      */
     public function filter(callable $filter = null, int $flag = null) : self;
 
@@ -77,37 +80,42 @@ interface CollectionInterface extends \Countable, \IteratorAggregate
      * @param callable $filter : bool
      * @param int $flag
      *
-     * @return CollectionInterface
+     * @return CollectionInterface Must return a new collection with the described data set.
      */
     public function reject(callable $filter = null, int $flag = null) : self;
 
     /**
-     * map
+     * Performs a map operation.
+     *
+     * Transforms each collection item in a unique way defined in the map
+     * callback and returns a new collection with the mapped result set.
      *
      * @param callable $map
+     * @param int $type
      *
-     * @return CollectionInterface
+     * @throws \InvalidArgumentException if mapping type is undefined.
+     * @return CollectionInterface Must return a new collection with the described data set.
      */
-    public function map(callable $map) : self;
+    public function map(callable $map, int $type = self::MAP_USE_DEFAULT) : self;
 
     /**
      * Iterates over each element in the collection.
      *
      * @param callable $each
      *
-     * @return CollectionInterface
+     * @return CollectionInterface Must return the initial instance of the collection.
      */
     public function each(callable $each) : self;
 
     /**
-     * reverse
+     * Reverses the collection.
      *
-     * @return CollectionInterface
+     * @return CollectionInterface Must return a new collection with the described data set.
      */
     public function reverse() : self;
 
     /**
-     * reduce
+     * Performs a `array_reduce()` on the collections internal data array.
      *
      * @param callable $reduce
      *

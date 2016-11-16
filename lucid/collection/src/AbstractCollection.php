@@ -21,6 +21,12 @@ use Iterator;
  */
 abstract class AbstractCollection implements CollectionInterface
 {
+    /** @var string[] */
+    private const MAP_TYPES = [
+        self::MAP_USE_DEFAULT,
+        self::MAP_USE_BOTH
+    ];
+
     /**
      * {@inheritdoc}
      */
@@ -101,8 +107,12 @@ abstract class AbstractCollection implements CollectionInterface
     /**
      * {@inheritdoc}
      */
-    public function map(callable $map, $type = null) : CollectionInterface
+    public function map(callable $map, int $type = self::MAP_USE_DEFAULT) : CollectionInterface
     {
+        if (!in_array($type, self::MAP_TYPES)) {
+            throw new \InvalidArgumentException('Undefined map operation type.');
+        }
+
         return $type === self::MAP_USE_BOTH ?
             $this->mapKey($map) :
             new static(...array_map($map, $this->getData()));
