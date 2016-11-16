@@ -31,7 +31,7 @@ $ composer require lucid/collection
 
 namespace Acme\Data;
 
-use Lucid\collection\AbstractCollection;
+use Lucid\Collection\AbstractCollection;
 
 class Integers extends AbstractCollection
 {
@@ -56,7 +56,7 @@ class Integers extends AbstractCollection
 
 ##### Collection methods
 
-**`map`** : `Lucid\collection\CollectionInterface`
+**`map`** : `Lucid\Collection\CollectionInterface`
 
 Returns a new Collection containing the mapped values of the origin collection.
 
@@ -73,7 +73,7 @@ $res = $ints->map(function(int $num) {
 // => [1, 4, 9, 16, 25, 36] 
 ```
 
-**`filter`** : `Lucid\collection\CollectionInterface`
+**`filter`** : `Lucid\Collection\CollectionInterface`
 
 Returns a new Collection containing the filtered values of the origin collection.
 `CollectionInterface:filter()` also takes an optional second argument `int $flag` which can be either `CollectionInterface::FILTER_USE_KEY` to filter by value keys, or `CollectionInterface::FILTER_USE_BOTH`, to filter by key and value.
@@ -91,7 +91,7 @@ $res = $ints->filter(function(int $num) {
 // => [4, 5, 6] 
 ```
 
-**`slice`** : `Lucid\collection\CollectionInterface`
+**`slice`** : `Lucid\Collection\CollectionInterface`
 
 Returns a new Collection containing a slice of the original collection. 
 
@@ -111,7 +111,7 @@ $res = $ints->slice(-1)->toArray();
 // => [6]
 ```
 
-**`head`** : `Lucid\collection\CollectionInterface`
+**`head`** : `Lucid\Collection\CollectionInterface`
 
 Returns a new Collection containing the top portion of the original collection. `CollectionInterface::head()` also takes an optional argument `int $max`. 
 
@@ -128,7 +128,7 @@ $res = $ints->head(3)->toArray();
 // => [1, 2, 3] 
 ```
 
-**`tail`** : `Lucid\collection\CollectionInterface`
+**`tail`** : `Lucid\Collection\CollectionInterface`
 
 Returns a new Collection containing the tail portion of the original collection. `CollectionInterface::tail()` also takes an optional argument `int $max`.
 
@@ -144,7 +144,7 @@ $res = $ints->tail()->toArray();
 $res = $ints->tail(3)->toArray();
 // => [4, 5, 6] 
 ```
-**`each`** : `Lucid\collection\CollectionInterface`
+**`each`** : `Lucid\Collection\CollectionInterface`
 
 ```php
 <?php
